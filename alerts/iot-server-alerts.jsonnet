@@ -1,22 +1,22 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
-local row = grafana.row;
-local graphPanel = grafana.graphPanel;
-local cloudwatch = grafana.cloudwatch;
-local stackdriver = grafana.stackdriver;
-local template = grafana.template;
-local alertCondition = grafana.alertCondition;
+// local grafana = import 'grafonnet/grafana.libsonnet';
+// local row = grafana.row;
+// local graphPanel = grafana.graphPanel;
+// local cloudwatch = grafana.cloudwatch;
+// local stackdriver = grafana.stackdriver;
+// local template = grafana.template;
+// local alertCondition = grafana.alertCondition;
 
-local helpers = import 'helpers.jsonnet';
+// local helpers = import 'helpers.jsonnet';
 
 
-local notifications = [
-  {
-    "uid": "XQBRmY3mk"
-  },
-  {
-    "uid": "th3O1VVZk"
-  }
-];
+// local notifications = [
+//   {
+//     "uid": "XQBRmY3mk"
+//   },
+//   {
+//     "uid": "th3O1VVZk"
+//   }
+// ];
 
   // .addPanel(
   //   helpers.addStackdriverGauge()

@@ -1,4 +1,4 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
+local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
