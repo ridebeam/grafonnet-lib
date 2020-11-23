@@ -2,7 +2,7 @@ local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
-local google_cloud_monitoring = grafana.google_cloud_monitoring;
+local googleCloudMonitoring = grafana.googleCloudMonitoring;
 local template = grafana.template;
 local alertCondition = grafana.alertCondition;
 
@@ -38,7 +38,7 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
       span=6,
     )
       .addTarget(
-        google_cloud_monitoring.target(
+        googleCloudMonitoring.target(
           aliasBy='CPU usage',
           crossSeriesReducer='REDUCE_SUM',
           metricKind='CUMULATIVE',
@@ -68,7 +68,7 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
       span=6
     )
       .addTarget(
-        google_cloud_monitoring.target(
+        googleCloudMonitoring.target(
           projectName='vehicles-283509',
           aliasBy='mean',
           crossSeriesReducer='REDUCE_MEAN',
@@ -89,7 +89,7 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
         )
       )
       .addTarget(
-        google_cloud_monitoring.target(
+        googleCloudMonitoring.target(
           projectName='vehicles-283509',
           aliasBy='99th',
           crossSeriesReducer='REDUCE_PERCENTILE_99',
