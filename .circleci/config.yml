@@ -10,7 +10,7 @@ jobs:
           name: Build Docker image
           command: docker build -t grafana-builder:latest .
 
-      - run: docker run -it grafana-builder bash update.sh test
+      - run: docker run -it grafana-builder bash update.sh ${API_TOKEN}
       # - run:
       #     name: Run image
       #     command: docker run -it grafana-builder bash update.sh test
