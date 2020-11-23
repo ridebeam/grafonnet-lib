@@ -11,12 +11,12 @@ jobs:
           command: docker build -t grafana-builder:latest .
 
       - run: docker run -it grafana-builder bash update.sh ${API_TOKEN}
-      # - run:
-      #     name: Run image
-      #     command: docker run -it grafana-builder bash update.sh test
 
 workflows:
   version: 2
   build-master:
     jobs:
-      - build
+      - build:
+        filters:
+          branches:
+            only: master
