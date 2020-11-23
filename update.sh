@@ -20,7 +20,6 @@ generate_dashboard () {
 
 for D in */
 do
-  # echo $D
   if [[ $D == "dashboards/" ]] ; then
     cd $D
     for F in *
@@ -31,12 +30,3 @@ do
     cd -
   fi
 done
-
-  # jsonnet dashboard.jsonnet > dashboard.json
-
-
-
-# curl -X POST $BASIC_AUTH \
-#   -H 'Content-Type: application/json' \
-#   -d "${payload}" \
-#   "http://admin:admin@localhost:3000/api/dashboards/db"
