@@ -134,28 +134,4 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
         h: 12,
       }
     )
-    
-    .addPanel(
-    graphPanel.new(
-      'kafka lag',
-      datasource='Stackdriver',
-      span=6,
-    )
-      .addTarget(
-        googleCloudMonitoring.target(
-          aliasBy='kafka consume lag iot server',
-          crossSeriesReducer='REDUCE_PERCENTILE_99',
-          metricKind='CUMULATIVE',
-          perSeriesAligner='ALIGN_DELTA',
-          projectName='vehicles-283509',
-          metricType='custom.googleapis.com/opencensus/kafka-consume-lag',
-          filters=[
-            "metric.label.env","=","production","AND","metric.label.service","=","iot-server"
-          ],
-          groupBys=["metric.label.kafka_source_topic"],
-          unit='s',
-          valueType='DISTRIBUTION'
-        )
-      )
-    )
   )
