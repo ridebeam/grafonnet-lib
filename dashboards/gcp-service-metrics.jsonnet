@@ -152,7 +152,7 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
           filters=[
             "metric.label.env","=","production","AND","metric.label.service","=","iot-server"
           ],
-          groupBy=["metric.label.kafka_source_topic"],
+          groupBys=["metric.label.kafka_source_topic"],
           unit='s',
           valueType='DISTRIBUTION'
         )
