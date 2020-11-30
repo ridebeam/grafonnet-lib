@@ -25,18 +25,23 @@ local datasource='Stackdriver';
       min=0,
     ),
 
-  timeLinear(title):: panel.new(
+  timeLinear(
+    title,
+    format='s',
+  ):: panel.new(
       title=title,
       datasource=datasource,
-      format='s',
+      format=format,
       min=0,
     ),
 
-  timeLog2(title):: panel.new(
-      title=title,
+  timeLog2(
+    title,
+    format='s',
+  ):: panel.new(      title=title,
       datasource=datasource,
-      format='s',
-      min=0.01,
+      format=format,
+      min='0.01',
       logBase1Y=2,
       logBase2Y=2,
     ),

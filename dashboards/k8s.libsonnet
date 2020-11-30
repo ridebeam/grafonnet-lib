@@ -33,8 +33,11 @@ local l = gcp.label;
       goroutines: gcp.gauges(m('process/cpu_goroutines')),
     },
     http: {
-      latency: gcp.timers(m('http/server/latency')),
-      status: gcp.timers(m('http/server/response_count_by_status_code')),
+      latency: gcp.timers(m('opencensus.io/http/server/latency')),
+      status: gcp.counter(
+        metric=m('opencensus.io/http/server/response_count_by_status_code'),
+        groupBys=[l('http_status')],
+      ),
     },
     kafka: {
       consume: gcp.counter(
@@ -60,7 +63,10 @@ local l = gcp.label;
         idle: gcp.gauges(m('go.sql/db/connections/idle')),
         active: gcp.gauges(m('go.sql/db/connections/active')),
       },
-      latency: gcp.timers(m('go.sql/client/latency')),
+      latency: gcp.timers(
+        metric=m('go.sql/client/latency'),
+        groupBys=[l('go_sql_method')],
+      ),
     },
   },
   panels: {
@@ -73,11 +79,27 @@ local l = gcp.label;
       ]),
       log: panel.new('Log Output').addTarget($.targets.process.log),
     },
+    http: {
+      latency: panel.timeLinear('Latency', format='ms').addTargets([
+        $.targets.http.latency.p99,
+        $.targets.http.latency.p50,
+        $.targets.http.latency.avg,
+      ]),
+      status: panel.counter('Status Codes').addTarget($.targets.http.status),
+    },
     kafka: {
       consume: panel.counter('Consumed').addTarget($.targets.kafka.consume),
       lag: panel.timeLog2('Consumer Lag').addTarget($.targets.kafka.lag.p99),
       produce: panel.counter('Produced').addTarget($.targets.kafka.produce),
       errors: panel.counter('Producer Errors').addTarget($.targets.kafka.errors),
+    },
+    postgres: {
+      connections: panel.new('Connections').addTargets([
+        $.targets.postgres.connections.open.sum,
+        $.targets.postgres.connections.idle.sum,
+        $.targets.postgres.connections.active.sum,
+      ]),
+      latency: panel.timeLinear('Latency', format='ms').addTarget($.targets.postgres.latency.p99),
     },
   },
   rows: {
@@ -91,6 +113,14 @@ local l = gcp.label;
           $.panels.service.log,
         ]
       ]),
+    http: row.new('HTTP')
+      .addPanels([
+        panel.halfRow(p)
+        for p in [
+          $.panels.http.latency,
+          $.panels.http.status,
+        ]
+      ]),
     kafka: row.new('Kafka')
       .addPanels([
         panel.halfRow(p)
@@ -99,6 +129,14 @@ local l = gcp.label;
           $.panels.kafka.lag,
           $.panels.kafka.produce,
           $.panels.kafka.errors,
+        ]
+      ]),
+    postgres: row.new('Postgres')
+      .addPanels([
+        panel.halfRow(p)
+        for p in [
+          $.panels.postgres.latency,
+          $.panels.postgres.connections,
         ]
       ]),
   },

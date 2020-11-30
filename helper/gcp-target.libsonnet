@@ -59,7 +59,7 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   ):: {
     [name]: $.timer(
-      alias=name,
+      alias=$.alias(groupBys, name),
       alignmentPeriod=alignmentPeriod,
       reducer=timerReducers[name].reducer,
       filters=filters,
@@ -85,7 +85,7 @@ local gcmon = grafana.googleCloudMonitoring;
   )::
     local u = if unit != null then unit else 's';
     local vt = if valueType != null then valueType else 'DISTRIBUTION';
-    self.target(
+    $.target(
       alias=alias,
       aligner='ALIGN_DELTA',
       alignmentPeriod=alignmentPeriod,
@@ -109,7 +109,7 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   ):: {
     [name]: $.gauge(
-      alias=name,
+      alias=$.alias(groupBys, name),
       aligner=gaugeReducers[name].aligner,
       alignmentPeriod=alignmentPeriod,
       filters=filters,
@@ -136,7 +136,7 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   )::
     local vt = if valueType != null then valueType else 'INT64';
-    self.target(
+    $.target(
       alias=alias,
       aligner=aligner,
       alignmentPeriod=alignmentPeriod,
@@ -161,7 +161,7 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   )::
     local vt = if valueType != null then valueType else 'INT64';
-    self.target(
+    $.target(
       alias=alias,
       aligner='ALIGN_RATE',
       alignmentPeriod=alignmentPeriod,
@@ -208,5 +208,13 @@ local gcmon = grafana.googleCloudMonitoring;
       unit=u,
       valueType=valueType,
     ),
+
+  alias(groupBys, alias)::
+    if groupBys == null || groupBys == [] then alias
+    else if alias == null then $.aliasFromGroupBys(groupBys)
+    else '%s - %s' % [$.aliasFromGroupBys(groupBys), alias],
+
+  aliasFromGroupBys(groupBys)::
+    if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys),
 
 }

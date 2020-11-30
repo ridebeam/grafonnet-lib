@@ -23,7 +23,7 @@ grafana.dashboard.new('GCP Service Metrics', uid='gcp-service-metrics')
 
   .addRows([
     k8s.rows.service,
+    k8s.rows.http,
     k8s.rows.kafka,
-    // TODO postgres
-    // TODO http
+    k8s.rows.postgres,
   ])
