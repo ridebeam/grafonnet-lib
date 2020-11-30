@@ -43,7 +43,7 @@ local gcmon = grafana.googleCloudMonitoring;
     min: { aligner: 'ALIGN_MEAN', reducer: 'REDUCE_MIN' },
     avg: { aligner: 'ALIGN_MEAN', reducer: 'REDUCE_MEAN' },
     max: { aligner: 'ALIGN_MAX',  reducer: 'REDUCE_MAX' },
-    sum: { aligner: 'ALIGN_SUM',  reducer: 'REDUCE_MEAN' },
+    sum: { aligner: 'ALIGN_MEAN', reducer: 'REDUCE_SUM' },
   },
 
   customMetric(name):: '%s/%s/%s' % [namespace, exporterName, name],
