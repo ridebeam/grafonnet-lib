@@ -77,7 +77,19 @@ local l = gcp.label;
         $.targets.golang.goroutines.avg,
         $.targets.golang.goroutines.max,
       ]),
-      log: panel.new('Log Output').addTarget($.targets.process.log),
+      log: panel.new('Log Output').addTarget($.targets.process.log)
+        .addLink({
+          title:'Logs Explorer',
+          url:'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22${service}%22?project=vehicles-283509',
+          targetBlank:true,
+        })
+        { options: {
+            dataLinks: [{
+               title: 'Logs Explorer for ${__series.name}',
+               url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22${service}%22%0Aseverity%3D${__series.name}?project=vehicles-283509',
+               targetBlank: true,
+            }]
+        }},
     },
     http: {
       latency: panel.timeLinear('Latency', format='ms').addTargets([
