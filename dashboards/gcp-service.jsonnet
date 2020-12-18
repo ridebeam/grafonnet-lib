@@ -14,17 +14,17 @@ grafana.dashboard.new(
 
   .addTemplate(
     template.custom(
+      name='env',
       query='dev,staging,production',
       current='production',
-      name='env',
     )
   )
 
   .addTemplate(  
     template.custom(
-      query='iot-server,vehicle-controller',
-      current='iot-server',
       name='service',
+      query='iot-server,vehicle-controller,vehicle-gateway',
+      current='iot-server',
     )
   )
 
