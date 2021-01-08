@@ -46,3 +46,5 @@ grafana.dashboard.new('[Demo] Service Metrics', uid='demo-service-metrics')
         h: 12,
       }
     )
+    
+  )
