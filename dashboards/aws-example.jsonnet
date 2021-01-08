@@ -47,4 +47,15 @@ grafana.dashboard.new('[Demo] Service Metrics', uid='demo-service-metrics')
       }
     )
     
+      // Example of getting metrics from Stackdriver
+    .addPanel(
+    graphPanel.new(
+      'kafka lag iot server',
+      datasource='Stackdriver',
+      span=6,
+    )
+      .addTarget(k8s.targets.kafka.lag.p99)
+    )
+  
+    
   )
