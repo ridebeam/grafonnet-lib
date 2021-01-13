@@ -5,11 +5,12 @@ local k8s = import 'k8s.libsonnet';
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'GCP Service Metrics',
-  uid='gcp-service-metrics',
+  'GCP Go Service',
+  uid='gcp-go-service',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
+  tags=['overview','generic','generated']
 )
 
   .addTemplate(

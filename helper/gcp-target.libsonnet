@@ -25,7 +25,7 @@ local gcmon = grafana.googleCloudMonitoring;
     '$service',
   ],
 
-  local timerReducers = {
+  timerReducers: {
     p99: { reducer: 'REDUCE_PERCENTILE_99' },
     p95: { reducer: 'REDUCE_PERCENTILE_95' },
     p50: { reducer: 'REDUCE_PERCENTILE_50' },
@@ -35,7 +35,7 @@ local gcmon = grafana.googleCloudMonitoring;
     max: { reducer: 'REDUCE_MAX' },
   },
 
-  local gaugeReducers = {
+  gaugeReducers: {
     p99: { aligner: 'ALIGN_MAX',  reducer: 'REDUCE_PERCENTILE_99' },
     p95: { aligner: 'ALIGN_MAX',  reducer: 'REDUCE_PERCENTILE_95' },
     p50: { aligner: 'ALIGN_MAX',  reducer: 'REDUCE_PERCENTILE_50' },
@@ -59,9 +59,9 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   ):: {
     [name]: $.timer(
-      alias=$.alias(groupBys, name),
+      alias=name,
       alignmentPeriod=alignmentPeriod,
-      reducer=timerReducers[name].reducer,
+      reducer=$.timerReducers[name].reducer,
       filters=filters,
       filterPods=filterPods,
       groupBys=groupBys,
@@ -69,7 +69,7 @@ local gcmon = grafana.googleCloudMonitoring;
       unit=unit,
       valueType=valueType,
     )
-    for name in std.objectFields(timerReducers)
+    for name in std.objectFields($.timerReducers)
   },
 
   timer(
@@ -86,7 +86,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local u = if unit != null then unit else 's';
     local vt = if valueType != null then valueType else 'DISTRIBUTION';
     $.target(
-      alias=alias,
+      alias=$.alias(groupBys, alias),
       aligner='ALIGN_DELTA',
       alignmentPeriod=alignmentPeriod,
       filters=filters,
@@ -109,18 +109,18 @@ local gcmon = grafana.googleCloudMonitoring;
     valueType=null,
   ):: {
     [name]: $.gauge(
-      alias=$.alias(groupBys, name),
-      aligner=gaugeReducers[name].aligner,
+      alias=name,
+      aligner=$.gaugeReducers[name].aligner,
       alignmentPeriod=alignmentPeriod,
       filters=filters,
       filterPods=filterPods,
       groupBys=groupBys,
       metric=metric,
-      reducer=gaugeReducers[name].reducer,
+      reducer=$.gaugeReducers[name].reducer,
       unit=unit,
       valueType=valueType,
     )
-    for name in std.objectFields(gaugeReducers)
+    for name in std.objectFields($.gaugeReducers)
   },
 
   gauge(
@@ -137,7 +137,7 @@ local gcmon = grafana.googleCloudMonitoring;
   )::
     local vt = if valueType != null then valueType else 'INT64';
     $.target(
-      alias=alias,
+      alias=$.alias(groupBys, alias),
       aligner=aligner,
       alignmentPeriod=alignmentPeriod,
       filters=filters,
@@ -162,7 +162,7 @@ local gcmon = grafana.googleCloudMonitoring;
   )::
     local vt = if valueType != null then valueType else 'INT64';
     $.target(
-      alias=alias,
+      alias=$.alias(groupBys, alias),
       aligner='ALIGN_RATE',
       alignmentPeriod=alignmentPeriod,
       filters=filters,

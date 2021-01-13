@@ -8,42 +8,50 @@ local datasource='Stackdriver';
   new(
     title,
     format='short',
+    legend_show=true,
   ):: panel.new(
       title=title,
       datasource=datasource,
       format=format,
       min=0,
+      legend_show=legend_show,
     ),
 
   counter(
     title,
     format='cps',
+    legend_show=true,
   ):: panel.new(
       title=title,
       datasource=datasource,
       format=format,
       min=0,
+      legend_show=legend_show,
     ),
 
   timeLinear(
     title,
     format='s',
+    legend_show=true,
   ):: panel.new(
       title=title,
       datasource=datasource,
       format=format,
       min=0,
+      legend_show=legend_show,
     ),
 
   timeLog2(
     title,
     format='s',
+    legend_show=true,
   ):: panel.new(      title=title,
       datasource=datasource,
       format=format,
       min='0.01',
       logBase1Y=2,
       logBase2Y=2,
+      legend_show=legend_show,
     ),
 
   halfRow(panel):: panel { span: 6 },

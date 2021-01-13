@@ -1,6 +1,7 @@
 local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local panel = import '../helper/panel.libsonnet';
+local target = import '../helper/target.libsonnet';
 local gcp = import '../helper/gcp-target.libsonnet';
 local m = gcp.customMetric;
 local l = gcp.label;
@@ -71,8 +72,8 @@ local l = gcp.label;
   },
   panels: {
     service: {
-      cpu: panel.timeLinear('CPU Usage').addTarget($.targets.process.cpu),
-      mem: panel.new('Memory Usage', 'bytes').addTarget($.targets.process.mem.sum),
+      cpu: panel.timeLinear('CPU Usage', legend_show=false).addTarget($.targets.process.cpu),
+      mem: panel.new('Memory Usage', 'bytes', false).addTarget($.targets.process.mem.sum),
       goroutines: panel.new('Go Routines').addTargets([
         $.targets.golang.goroutines.avg,
         $.targets.golang.goroutines.max,
@@ -107,9 +108,9 @@ local l = gcp.label;
     },
     postgres: {
       connections: panel.new('Connections').addTargets([
-        $.targets.postgres.connections.open.sum,
-        $.targets.postgres.connections.idle.sum,
-        $.targets.postgres.connections.active.sum,
+        target.alias($.targets.postgres.connections.open.sum, "open"),
+        target.alias($.targets.postgres.connections.idle.sum, "idle"),
+        target.alias($.targets.postgres.connections.active.sum, "active"),
       ]),
       latency: panel.timeLinear('Latency', format='ms').addTarget($.targets.postgres.latency.p99),
     },
