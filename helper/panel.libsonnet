@@ -54,7 +54,33 @@ local datasource='Stackdriver';
       legend_show=legend_show,
     ),
 
+  showTable(
+    panel,
+    right=true,
+    min=false,
+    avg=false,
+    max=false,
+    total=false,
+    current=false,
+  ):: panel {
+      legend: {
+        show: true,
+        alignAsTable: true,
+        hideEmpty: true,
+        hideZero: true,
+        rightSide: right,
+        min: min,
+        avg: avg,
+        max: max,
+        total: total,
+        current: current,
+        values: min || avg || max || total || current,
+      }
+    },
+
   halfRow(panel):: panel { span: 6 },
   thirdRow(panel):: panel { span: 4 },
   quarterRow(panel):: panel { span: 3},
+
+  collapseRow(row):: row { collapse: true, collapsed: true },
 }
