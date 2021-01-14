@@ -11,7 +11,7 @@ local k8s = import '../k8s.libsonnet';
 
 local filters = {
   manufacturer: gcp.likeFilter(l('manufacturer'), '$manufacturer'),
-  firmware: gcp.likeFilter(l('firmware'), '$firmware'),
+  firmware: [] // gcp.likeFilter(l('firmware'), '$firmware'), // deactivating firmware until used in prod
 };
 
 local targets = {
@@ -195,15 +195,15 @@ grafana.dashboard.new(
     )
   )
 
-  .addTemplate(
-    template.custom(
-      name='firmware',
-      query='1414,1411,1394,unknown',
-      allValues='.*',
-      current='All',
-      includeAll=true,
-    )
-  )
+//  .addTemplate(
+//    template.custom(
+//      name='firmware',
+//      query='1414,1411,1394,unknown',
+//      allValues='.*',
+//      current='All',
+//      includeAll=true,
+//    )
+//  )
 
   .addRows([
     k8s.rows.service,
