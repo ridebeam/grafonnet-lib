@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 API_TOKEN=$1
 JSONNET_PATH=grafonnet-lib
@@ -9,11 +10,11 @@ generate_dashboard () {
   echo "generating dashboard $1"
 
   payload="{\"dashboard\": $(jsonnet "$1"), \"overwrite\": true, \"folderId\": ${2:-0} }"
-  curl \
+  curl --fail \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
     -d "${payload}" \
-    "$GRAFANA_BASE_URL/api/dashboards/db" || exit 1
+    "$GRAFANA_BASE_URL/api/dashboards/db"
   echo ""
 }
 
@@ -36,12 +37,12 @@ for D in dashboards/*/; do
     "$GRAFANA_BASE_URL/api/folders"
   echo ""
 
-  ID=$(curl -s -X PUT \
+  ID=$(curl -s --fail -X PUT \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
     -d "$(jsonnet $F)" \
     "$GRAFANA_BASE_URL/api/folders/$(jsonnet $F | jq '.uid' -r)" \
-     | jq '.id') || exit 1
+     | jq '.id')
   echo ""
 
   # now we can upload dashboards
