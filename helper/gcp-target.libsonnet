@@ -2,28 +2,26 @@ local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local gcmon = grafana.googleCloudMonitoring;
 
 {
-  local projectName = 'vehicles-283509',
-  local namespace = 'custom.googleapis.com',
-  local exporterName = 'opencensus',
-  local serviceFilters = [
-    'metric.label.env',
-    '=',
-    '$env',
-    'AND',
-    'metric.label.service',
-    '=',
-    '$service',
-  ],
+  projectName: 'vehicles-283509',
+  namespace: 'custom.googleapis.com',
+  exporterName: 'opencensus',
 
-  local podFilters = [
-    'resource.label.namespace_name',
-    '=',
-    '$env',
-    'AND',
-    'metadata.user_labels."app.kubernetes.io/component"',
-    '=',
-    '$service',
-  ],
+  customMetric(name):: '%s/%s/%s' % [$.namespace, $.exporterName, name],
+  label(name):: 'metric.label.%s' % [name],
+
+  equalsFilter(metric, value):: [metric, '=', value],
+  likeFilter(metric, value):: [metric, '=~', value],
+  combineFilters(a, b):: if std.length(a) > 0 && std.length(b) > 0 then a + ['AND'] + b else a + b,
+
+  serviceFilters: $.combineFilters(
+    $.equalsFilter($.label('env'), '$env'),
+    $.equalsFilter($.label('service'), '$service'),
+  ),
+
+  podFilters: $.combineFilters(
+    $.equalsFilter('resource.label.namespace_name', '$env'),
+    $.equalsFilter('metadata.user_labels."app.kubernetes.io/component"', '$service'),
+  ),
 
   timerReducers: {
     p99: { reducer: 'REDUCE_PERCENTILE_99' },
@@ -45,9 +43,6 @@ local gcmon = grafana.googleCloudMonitoring;
     max: { aligner: 'ALIGN_MAX',  reducer: 'REDUCE_MAX' },
     sum: { aligner: 'ALIGN_MEAN', reducer: 'REDUCE_SUM' },
   },
-
-  customMetric(name):: '%s/%s/%s' % [namespace, exporterName, name],
-  label(name):: 'metric.label.%s' % [name],
 
   timers(
     metric,
@@ -193,7 +188,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local a = if alias != null then alias else
       if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys);
     local ap = if alignmentPeriod != null then alignmentPeriod else 'stackdriver-auto';
-    local f = if filterPods then filters+podFilters else filters+serviceFilters;
+    local f = if filterPods then $.combineFilters($.podFilters, filters) else $.combineFilters($.serviceFilters, filters);
     local u = if unit != null then unit else '1';
     gcmon.target(
       aliasBy=a,
@@ -204,7 +199,7 @@ local gcmon = grafana.googleCloudMonitoring;
       metricKind=metricKind,
       metricType=metric,
       perSeriesAligner=aligner,
-      projectName=projectName,
+      projectName=$.projectName,
       unit=u,
       valueType=valueType,
     ),

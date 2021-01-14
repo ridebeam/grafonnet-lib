@@ -9,22 +9,30 @@ local m = gcp.customMetric;
 local l = gcp.label;
 local k8s = import '../k8s.libsonnet';
 
+local filters = {
+  manufacturer: gcp.likeFilter(l('manufacturer'), '$manufacturer'),
+  firmware: gcp.likeFilter(l('firmware'), '$firmware'),
+};
+
 local targets = {
   connections: {
     combined: gcp.gauge(
       alias='combined',
       metric=m('server-devices-connected'),
+      filters=filters.manufacturer,
       aligner=gcp.gaugeReducers.sum.aligner,
       reducer=gcp.gaugeReducers.sum.reducer,
     ),
     each: gcp.gauge(
       metric=m('server-devices-connected'),
+      filters=filters.manufacturer,
       groupBys=[l('manufacturer')],
       aligner=gcp.gaugeReducers.sum.aligner,
       reducer=gcp.gaugeReducers.sum.reducer,
     ),
     perInstance: gcp.gauge(
       metric=m('server-devices-connected'),
+      filters=filters.manufacturer,
       groupBys=['resource.label.pod_id'],
       aligner=gcp.gaugeReducers.sum.aligner,
       reducer=gcp.gaugeReducers.sum.reducer,
@@ -32,11 +40,13 @@ local targets = {
     new: gcp.counter(
       alias='incoming',
       metric=m('server-incoming'),
+      filters=filters.manufacturer,
       groupBys=[l('manufacturer')],
     ),
     failed: gcp.counter(
       alias='failed to connect',
       metric=m('server-incoming-error'),
+      filters=filters.manufacturer,
       groupBys=[l('manufacturer')],
     ),
     prodDisconnects: cloudwatch.target(
@@ -49,10 +59,23 @@ local targets = {
   commands: {
     received: gcp.counter(
       metric=m('adapter-incoming'),
+      filters=gcp.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
       groupBys=[l('cmd')],
+    ),
+    receivedFW: gcp.counter(
+      metric=m('adapter-incoming'),
+      filters=filters.manufacturer,
+      groupBys=[l('firmware')],
     ),
     send: gcp.counter(
       metric=m('device-outgoing'),
+      filters=gcp.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
       groupBys=[l('cmd_outgoing')],
     ),
     rerouted: gcp.counter(
@@ -81,11 +104,11 @@ local panels = {
       targets.connections.combined,
       targets.connections.each,
     ]),
-    newConnections: panel.new('Connection Requests (including health checks and errors)').addTargets([
+    newConnections: panel.counter('Connection Requests (including health checks and errors)').addTargets([
       targets.connections.new,
       targets.connections.failed,
     ]),
-    perInstance: panel.counter('Connected Devices per Instance').addTargets([
+    perInstance: panel.new('Connected Devices per Instance').addTargets([
       targets.connections.perInstance,
     ]),
     prodDisconnects: graphPanel.new('[Prod] Disconnect Events', datasource='CloudWatch', legend_show=false).addTargets([
@@ -95,6 +118,9 @@ local panels = {
   commands: {
     received: panel.counter('Received').addTargets([
       targets.commands.received,
+    ]),
+    receivedFW: panel.counter('Received per Firmware').addTargets([
+      targets.commands.receivedFW,
     ]),
     send: panel.counter('Send').addTargets([
       targets.commands.send,
@@ -123,10 +149,11 @@ local rows = {
   commands: row.new('Commands').addPanels([
     panel.halfRow(p)
     for p in [
-      panel.showTable(panels.commands.received, avg=true, current=true),
-      panel.showTable(panels.commands.send, avg=true, current=true),
-      panels.commands.rerouted,
-      panel.showTable(panels.commands.traffic, avg=true, current=true),
+      panel.showTable(panels.commands.received,   avg=true, current=true),
+      panel.showTable(panels.commands.receivedFW, avg=true, current=true),
+      panel.showTable(panels.commands.send,       avg=true, current=true),
+                      panels.commands.rerouted,
+      panel.showTable(panels.commands.traffic,    avg=true, current=true),
     ]
   ]),
 };
@@ -155,6 +182,26 @@ grafana.dashboard.new(
       query='iot-server',
       current='iot-server',
       hide='variable',
+    )
+  )
+
+  .addTemplate(
+    template.custom(
+      name='manufacturer',
+      query='omni,okai',
+      allValues='.*',
+      current='All',
+      includeAll=true,
+    )
+  )
+
+  .addTemplate(
+    template.custom(
+      name='firmware',
+      query='1414,1411,1394,unknown',
+      allValues='.*',
+      current='All',
+      includeAll=true,
     )
   )
 
