@@ -62,6 +62,7 @@ local datasource='Stackdriver';
     max=false,
     total=false,
     current=false,
+    sort="avg",
   ):: panel {
       legend: {
         show: true,
@@ -75,6 +76,8 @@ local datasource='Stackdriver';
         total: total,
         current: current,
         values: min || avg || max || total || current,
+        sort: sort,
+        sortDesc: true
       }
     },
 
