@@ -18,6 +18,7 @@ local l = gcp.label;
       ),
       mem: gcp.gauges(
         'kubernetes.io/container/memory/used_bytes',
+        filters=gcp.equalsFilter(l('memory_type'), 'non-evictable'),
         filterPods=true,
       ),
       log: gcp.target(
