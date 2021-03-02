@@ -32,6 +32,7 @@ grafana.dashboard.new(
   .addRows([
     k8s.rows.service,
     k8s.rows.http,
+    k8s.rows.grpc,
     k8s.rows.kafka,
     k8s.rows.postgres,
   ])

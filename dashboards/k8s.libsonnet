@@ -41,6 +41,13 @@ local l = gcp.label;
         groupBys=[l('http_status')],
       ),
     },
+    grpc: {
+      latency: gcp.timers(m('grpc.io/server/server_latency')),
+      status: gcp.counter(
+        metric=m('grpc.io/server/completed_rpcs'),
+        groupBys=[l('grpc_server_status')],
+      ),
+    },
     kafka: {
       consume: gcp.counter(
         metric=m('kafka-consume'),
@@ -101,6 +108,14 @@ local l = gcp.label;
       ]),
       status: panel.counter('Status Codes').addTarget($.targets.http.status),
     },
+    grpc: {
+      latency: panel.timeLinear('Latency', format='ms').addTargets([
+        $.targets.grpc.latency.p99,
+        $.targets.grpc.latency.p50,
+        $.targets.grpc.latency.avg,
+      ]),
+      status: panel.counter('Status Codes').addTarget($.targets.grpc.status),
+    },
     kafka: {
       consume: panel.counter('Consumed').addTarget($.targets.kafka.consume),
       lag: panel.timeLog2('Consumer Lag').addTarget($.targets.kafka.lag.p99),
@@ -133,6 +148,14 @@ local l = gcp.label;
         for p in [
           $.panels.http.latency,
           $.panels.http.status,
+        ]
+      ]),
+    grpc: row.new('gRPC')
+      .addPanels([
+        panel.halfRow(p)
+        for p in [
+          $.panels.grpc.latency,
+          $.panels.grpc.status,
         ]
       ]),
     kafka: row.new('Kafka')
