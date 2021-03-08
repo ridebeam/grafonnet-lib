@@ -45,10 +45,14 @@ local datasource='Stackdriver';
     title,
     format='s',
     legend_show=true,
-  ):: panel.new(      title=title,
+  )::
+    // min of 10ms
+    local min = if format == 'ms' then '10' else '0.01';
+    panel.new(
+      title=title,
       datasource=datasource,
       format=format,
-      min='0.01',
+      min=min,
       logBase1Y=2,
       logBase2Y=2,
       legend_show=legend_show,
