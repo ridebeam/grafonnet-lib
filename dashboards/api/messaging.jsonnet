@@ -11,28 +11,23 @@ local targets = {
   kafka: {
     scooterMessages: gcp.counter(
       metric=m('scooter-messages'),
-      filterPodsK8sContainer=true,
     ),
     vehicleEvent: gcp.counter(
       metric=m('vehicle-event'),
-      filterPodsK8sContainer=true,
     ),
     lag: gcp.timers(
       metric=m('kafka.consume.lag'),
       groupBys=[l('topic')],
-      filterPodsK8sContainer=true,
     ),
   },
   vehicles: {
     events: gcp.counter(
       metric=m('handle.vehicle.event.count'),
       groupBys=[l('property')],
-      filterPodsK8sContainer=true,
     ),
     eventHandlingDuration: gcp.timers(
       metric=m('handle.vehicle.event.duration'),
       groupBys=[l('property')],
-      filterPodsK8sContainer=true,
     ),
   },
 };

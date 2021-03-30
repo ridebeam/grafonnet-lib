@@ -14,16 +14,6 @@ local gcmon = grafana.googleCloudMonitoring;
   combineFilters(a, b):: if std.length(a) > 0 && std.length(b) > 0 then a + ['AND'] + b else a + b,
 
   serviceFilters: $.combineFilters(
-    $.equalsFilter($.label('env'), '$env'),
-    $.equalsFilter($.label('service'), '$service'),
-  ),
-
-  podFilters: $.combineFilters(
-    $.equalsFilter('resource.label.namespace_name', '$env'),
-    $.equalsFilter('metadata.user_labels."app.kubernetes.io/component"', '$service'),
-  ),
-
-  podFiltersK8sContainer: $.combineFilters(
     $.equalsFilter('resource.label.namespace_name', '$env'),
     $.equalsFilter('resource.label.container_name', '$service'),
   ),
@@ -53,8 +43,6 @@ local gcmon = grafana.googleCloudMonitoring;
     metric,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -64,8 +52,6 @@ local gcmon = grafana.googleCloudMonitoring;
       alignmentPeriod=alignmentPeriod,
       reducer=$.timerReducers[name].reducer,
       filters=filters,
-      filterPods=filterPods,
-      filterPodsK8sContainer=filterPodsK8sContainer,
       groupBys=groupBys,
       metric=metric,
       unit=unit,
@@ -80,8 +66,6 @@ local gcmon = grafana.googleCloudMonitoring;
     alias=null,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -93,8 +77,6 @@ local gcmon = grafana.googleCloudMonitoring;
       aligner='ALIGN_DELTA',
       alignmentPeriod=alignmentPeriod,
       filters=filters,
-      filterPods=filterPods,
-      filterPodsK8sContainer=filterPodsK8sContainer,
       groupBys=groupBys,
       metricKind='CUMULATIVE',
       metric=metric,
@@ -107,8 +89,6 @@ local gcmon = grafana.googleCloudMonitoring;
     metric,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -118,8 +98,6 @@ local gcmon = grafana.googleCloudMonitoring;
       aligner=$.gaugeReducers[name].aligner,
       alignmentPeriod=alignmentPeriod,
       filters=filters,
-      filterPods=filterPods,
-      filterPodsK8sContainer=filterPodsK8sContainer,
       groupBys=groupBys,
       metric=metric,
       reducer=$.gaugeReducers[name].reducer,
@@ -136,8 +114,6 @@ local gcmon = grafana.googleCloudMonitoring;
     alias=null,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -148,8 +124,6 @@ local gcmon = grafana.googleCloudMonitoring;
       aligner=aligner,
       alignmentPeriod=alignmentPeriod,
       filters=filters,
-      filterPods=filterPods,
-      filterPodsK8sContainer=filterPodsK8sContainer,
       groupBys=groupBys,
       metricKind='GAUGE',
       metric=metric,
@@ -163,8 +137,6 @@ local gcmon = grafana.googleCloudMonitoring;
     alias=null,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -175,8 +147,6 @@ local gcmon = grafana.googleCloudMonitoring;
       aligner='ALIGN_RATE',
       alignmentPeriod=alignmentPeriod,
       filters=filters,
-      filterPods=filterPods,
-      filterPodsK8sContainer=filterPodsK8sContainer,
       groupBys=groupBys,
       metricKind='CUMULATIVE',
       metric=metric,
@@ -192,8 +162,6 @@ local gcmon = grafana.googleCloudMonitoring;
     aligner,
     alignmentPeriod=null,
     filters=[],
-    filterPods=false,
-    filterPodsK8sContainer=false,
     groupBys=[],
     metricKind,
     metric,
@@ -204,7 +172,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local a = if alias != null then alias else
       if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys);
     local ap = if alignmentPeriod != null then alignmentPeriod else 'stackdriver-auto';
-    local f = if filterPods then $.combineFilters($.podFilters, filters) else if filterPodsK8sContainer then $.combineFilters($.podFiltersK8sContainer, filters) else $.combineFilters($.serviceFilters, filters);
+    local f = $.combineFilters($.serviceFilters, filters);
     local u = if unit != null then unit else '1';
     gcmon.target(
       aliasBy=a,

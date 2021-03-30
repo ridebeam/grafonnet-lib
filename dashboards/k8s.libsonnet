@@ -14,12 +14,10 @@ local l = gcp.label;
         metric='kubernetes.io/container/cpu/core_usage_time',
         unit='s',
         valueType='DOUBLE',
-        filterPods=true,
       ),
       mem: gcp.gauges(
         'kubernetes.io/container/memory/used_bytes',
         filters=gcp.equalsFilter(l('memory_type'), 'non-evictable'),
-        filterPods=true,
       ),
       log: gcp.target(
         metric='logging.googleapis.com/log_entry_count',
@@ -28,7 +26,6 @@ local l = gcp.label;
         aligner='ALIGN_RATE',
         groupBys=['metric.label.severity'],
         valueType='INT64',
-        filterPods=true,
       ),
     },
     golang: {

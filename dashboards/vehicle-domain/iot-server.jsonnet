@@ -33,7 +33,7 @@ local targets = {
     perInstance: gcp.gauge(
       metric=m('server-devices-connected'),
       filters=filters.manufacturer,
-      groupBys=['resource.label.pod_id'],
+      groupBys=['resource.label.pod_name'],
       aligner=gcp.gaugeReducers.sum.aligner,
       reducer=gcp.gaugeReducers.sum.reducer,
     ),
