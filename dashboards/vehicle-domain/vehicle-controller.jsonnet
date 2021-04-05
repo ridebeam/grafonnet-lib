@@ -38,6 +38,10 @@ local targets = {
     ),
   },
   state: {
+    processingTime: gcp.timers(
+      metric=m('kafka-consume-duration'),
+      filters=gcp.equalsFilter(l('kafka_source_topic'), 'vehicle-state'),
+    ),
     flushes: gcp.timers(m('flush-duration')),
     changes: gcp.timers(
       metric=m('state-changed-latency'),
@@ -59,6 +63,10 @@ local panels = {
     ]),
   },
   state: {
+    processingTime: panel.timeLinear('Processing Time').addTargets([
+      targets.state.processingTime.p50,
+      targets.state.processingTime.p99,
+    ]),
     flushes: panel.timeLinear('State Flush duration').addTargets([
       targets.state.flushes.p50,
       targets.state.flushes.p99,
@@ -81,6 +89,7 @@ local rows = {
   state: row.new('State').addPanels([
     panel.halfRow(p)
     for p in [
+      panels.state.processingTime,
       panels.state.flushes,
       panels.state.changes,
     ]
