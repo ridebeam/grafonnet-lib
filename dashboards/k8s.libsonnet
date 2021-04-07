@@ -73,6 +73,10 @@ local l = gcp.label;
         metric=m('go.sql/client/latency'),
         groupBys=[l('go_sql_method')],
       ),
+      calls: gcp.counter(
+        metric=m('go.sql/client/calls'),
+        groupBys=[l('go_sql_method')],
+      ),
     },
   },
   panels: {
@@ -126,6 +130,7 @@ local l = gcp.label;
         target.alias($.targets.postgres.connections.active.sum, "active"),
       ]),
       latency: panel.timeLinear('Latency', format='ms').addTarget($.targets.postgres.latency.p99),
+      calls: panel.counter('Calls').addTarget($.targets.postgres.calls),
     },
   },
   rows: {
@@ -170,6 +175,7 @@ local l = gcp.label;
         panel.halfRow(p)
         for p in [
           $.panels.postgres.latency,
+          $.panels.postgres.calls,
           $.panels.postgres.connections,
         ]
       ]),
