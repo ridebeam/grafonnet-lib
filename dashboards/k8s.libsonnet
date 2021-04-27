@@ -50,6 +50,10 @@ local l = gcp.label;
         metric=m('kafka-consume'),
         groupBys=[l('kafka_source_topic')],
       ),
+      duration: gcp.timers(
+        metric=m('kafka-consume-duration'),
+        groupBys=[l('kafka_source_topic')],
+      ),
       lag: gcp.timers(
         metric=m('kafka-consume-lag'),
         groupBys=[l('kafka_source_topic')],
@@ -77,6 +81,7 @@ local l = gcp.label;
         metric=m('go.sql/client/calls'),
         groupBys=[l('go_sql_method')],
       ),
+      errors: gcp.counter(m('pg-put-error')),
     },
   },
   panels: {
@@ -119,7 +124,10 @@ local l = gcp.label;
     },
     kafka: {
       consume: panel.counter('Consumed').addTarget($.targets.kafka.consume),
-      lag: panel.timeLog2('Consumer Lag').addTarget($.targets.kafka.lag.p99),
+      lagP99: panel.timeLog2('Consumer Lag P99').addTarget($.targets.kafka.lag.p99),
+      lagP50: panel.timeLog2('Consumer Lag P50').addTarget($.targets.kafka.lag.p50),
+      lagAvg: panel.timeLog2('Consumer Lag AVG').addTarget($.targets.kafka.lag.avg),
+      durationP99: panel.timeLog2('Consuming Duration P99').addTarget($.targets.kafka.duration.p99),
       produce: panel.counter('Produced').addTarget($.targets.kafka.produce),
       errors: panel.counter('Producer Errors').addTarget($.targets.kafka.errors),
     },
@@ -131,6 +139,7 @@ local l = gcp.label;
       ]),
       latency: panel.timeLinear('Latency', format='ms').addTarget($.targets.postgres.latency.p99),
       calls: panel.counter('Calls').addTarget($.targets.postgres.calls),
+      errors: panel.counter('Write Errors').addTarget($.targets.postgres.errors),
     },
   },
   rows: {
@@ -165,8 +174,11 @@ local l = gcp.label;
         panel.halfRow(p)
         for p in [
           $.panels.kafka.consume,
-          $.panels.kafka.lag,
           $.panels.kafka.produce,
+          $.panels.kafka.lagP99,
+          $.panels.kafka.lagP50,
+          $.panels.kafka.lagAvg,
+          $.panels.kafka.durationP99,
           $.panels.kafka.errors,
         ]
       ]),
@@ -177,6 +189,7 @@ local l = gcp.label;
           $.panels.postgres.latency,
           $.panels.postgres.calls,
           $.panels.postgres.connections,
+          $.panels.postgres.errors,
         ]
       ]),
   },

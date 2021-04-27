@@ -43,6 +43,7 @@ local targets = {
       filters=gcp.equalsFilter(l('kafka_source_topic'), 'vehicle-state'),
     ),
     flushes: gcp.timers(m('flush-duration')),
+    flushAmount: gcp.gauges(m('vehicle-repository-flush-amount')),
     changes: gcp.timers(
       metric=m('state-changed-latency'),
       groupBys=[l('state_name')],
@@ -64,17 +65,24 @@ local panels = {
   },
   state: {
     processingTime: panel.timeLinear('Processing Time').addTargets([
+      targets.state.processingTime.avg,
       targets.state.processingTime.p50,
       targets.state.processingTime.p99,
     ]),
-    flushes: panel.timeLinear('State Flush duration').addTargets([
+    flushes: panel.timeLinear('Full Flush duration').addTargets([
       targets.state.flushes.p50,
       targets.state.flushes.p99,
     ]),
-    changes: panel.timeLog2('Latency').addTargets([
+    flushAmount: panel.new('Full Flush Entries').addTargets([
+      targets.state.flushAmount.p50,
+      targets.state.flushAmount.p99,
+    ]),
+    changesP50: panel.timeLog2('Latency p50').addTargets([
       targets.state.changes.p50,
+    ]),
+    changesP99: panel.timeLog2('Latency p99').addTargets([
       targets.state.changes.p99,
-    ])
+    ]),
   }
 };
 
@@ -91,7 +99,9 @@ local rows = {
     for p in [
       panels.state.processingTime,
       panels.state.flushes,
-      panels.state.changes,
+      panels.state.flushAmount,
+      panels.state.changesP50,
+      panels.state.changesP99,
     ]
   ]),
 };

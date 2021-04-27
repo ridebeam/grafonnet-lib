@@ -38,7 +38,9 @@ local panels = {
       target.alias(targets.kafka.scooterMessages, "scooter-messages"),
       target.alias(targets.kafka.vehicleEvent, "vehicle-event")
     ]),
-    lag: panel.timeLog2('Consumer Lag', 'ms').addTarget(targets.kafka.lag.p99),
+    lagP99: panel.timeLog2('Consumer Lag P99', 'ms').addTarget(targets.kafka.lag.p99),
+    lagP50: panel.timeLog2('Consumer Lag P50', 'ms').addTarget(targets.kafka.lag.p50),
+    lagAvg: panel.timeLog2('Consumer Lag AVG', 'ms').addTarget(targets.kafka.lag.avg),
   },
   vehicles: {
     events: panel.counter('Events').addTarget(targets.vehicles.events),
@@ -51,7 +53,9 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.kafka.consume,
-      panels.kafka.lag,
+      panels.kafka.lagP99,
+      panels.kafka.lagP50,
+      panels.kafka.lagAvg,
     ]
   ]),
   vehicles: row.new('Vehicles').addPanels([
