@@ -44,8 +44,16 @@ local targets = {
     ),
     flushes: gcp.timers(m('flush-duration')),
     flushAmount: gcp.gauges(m('vehicle-repository-flush-amount')),
-    changes: gcp.timers(
+    changeTime: gcp.timers(
       metric=m('state-changed-latency'),
+      groupBys=[l('state_name')],
+    ),
+    changes: gcp.counter(
+      metric=m('state-changed'),
+      groupBys=[l('state_name')],
+    ),
+    changeErrors: gcp.counter(
+      metric=m('state-changed-error'),
       groupBys=[l('state_name')],
     ),
   }
@@ -53,7 +61,7 @@ local targets = {
 
 local panels = {
   georegion: {
-    changes: panel.counter('GeoRegion changes').addTargets([
+    switches: panel.counter('GeoRegion changes').addTargets([
       targets.georegion.switches,
     ]),
     determined: panel.counter('GeoRegion determined').addTargets([
@@ -77,11 +85,17 @@ local panels = {
       targets.state.flushAmount.p50,
       targets.state.flushAmount.p99,
     ]),
-    changesP50: panel.timeLog2('Latency p50').addTargets([
-      targets.state.changes.p50,
+    changeTimeP50: panel.timeLog2('Latency p50').addTargets([
+      targets.state.changeTime.p50,
     ]),
-    changesP99: panel.timeLog2('Latency p99').addTargets([
-      targets.state.changes.p99,
+    changeTimeP99: panel.timeLog2('Latency p99').addTargets([
+      targets.state.changeTime.p99,
+    ]),
+    changes: panel.counter('Changes').addTargets([
+      targets.state.changes,
+    ]),
+    changeErrors: panel.counter('Errors').addTargets([
+      targets.state.changeErrors,
     ]),
   }
 };
@@ -90,18 +104,24 @@ local rows = {
   georegion: row.new('GeoRegion').addPanels([
     panel.halfRow(p)
     for p in [
-      panels.georegion.changes,
+      panels.georegion.switches,
       panels.georegion.determined,
     ]
   ]),
   state: row.new('State').addPanels([
-    panel.halfRow(p)
+    panel.thirdRow(p)
     for p in [
       panels.state.processingTime,
       panels.state.flushes,
       panels.state.flushAmount,
-      panels.state.changesP50,
-      panels.state.changesP99,
+    ]
+    ] + [
+    panel.halfRow(p)
+    for p in [
+      panels.state.changeTimeP50,
+      panels.state.changes,
+      panels.state.changeTimeP99,
+      panels.state.changeErrors,
     ]
   ]),
 };
