@@ -56,7 +56,21 @@ local targets = {
       metric=m('state-changed-error'),
       groupBys=[l('state_name')],
     ),
-  }
+  },
+  vehicles: {
+    disconnects: gcp.counter(
+      metric=m('iot-disconnected'),
+      groupBys=[l('city_id')],
+    ),
+    reconnects: gcp.counter(
+      metric=m('iot-disconnected-dead-connection'),
+      groupBys=[l('city_id')],
+    ),
+    disconnectDuration: gcp.timers(
+      metric=m('iot-disconnected-duration'),
+      groupBys=[l('city_id')],
+    ),
+  },
 };
 
 local panels = {
@@ -97,7 +111,24 @@ local panels = {
     changeErrors: panel.counter('Errors').addTargets([
       targets.state.changeErrors,
     ]),
-  }
+  },
+  vehicles: {
+    disconnects: panel.counter('Disconnects').addTargets([
+      targets.vehicles.disconnects,
+    ]),
+    reconnects: panel.counter('Disconnects with Dead Connection').addTargets([
+      targets.vehicles.reconnects,
+    ]),
+    disconnectDurationAvg: panel.timeLinear('Time Disconnected avg').addTargets([
+      targets.vehicles.disconnectDuration.avg,
+    ]),
+    disconnectDurationP50: panel.timeLinear('Time Disconnected p50').addTargets([
+      targets.vehicles.disconnectDuration.p50,
+    ]),
+    disconnectDurationP99: panel.timeLinear('Time Disconnected p99').addTargets([
+      targets.vehicles.disconnectDuration.p99,
+    ]),
+  },
 };
 
 local rows = {
@@ -122,6 +153,20 @@ local rows = {
       panels.state.changes,
       panels.state.changeTimeP99,
       panels.state.changeErrors,
+    ]
+  ]),
+  vehicles: row.new('Vehicles').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.vehicles.disconnects,
+      panels.vehicles.reconnects,
+    ]
+    ] + [
+    panel.thirdRow(p)
+    for p in [
+      panels.vehicles.disconnectDurationAvg,
+      panels.vehicles.disconnectDurationP50,
+      panels.vehicles.disconnectDurationP99,
     ]
   ]),
 };
@@ -159,4 +204,5 @@ grafana.dashboard.new(
     panel.collapseRow(k8s.rows.postgres),
     rows.georegion,
     rows.state,
+    rows.vehicles,
   ])
