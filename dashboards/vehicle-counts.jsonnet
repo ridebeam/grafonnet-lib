@@ -8,7 +8,8 @@ local m = gcp.customMetric;
 local l = gcp.label;
 
 local cities = import '../data/staging-cities.json';
-local query = std.join(",", cities);
+local cityIds = std.objectFields(cities);
+
 
 local targets = {
   vehicles: {
@@ -52,35 +53,37 @@ grafana.dashboard.new(
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
-  tags=['overview','generic','generated']
+  tags=['overview', 'generic', 'generated']
 )
 
-  .addTemplate(
-    template.custom(
-      name='env',
-      query='staging,production',
-      current='staging',
-    )
+.addTemplate(
+  template.custom(
+    name='env',
+    query='staging,production',
+    current='staging',
   )
+)
 
-  .addTemplate(  
-    template.custom(
-      name='service',
-      query='vehicle-gateway',
-      current='vehicle-gateway',
-    )
+.addTemplate(
+  template.custom(
+    name='service',
+    query='vehicle-gateway',
+    current='vehicle-gateway',
+    hide='true',
   )
+)
 
-  .addTemplate(  
-    template.custom(
-      name='city_id',
-      query=query,
-      includeAll=true,
-      current='All',
-    )
+.addTemplate(
+  template.custom(
+    name='city_id',
+    query=std.join(",", cityIds),
+    valuelabels=cities,
+    includeAll=true,
+    current='All',
   )
+)
 
-  .addRows([
-    rows.summary,
-    panel.collapseRow(rows.vehicles),
-  ])
+.addRows([
+  rows.summary,
+  panel.collapseRow(rows.vehicles),
+])
