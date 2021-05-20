@@ -144,7 +144,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local vt = if valueType != null then valueType else 'INT64';
     $.target(
       alias=$.alias(groupBys, alias),
-      aligner='ALIGN_RATE',
+      aligner='ALIGN_COUNT',
       alignmentPeriod=alignmentPeriod,
       filters=filters,
       groupBys=groupBys,
