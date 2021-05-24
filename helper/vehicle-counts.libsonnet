@@ -13,7 +13,7 @@ local targets = {
       alias='vehicle-counts',
       aligner='ALIGN_COUNT',
       metric=m('vehicle-count'),
-      filters=gcp.combineFilters(gcp.likeFilter(l('versions'), '[0-9]+,[0-9]+,[0-9]+'), gcp.likeFilter(l('city_id'), '$city_id')),
+      filters=gcp.combineFilters(gcp.likeFilter(l('city_id'), '$city_id'), gcp.likeFilter(l('controller_version'), '[0-9]+')),
       groupBys=[l('city_id')],
       withServiceFilters=false,
     ),
@@ -21,8 +21,8 @@ local targets = {
       alias='vehicle-counts',
       aligner='ALIGN_COUNT',
       metric=m('vehicle-count'),
-      filters=gcp.combineFilters(gcp.likeFilter(l('versions'), '[0-9]+,[0-9]+,[0-9]+'), gcp.likeFilter(l('city_id'), '$city_id')),
-      groupBys=[l('city_id'), l('versions')],
+      filters=gcp.combineFilters(gcp.likeFilter(l('city_id'), '$city_id'), gcp.likeFilter(l('controller_version'), '[0-9]+')),
+      groupBys=[l('city_id'), l('iot_version'), l('display_version'), l('controller_version')],
       withServiceFilters=false,
     ),
   },
@@ -48,6 +48,28 @@ local targets = {
       withServiceFilters=false,
     )
   },
+  endTrip: {
+    success: gcp.counter(
+      alias='end-trip-success',
+      metric=m('end-trip'),
+      filters=gcp.likeFilter(l('city_id'), '$city_id'),
+      groupBys=[l('city_id')],
+      withServiceFilters=false,
+    ),
+    err: gcp.counter(
+      alias='end-trip-error',
+      metric=m('end-trip-error'),
+      filters=gcp.likeFilter(l('city_id'), '$city_id'),
+      groupBys=[l('city_id')],
+      withServiceFilters=false,
+    ),
+    timing: gcp.timers(
+      metric=m('end-trip-timing'),
+      groupBys=[l('city_id')],
+      filters=gcp.likeFilter(l('city_id'), '$city_id'),
+      withServiceFilters=false,
+    )
+  },
 };
 
 local panels = {
@@ -64,14 +86,25 @@ local panels = {
     ]), current=true, sort='current')),
   },
   startTrip: {
-    success: panel.halfRow(panel.showTable(panel.counter(title='Start trip success', format='none').addTargets([
+    success: panel.halfRow(panel.showTable(panel.counter(title='Start trip success').addTargets([
       targets.startTrip.success,
     ]), current=true, sort='current')),
-    err: panel.halfRow(panel.showTable(panel.counter(title='Start trip error', format='none').addTargets([
+    err: panel.halfRow(panel.showTable(panel.counter(title='Start trip error').addTargets([
       targets.startTrip.err,
     ]), current=true, sort='current')),
-    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Start trip timing', format='none').addTarget(
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Start trip timing', format='ms').addTarget(
       targets.startTrip.timing.p95,
+    ), current=true, sort='current')),
+  },
+  endTrip: {
+    success: panel.halfRow(panel.showTable(panel.counter(title='End trip success').addTargets([
+      targets.endTrip.success,
+    ]), current=true, sort='current')),
+    err: panel.halfRow(panel.showTable(panel.counter(title='End trip error').addTargets([
+      targets.endTrip.err,
+    ]), current=true, sort='current')),
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='End trip timing', format='ms').addTarget(
+      targets.endTrip.timing.p95,
     ), current=true, sort='current')),
   },
 };
@@ -82,13 +115,14 @@ local rows = {
     panels.vehicles.byCity
   ]),
   startTrip: row.new('Start Trip').addPanels([panels.startTrip.success, panels.startTrip.err, panels.startTrip.timing]),
+  endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),
 };
 
 {
   dashboard(uid, cities, env)::
     local cityIds = std.objectFields(cities);
     grafana.dashboard.new(
-      'Vehicle Counts',
+      'Vehicle Counts ' + env,
       uid=uid,
       refresh='30s',
       timepicker=grafana.timepicker.new() { nowDelay: '1m' },
@@ -128,5 +162,6 @@ local rows = {
       rows.summary,
       panel.collapseRow(rows.vehicles),
       rows.startTrip,
+      rows.endTrip,
     ]),
 }
