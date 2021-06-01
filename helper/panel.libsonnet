@@ -21,8 +21,6 @@ local datasource='Stackdriver';
     title,
     format='cps',
     legend_show=true,
-    repeat=null,
-    repeatDirection=null,
     legend_sortDesc=true,
   ):: panel.new(
       title=title,
@@ -30,8 +28,6 @@ local datasource='Stackdriver';
       format=format,
       min=0,
       legend_show=legend_show,
-      repeat=repeat,
-      repeatDirection=repeatDirection,
       legend_sortDesc=legend_sortDesc,
     ),
 
@@ -95,6 +91,8 @@ local datasource='Stackdriver';
   halfRow(panel):: panel { span: 6 },
   thirdRow(panel):: panel { span: 4 },
   quarterRow(panel):: panel { span: 3},
+
+  repeatPanel(panel, by, direction):: panel { repeat: by, repeatDirection: direction },
 
   collapseRow(row):: row { collapse: true, collapsed: true },
 }

@@ -9,18 +9,14 @@ local l = gcp.label;
 
 local targets = {
   vehicles: {
-    countAll: gcp.counter(
-      alias='vehicle-counts',
-      aligner='ALIGN_COUNT',
-      metric=m('vehicle-count'),
+    countAll: gcp.gauges(
+      'custom.googleapis.com/opencensus/vehicle-count',
       filters=gcp.combineFilters(gcp.likeFilter(l('city_id'), '$city_id'), gcp.likeFilter(l('controller_version'), '[0-9]+')),
       groupBys=[l('city_id')],
       withServiceFilters=false,
     ),
-    byCity: gcp.counter(
-      alias='vehicle-counts',
-      aligner='ALIGN_COUNT',
-      metric=m('vehicle-count'),
+    byCity: gcp.gauges(
+      'custom.googleapis.com/opencensus/vehicle-count',
       filters=gcp.combineFilters(gcp.likeFilter(l('city_id'), '$city_id'), gcp.likeFilter(l('controller_version'), '[0-9]+')),
       groupBys=[l('city_id'), l('iot_version'), l('display_version'), l('controller_version')],
       withServiceFilters=false,
@@ -46,7 +42,7 @@ local targets = {
       groupBys=[l('city_id')],
       filters=gcp.likeFilter(l('city_id'), '$city_id'),
       withServiceFilters=false,
-    )
+    ),
   },
   endTrip: {
     success: gcp.counter(
@@ -68,7 +64,7 @@ local targets = {
       groupBys=[l('city_id')],
       filters=gcp.likeFilter(l('city_id'), '$city_id'),
       withServiceFilters=false,
-    )
+    ),
   },
   collect: {
     success: gcp.counter(
@@ -90,7 +86,7 @@ local targets = {
       groupBys=[l('city_id')],
       filters=gcp.likeFilter(l('city_id'), '$city_id'),
       withServiceFilters=false,
-    )
+    ),
   },
   deploy: {
     success: gcp.counter(
@@ -112,22 +108,16 @@ local targets = {
       groupBys=[l('city_id')],
       filters=gcp.likeFilter(l('city_id'), '$city_id'),
       withServiceFilters=false,
-    )
+    ),
   },
 };
 
 local panels = {
   vehicles: {
     all: panel.fullRow(panel.showTable(panel.counter(title='Vehicle all', format='none').addTargets([
-      targets.vehicles.countAll,
+      targets.vehicles.countAll.sum,
     ]), current=true, sort='current')),
-    byCity: panel.fullRow(panel.showTable(panel.counter(title='Vehicles by city',
-                          format='none',
-                          repeat='city_id',
-                          repeatDirection='v',
-                          legend_sortDesc=true,).addTargets([
-      targets.vehicles.byCity,
-    ]), current=true, sort='current')),
+    byCity: panel.repeatPanel(panel.fullRow(panel.showTable(panel.counter(title='Vehicles in ' + '$city_id', format='none', legend_sortDesc=true).addTargets([targets.vehicles.byCity.avg]), current=true, sort='current')), 'city_id', 'v'),
   },
   startTrip: {
     success: panel.halfRow(panel.showTable(panel.counter(title='Start trip success').addTargets([
@@ -136,7 +126,7 @@ local panels = {
     err: panel.halfRow(panel.showTable(panel.counter(title='Start trip error').addTargets([
       targets.startTrip.err,
     ]), current=true, sort='current')),
-    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Start trip timing', format='ms').addTarget(
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Start trip timing').addTarget(
       targets.startTrip.timing.p95,
     ), current=true, sort='current')),
   },
@@ -147,7 +137,7 @@ local panels = {
     err: panel.halfRow(panel.showTable(panel.counter(title='End trip error').addTargets([
       targets.endTrip.err,
     ]), current=true, sort='current')),
-    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='End trip timing', format='ms').addTarget(
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='End trip timing').addTarget(
       targets.endTrip.timing.p95,
     ), current=true, sort='current')),
   },
@@ -158,7 +148,7 @@ local panels = {
     err: panel.halfRow(panel.showTable(panel.counter(title='Collect error').addTargets([
       targets.collect.err,
     ]), current=true, sort='current')),
-    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Collect timing', format='ms').addTarget(
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Collect timing').addTarget(
       targets.collect.timing.p95,
     ), current=true, sort='current')),
   },
@@ -169,7 +159,7 @@ local panels = {
     err: panel.halfRow(panel.showTable(panel.counter(title='Deploy error').addTargets([
       targets.deploy.err,
     ]), current=true, sort='current')),
-    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Deploy timing', format='ms').addTarget(
+    timing: panel.halfRow(panel.showTable(panel.timeLinear(title='Deploy timing').addTarget(
       targets.deploy.timing.p95,
     ), current=true, sort='current')),
   },
@@ -178,7 +168,7 @@ local panels = {
 local rows = {
   summary: row.new('All Vehicles').addPanels([panels.vehicles.all]),
   vehicles: row.new('Vehicles per city').addPanels([
-    panels.vehicles.byCity
+    panels.vehicles.byCity,
   ]),
   startTrip: row.new('Start Trip').addPanels([panels.startTrip.success, panels.startTrip.err, panels.startTrip.timing]),
   endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),

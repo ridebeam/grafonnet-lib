@@ -1,4 +1,4 @@
-local vehicleCounts = import '../../helper/vehicle-counts.libsonnet';
+local vehicleCounts = import '../vehicle-counts.libsonnet';
 local cities = import '../../data/staging-cities.json';
 
 

@@ -184,7 +184,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local a = if alias != null then alias else
       if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys);
     local ap = if alignmentPeriod != null then alignmentPeriod else 'stackdriver-auto';
-    local f = if withServiceFilters then $.combineFilters($.serviceFilters, filters) else filters;
+    local f = if withServiceFilters then $.combineFilters($.serviceFilters, filters) else $.combineFilters($.equalsFilter('resource.label.namespace_name', '$env'),filters);
     local u = if unit != null then unit else '1';
     gcmon.target(
       aliasBy=a,
