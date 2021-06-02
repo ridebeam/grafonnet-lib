@@ -16,8 +16,8 @@ local targets = {
       metric=m('vehicle-event'),
     ),
     lag: gcp.timers(
-      metric=m('kafka.consume.lag'),
-      groupBys=[l('topic')],
+      metric=m('kafka-consume-lag'),
+      groupBys=[l('kafka_source_topic')],
     ),
   },
   vehicles: {
@@ -38,13 +38,13 @@ local panels = {
       target.alias(targets.kafka.scooterMessages, "scooter-messages"),
       target.alias(targets.kafka.vehicleEvent, "vehicle-event")
     ]),
-    lagP99: panel.timeLog2('Consumer Lag P99', 'ms').addTarget(targets.kafka.lag.p99),
-    lagP50: panel.timeLog2('Consumer Lag P50', 'ms').addTarget(targets.kafka.lag.p50),
-    lagAvg: panel.timeLog2('Consumer Lag AVG', 'ms').addTarget(targets.kafka.lag.avg),
+    lagP99: panel.timeLog2('Consumer Lag P99').addTarget(targets.kafka.lag.p99),
+    lagP50: panel.timeLog2('Consumer Lag P50').addTarget(targets.kafka.lag.p50),
+    lagAvg: panel.timeLog2('Consumer Lag AVG').addTarget(targets.kafka.lag.avg),
   },
   vehicles: {
     events: panel.counter('Events').addTarget(targets.vehicles.events),
-    eventHandlingDuration: panel.timeLog2('Event Handling Duration', 'ms').addTarget(targets.vehicles.eventHandlingDuration.p99),
+    eventHandlingDuration: panel.timeLog2('Event Handling Duration').addTarget(targets.vehicles.eventHandlingDuration.p99),
   },
 };
 
