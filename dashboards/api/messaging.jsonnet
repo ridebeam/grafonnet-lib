@@ -29,6 +29,10 @@ local targets = {
       metric=m('handle.vehicle.event.duration'),
       groupBys=[l('property')],
     ),
+    skippedEvents: gcp.counter(
+       metric=m('handle.skipped.vehicle.event.count'),
+       groupBys=[l('reason')],
+    ),
   },
 };
 
@@ -45,6 +49,7 @@ local panels = {
   vehicles: {
     events: panel.counter('Events').addTarget(targets.vehicles.events),
     eventHandlingDuration: panel.timeLog2('Event Handling Duration').addTarget(targets.vehicles.eventHandlingDuration.p99),
+    skippedEvents: panel.counter('Skipped Events').addTarget(targets.vehicles.skippedEvents)
   },
 };
 
@@ -63,6 +68,7 @@ local rows = {
     for p in [
       panels.vehicles.events,
       panels.vehicles.eventHandlingDuration,
+      panels.vehicles.skippedEvents
     ]
   ]),
 };
