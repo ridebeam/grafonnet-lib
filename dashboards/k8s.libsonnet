@@ -66,6 +66,10 @@ local l = gcp.label;
         metric=m('kafka-produce-error'),
         groupBys=[l('kafka_target_topic')],
       ),
+      repartition: gcp.counter(
+        metric=m('kafka-consume-repartition'),
+        groupBys=[l('kafka_source_topic')],
+      ),
     },
     postgres: {
       connections: {
@@ -130,6 +134,7 @@ local l = gcp.label;
       durationP99: panel.timeLog2('Consuming Duration P99').addTarget($.targets.kafka.duration.p99),
       produce: panel.counter('Produced').addTarget($.targets.kafka.produce),
       errors: panel.counter('Producer Errors').addTarget($.targets.kafka.errors),
+      repartition: panel.counter('Repartitioned Messages').addTarget($.targets.kafka.repartition),
     },
     postgres: {
       connections: panel.new('Connections').addTargets([
@@ -180,6 +185,7 @@ local l = gcp.label;
           $.panels.kafka.lagAvg,
           $.panels.kafka.durationP99,
           $.panels.kafka.errors,
+          $.panels.kafka.repartition,
         ]
       ]),
     postgres: row.new('Postgres')
