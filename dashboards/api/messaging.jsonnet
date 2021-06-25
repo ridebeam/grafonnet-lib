@@ -33,6 +33,9 @@ local targets = {
        metric=m('handle.skipped.vehicle.event.count'),
        groupBys=[l('reason')],
     ),
+    eventHandlingTotal: gcp.timers(
+      metric=m('vehicle-event-latency'),
+    )
   },
 };
 
@@ -49,7 +52,8 @@ local panels = {
   vehicles: {
     events: panel.counter('Events').addTarget(targets.vehicles.events),
     eventHandlingDuration: panel.timeLog2('Event Handling Duration').addTarget(targets.vehicles.eventHandlingDuration.p99),
-    skippedEvents: panel.counter('Skipped Events').addTarget(targets.vehicles.skippedEvents)
+    skippedEvents: panel.counter('Skipped Events').addTarget(targets.vehicles.skippedEvents),
+    eventHandlingTotal: panel.timeLog2('Event Handling E2E', format='ms').addTarget(targets.vehicles.eventHandlingTotal.p95),
   },
 };
 
@@ -68,7 +72,8 @@ local rows = {
     for p in [
       panels.vehicles.events,
       panels.vehicles.eventHandlingDuration,
-      panels.vehicles.skippedEvents
+      panels.vehicles.skippedEvents,
+      panels.vehicles.eventHandlingTotal,
     ]
   ]),
 };
