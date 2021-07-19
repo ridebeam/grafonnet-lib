@@ -46,6 +46,7 @@ local gcmon = grafana.googleCloudMonitoring;
     groupBys=[],
     unit=null,
     valueType=null,
+    alert=false,
   ):: {
     [name]: $.timer(
       alias=name,
@@ -56,6 +57,7 @@ local gcmon = grafana.googleCloudMonitoring;
       metric=metric,
       unit=unit,
       valueType=valueType,
+      alert=alert,
     )
     for name in std.objectFields($.timerReducers)
   },
@@ -69,6 +71,7 @@ local gcmon = grafana.googleCloudMonitoring;
     groupBys=[],
     unit=null,
     valueType=null,
+    alert=false,
   )::
     local u = if unit != null then unit else 's';
     local vt = if valueType != null then valueType else 'DISTRIBUTION';
@@ -83,6 +86,7 @@ local gcmon = grafana.googleCloudMonitoring;
       reducer=reducer,
       unit=u,
       valueType=vt,
+      alert=alert,
     ),
 
   gauges(
@@ -92,6 +96,7 @@ local gcmon = grafana.googleCloudMonitoring;
     groupBys=[],
     unit=null,
     valueType=null,
+    alert=false,
   ):: {
     [name]: $.gauge(
       alias=name,
@@ -103,6 +108,7 @@ local gcmon = grafana.googleCloudMonitoring;
       reducer=$.gaugeReducers[name].reducer,
       unit=unit,
       valueType=valueType,
+      alert=alert,
     )
     for name in std.objectFields($.gaugeReducers)
   },
@@ -117,6 +123,7 @@ local gcmon = grafana.googleCloudMonitoring;
     groupBys=[],
     unit=null,
     valueType=null,
+    alert=false,
   )::
     local vt = if valueType != null then valueType else 'INT64';
     $.target(
@@ -130,6 +137,7 @@ local gcmon = grafana.googleCloudMonitoring;
       reducer=reducer,
       unit=unit,
       valueType=vt,
+      alert=alert,
     ),
 
   counter(
@@ -140,6 +148,7 @@ local gcmon = grafana.googleCloudMonitoring;
     groupBys=[],
     unit=null,
     valueType=null,
+    alert=false,
   )::
     local vt = if valueType != null then valueType else 'INT64';
     $.target(
@@ -153,6 +162,7 @@ local gcmon = grafana.googleCloudMonitoring;
       reducer='REDUCE_SUM',
       unit=unit,
       valueType=vt,
+      alert=alert,
     ),
 
   # default target when accessing gcp metrics
@@ -168,11 +178,12 @@ local gcmon = grafana.googleCloudMonitoring;
     reducer,
     unit=null,
     valueType,
+    alert=false,
   )::
     local a = if alias != null then alias else
       if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys);
     local ap = if alignmentPeriod != null then alignmentPeriod else 'stackdriver-auto';
-    local f = $.combineFilters($.serviceFilters, filters);
+    local f = if alert != true then $.combineFilters($.serviceFilters, filters) else filters;
     local u = if unit != null then unit else '1';
     gcmon.target(
       aliasBy=a,

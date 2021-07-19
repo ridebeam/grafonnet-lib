@@ -1,0 +1,112 @@
+local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
+local alertCondition = grafana.alertCondition;
+local row = grafana.row;
+local panel = import '../../helper/panel.libsonnet';
+local gcp = import '../../helper/gcp-target.libsonnet';
+local m = gcp.customMetric;
+local l = gcp.label;
+
+local alerts = import '../../helper/alerts.libsonnet';
+
+local filters = {
+  service: gcp.combineFilters(
+    gcp.equalsFilter('resource.label.namespace_name', 'production'),
+    gcp.equalsFilter('resource.label.container_name', 'vehicle-controller'),
+  ),
+};
+
+local targets = {
+  state: {
+    changeErrors: gcp.counter(
+      metric=m('state-changed-error'),
+      groupBys=[l('state_name')],
+      filters=filters.service,
+      alert=true,
+    ),
+  },
+  vehicles: {
+    disconnects: gcp.counter(
+      metric=m('iot-disconnected'),
+      groupBys=[l('city_id')],
+      filters=filters.service,
+      alert=true,
+    ),
+  },
+};
+
+local panels = {
+  state: {
+    changeErrors: panel.counter('Errors').addTargets([
+      targets.state.changeErrors,
+    ])
+    .addAlert(
+      'State error alerts',
+      notifications=alerts.notifications,
+      message='state errors above 1',
+    )
+    .addConditions([
+      alertCondition.new(
+        evaluatorParams=[0.1],
+        evaluatorType='gt',
+        operatorType='and',
+        queryRefId='A',
+        queryTimeEnd='now',
+        queryTimeStart='5m',
+        reducerParams=[],
+        reducerType='last',
+      ),
+    ]),
+  },
+  vehicles: {
+    disconnects: panel.counter('Disconnects').addTargets([
+      targets.vehicles.disconnects,
+    ])
+    .addAlert(
+      'Vehicle error alerts',
+      notifications=alerts.notifications,
+      message='disconnects errors above 1',
+    )
+    .addConditions([
+      alertCondition.new(
+        evaluatorParams=[1],
+        evaluatorType='gt',
+        operatorType='and',
+        queryRefId='A',
+        queryTimeEnd='now',
+        queryTimeStart='5m',
+        reducerParams=[],
+        reducerType='last',
+      ),
+    ]),
+  },
+};
+
+local rows = {
+  state: row.new('State').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.state.changeErrors,
+    ]
+  ]),
+  vehicles: row.new('Vehicles').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.vehicles.disconnects,
+    ]
+  ]),
+};
+
+// Make sure uid matches the name of the file
+grafana.dashboard.new(
+  'alerts-example',
+  uid='alerts-example',
+  refresh='30s',
+  timepicker=grafana.timepicker.new() { nowDelay: '1m' },
+  time_to='now-1m',
+  tags=['generated'],
+)
+
+.addRows([
+  rows.state,
+  rows.vehicles,
+])
