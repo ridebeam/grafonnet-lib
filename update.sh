@@ -9,11 +9,22 @@ generate_dashboard () {
   echo " ------ "
   echo "generating dashboard $1"
 
-  payload="{\"dashboard\": $(jsonnet "$1"), \"overwrite\": true, \"folderId\": ${2:-0} }"
+  # run create for alerts first without overwrite as alerts only initialized on update
+  if [[ $3 == "alerts" ]]; then
+    create_payload="{\"dashboard\": $(jsonnet "$1"), \"folderId\": ${2:-0} }"
+    curl \
+      -H "Authorization: Bearer $API_TOKEN" \
+      -H 'Content-Type: application/json' \
+      -d "${create_payload}" \
+      "$GRAFANA_BASE_URL/api/dashboards/db"
+    echo ""
+  fi
+
+  update_payload="{\"dashboard\": $(jsonnet "$1"), \"overwrite\": true, \"folderId\": ${2:-0} }"
   curl --fail \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
-    -d "${payload}" \
+    -d "${update_payload}" \
     "$GRAFANA_BASE_URL/api/dashboards/db"
   echo ""
 }
@@ -23,7 +34,7 @@ for F in dashboards/*.jsonnet; do
 done
 
 for D in dashboards/*/; do
-
+  basename=$(basename $D)
   # make sure folders exist, before uploading dashboards
   F=${D}folder.jsonnet
   echo " ------ "
@@ -48,7 +59,7 @@ for D in dashboards/*/; do
   # now we can upload dashboards
   for F in "${D}"*.jsonnet; do
     if [[ $F != "${D}folder.jsonnet" ]]; then
-      generate_dashboard "$F" "$ID"
+      generate_dashboard "$F" "$ID" "$basename"
     fi
   done
 done
