@@ -21,12 +21,14 @@ local datasource='Stackdriver';
     title,
     format='cps',
     legend_show=true,
+    legend_sortDesc=true,
   ):: panel.new(
       title=title,
       datasource=datasource,
       format=format,
       min=0,
       legend_show=legend_show,
+      legend_sortDesc=legend_sortDesc,
     ),
 
   timeLinear(
@@ -85,9 +87,12 @@ local datasource='Stackdriver';
       }
     },
 
+  fullRow(panel):: panel { span: 12 },
   halfRow(panel):: panel { span: 6 },
   thirdRow(panel):: panel { span: 4 },
   quarterRow(panel):: panel { span: 3},
+
+  repeatPanel(panel, by, direction):: panel { repeat: by, repeatDirection: direction },
 
   collapseRow(row):: row { collapse: true, collapsed: true },
 }
