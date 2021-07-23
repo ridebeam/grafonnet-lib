@@ -4,6 +4,9 @@ local alertCondition = grafana.alertCondition;
 {
   notifications: [
     {
+      "uid": "QchRzL3ik" // telegram
+    },
+    {
       "uid": "XQBRmY3mk" // slack
     },
     {

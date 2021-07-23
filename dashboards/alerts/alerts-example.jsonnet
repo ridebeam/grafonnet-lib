@@ -19,7 +19,7 @@ local targets = {
       metric=m('state-changed-error'),
       groupBys=[l('state_name')],
       filters=filters.service,
-      alert=true,
+      withServiceFilters=false,
     ),
   },
   vehicles: {
@@ -27,7 +27,7 @@ local targets = {
       metric=m('iot-disconnected'),
       groupBys=[l('city_id')],
       filters=filters.service,
-      alert=true,
+      withServiceFilters=false,
     ),
   },
 };
@@ -63,16 +63,10 @@ local panels = {
 
 local rows = {
   state: row.new('State').addPanels([
-    panel.halfRow(p)
-    for p in [
-      panels.state.changeErrors,
-    ]
+    panel.fullRow(panels.state.changeErrors),
   ]),
   vehicles: row.new('Vehicles').addPanels([
-    panel.halfRow(p)
-    for p in [
-      panels.vehicles.disconnects,
-    ]
+    panel.fullRow(panels.vehicles.disconnects),
   ]),
 };
 
