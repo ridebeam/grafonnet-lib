@@ -1,12 +1,10 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
-local alertCondition = grafana.alertCondition;
 local row = grafana.row;
+local alerts = import '../../helper/alerts.libsonnet';
 local panel = import '../../helper/panel.libsonnet';
 local gcp = import '../../helper/gcp-target.libsonnet';
 local m = gcp.customMetric;
 local l = gcp.label;
-
-local alerts = import '../../helper/alerts.libsonnet';
 
 local filters = {
   service: gcp.combineFilters(
@@ -45,16 +43,7 @@ local panels = {
       message='state errors above 1',
     )
     .addConditions([
-      alertCondition.new(
-        evaluatorParams=[0.1],
-        evaluatorType='gt',
-        operatorType='and',
-        queryRefId='A',
-        queryTimeEnd='now',
-        queryTimeStart='5m',
-        reducerParams=[],
-        reducerType='last',
-      ),
+      alerts.newCondition(threshold=0.1, thresholdType='gt'),
     ]),
   },
   vehicles: {
@@ -67,16 +56,7 @@ local panels = {
       message='disconnects errors above 1',
     )
     .addConditions([
-      alertCondition.new(
-        evaluatorParams=[1],
-        evaluatorType='gt',
-        operatorType='and',
-        queryRefId='A',
-        queryTimeEnd='now',
-        queryTimeStart='5m',
-        reducerParams=[],
-        reducerType='last',
-      ),
+      alerts.newCondition(threshold=1, thresholdType='gt'),
     ]),
   },
 };
