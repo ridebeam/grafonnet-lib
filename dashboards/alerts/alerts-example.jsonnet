@@ -39,7 +39,7 @@ local panels = {
     ])
     .addAlert(
       'State error alerts',
-      notifications=alerts.notifications,
+      notifications=alerts.notifications.test,
       message='state errors above 1',
     )
     .addConditions([
@@ -52,7 +52,7 @@ local panels = {
     ])
     .addAlert(
       'Vehicle error alerts',
-      notifications=alerts.notifications,
+      notifications=alerts.notifications.test,
       message='disconnects errors above 1',
     )
     .addConditions([

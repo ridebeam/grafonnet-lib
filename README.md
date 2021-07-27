@@ -2,11 +2,13 @@
 
 ## Setup
 
-Install jsonnet cli
+Install [jsonnet](https://jsonnet.org/).
 
-Clone beam grafonnet library here: https://github.com/ridebeam/grafonnet-lib
+Instructions can be found [here](https://github.com/google/jsonnet#packages).
 
-Copy the library over to the root of the directory.
+Clone the [Beam Grafonnet Submodule](https://github.com/ridebeam/grafonnet-lib).
+
+Copy the library over to the root of the directory to run locally.
 
 ## Generate JSON using CLI to create a dashboard
 

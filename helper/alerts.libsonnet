@@ -1,18 +1,17 @@
 local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
+local panel = import './helper/panel.libsonnet';
 local alertCondition = grafana.alertCondition;
 
 {
-  notifications: [
-    {
-      "uid": "QchRzL3ik" // telegram
-    },
-    {
-      "uid": "XQBRmY3mk" // slack
-    },
-    {
-      "uid": "th3O1VVZk", // opsgenie
-    },
-  ],
+  slack: { "uid": "XQBRmY3mk" },
+  opsgenie: { "uid": "th3O1VVZk" },
+  telegram: { "uid": "W8H360mnk" },
+
+  notifications: {
+    productionAlerts: [$.slack, $.opsgenie],
+    productionWarnings: [$.slack],
+    test: [$.telegram],
+  },
 
   newCondition(
     threshold,
@@ -32,5 +31,5 @@ local alertCondition = grafana.alertCondition;
       queryTimeStart=queryTimeStart,
       reducerParams=reducerParams,
       reducerType=reducerType,
-    )
+    ),
 }
