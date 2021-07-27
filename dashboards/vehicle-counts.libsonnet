@@ -114,6 +114,18 @@ local targets = {
       withServiceFilters=false,
     ),
   },
+  errorCode: {
+    errorCode: gcp.counter(
+      metric=m('error-code'),
+      groupBys=[l('city_id')],
+    ),
+  },
+  batteryLock: {
+    batteryLock: gcp.counter(
+      metric=m('battery-lock'),
+      groupBys=[l('city_id')],
+    ),
+  },
 };
 
 local panels = {
@@ -167,6 +179,16 @@ local panels = {
       targets.deploy.timing.p95,
     ), current=true, sort='current')),
   },
+  errorCode: {
+    errorCode: panel.counter('Error Code').addTargets([
+      targets.errorCode.errorCode,
+    ]),
+  },
+  batteryLock: {
+    batteryLock: panel.counter('Battery Lock').addTargets([
+      targets.batteryLock.batteryLock,
+    ]),
+  },
 };
 
 local rows = {
@@ -178,6 +200,8 @@ local rows = {
   endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),
   collect: row.new('End Trip').addPanels([panels.collect.success, panels.collect.err, panels.collect.timing]),
   deploy: row.new('End Trip').addPanels([panels.deploy.success, panels.deploy.err, panels.deploy.timing]),
+  errorCode: row.new('Error Code').addPanels([panels.errorCode.errorCode]),
+  batteryLock: row.new('Battery Lock').addPanels([panels.batteryLock.batteryLock]),
 };
 
 {
@@ -227,5 +251,7 @@ local rows = {
       rows.endTrip,
       rows.collect,
       rows.deploy,
+      rows.errorCode,
+      rows.batteryLock,
     ]),
 }
