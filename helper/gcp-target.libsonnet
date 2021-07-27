@@ -13,9 +13,12 @@ local gcmon = grafana.googleCloudMonitoring;
   likeFilter(metric, value):: [metric, '=~', value],
   combineFilters(a, b):: if std.length(a) > 0 && std.length(b) > 0 then a + ['AND'] + b else a + b,
 
+  envFilter: $.equalsFilter('resource.label.namespace_name', '$env'),
+  serviceFilter: $.equalsFilter('resource.label.container_name', '$service'),
+
   serviceFilters: $.combineFilters(
-    $.equalsFilter('resource.label.namespace_name', '$env'),
-    $.equalsFilter('resource.label.container_name', '$service'),
+    $.envFilter,
+    $.serviceFilter,
   ),
 
   timerReducers: {
@@ -184,7 +187,7 @@ local gcmon = grafana.googleCloudMonitoring;
     local a = if alias != null then alias else
       if groupBys != [] then '{{%s}}' % std.join('}} - {{', groupBys);
     local ap = if alignmentPeriod != null then alignmentPeriod else 'stackdriver-auto';
-    local f = if withServiceFilters then $.combineFilters($.serviceFilters, filters) else $.combineFilters($.equalsFilter('resource.label.namespace_name', '$env'),filters);
+    local f = if withServiceFilters then $.combineFilters($.serviceFilters, filters) else filters;
     local u = if unit != null then unit else '1';
     gcmon.target(
       aliasBy=a,
