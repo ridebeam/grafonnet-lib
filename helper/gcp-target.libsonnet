@@ -2,7 +2,7 @@ local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local gcmon = grafana.googleCloudMonitoring;
 
 {
-  projectName: 'vehicles-283509',
+  projectName: std.extVar('PROJECT_NAME'),
   namespace: 'custom.googleapis.com',
   exporterName: 'opencensus',
 

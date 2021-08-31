@@ -2,7 +2,7 @@ local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local panel = grafana.graphPanel;
 
-local datasource='Stackdriver';
+local datasource = std.extVar('DATASOURCE');
 
 {
   new(

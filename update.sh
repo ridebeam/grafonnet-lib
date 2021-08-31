@@ -4,14 +4,16 @@ set -e
 API_TOKEN=$1
 JSONNET_PATH=grafonnet-lib
 GRAFANA_BASE_URL=http://beam-grafana-prod.ap-southeast-1.elasticbeanstalk.com
+PROJECT_NAME=vehicles-283509
+DATASOURCE=Stackdriver
 
 generate_dashboard () {
   echo " ------ "
-  echo "generating dashboard $1"
+  echo "generating dashboard $1 for $PROJECT_NAME"
 
   # run create for alerts first without overwrite as alerts only initialized on update
   if [[ $3 == "alerts" ]]; then
-    create_payload="{\"dashboard\": $(jsonnet "$1"), \"folderId\": ${2:-0} }"
+    create_payload="{\"dashboard\": $(jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE), \"folderId\": ${2:-0} }"
     curl \
       -H "Authorization: Bearer $API_TOKEN" \
       -H 'Content-Type: application/json' \
@@ -20,7 +22,7 @@ generate_dashboard () {
     echo ""
   fi
 
-  update_payload="{\"dashboard\": $(jsonnet "$1"), \"overwrite\": true, \"folderId\": ${2:-0} }"
+  update_payload="{\"dashboard\": $(jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE), \"overwrite\": true, \"folderId\": ${2:-0} }"
   curl --fail \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
@@ -35,6 +37,13 @@ done
 
 for D in dashboards/*/; do
   basename=$(basename $D)
+
+  PROJECT_NAME=vehicles-283509
+  DATASOURCE=Stackdriver
+  if [[ -f "${D}args.env" ]]; then
+    source "${D}args.env"
+  fi
+
   # make sure folders exist, before uploading dashboards
   F=${D}folder.jsonnet
   echo " ------ "
