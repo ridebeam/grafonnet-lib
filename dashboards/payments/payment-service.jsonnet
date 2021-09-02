@@ -209,8 +209,10 @@ local panels = {
       targets.createOrder.success,
       targets.createOrder.failed,
     ]),
-    createOrderTiming: panel.timeLinear('Time Create Order Average').addTargets([
+    createOrderTiming: panel.timeLinear('Time Create Order').addTargets([
       targets.createOrder.time.avg,
+      targets.createOrder.time.p95,
+      targets.createOrder.time.p99,
     ]),
 
     refundOrder: panel.counter('Refund Order').addTargets([
@@ -218,17 +220,22 @@ local panels = {
       targets.refundOrder.success,
       targets.refundOrder.failed,
     ]),
-    refundOrderTiming: panel.timeLinear('Time Refund Order Average').addTargets([
+    refundOrderTiming: panel.timeLinear('Time Refund Order').addTargets([
       targets.refundOrder.time.avg,
+      targets.refundOrder.time.p95,
+      targets.refundOrder.time.p99,
     ]),
+
 
     cancelOrder: panel.counter('Cancel Order').addTargets([
       targets.cancelOrder.attempt,
       targets.cancelOrder.success,
       targets.cancelOrder.failed,
     ]),
-    cancelOrderTiming: panel.timeLinear('Time Cancel Order Average').addTargets([
+    cancelOrderTiming: panel.timeLinear('Time Cancel Order').addTargets([
       targets.cancelOrder.time.avg,
+      targets.cancelOrder.time.p95,
+      targets.cancelOrder.time.p99,
     ]),
 
     retryOrder: panel.counter('Retry Order').addTargets([
@@ -236,8 +243,10 @@ local panels = {
       targets.retryOrder.success,
       targets.retryOrder.failed,
     ]),
-    retryOrderTiming: panel.timeLinear('Time Retry Order Average').addTargets([
+    retryOrderTiming: panel.timeLinear('Time Retry Order').addTargets([
       targets.retryOrder.time.avg,
+      targets.retryOrder.time.p95,
+      targets.retryOrder.time.p99,
     ]),
 
     getOrder: panel.counter('Get Order').addTargets([
@@ -245,8 +254,10 @@ local panels = {
       targets.getOrder.success,
       targets.getOrder.failed,
     ]),
-    getOrderTiming: panel.timeLinear('Time Get Order Average').addTargets([
+    getOrderTiming: panel.timeLinear('Time Get Order').addTargets([
       targets.getOrder.time.avg,
+      targets.getOrder.time.p95,
+      targets.getOrder.time.p99,
     ]),
   },
 
@@ -258,8 +269,10 @@ local panels = {
       targets.addRecurring.action,
       targets.addRecurring.cardError,
     ]),
-    addRecurringTiming: panel.timeLinear('Time Add Recurring Average').addTargets([
+    addRecurringTiming: panel.timeLinear('Time Add Recurring').addTargets([
       targets.addRecurring.time.avg,
+      targets.addRecurring.time.p95,
+      targets.addRecurring.time.p99,
     ]),
 
     getRecurring: panel.counter('Get Recurring').addTargets([
@@ -267,8 +280,10 @@ local panels = {
       targets.getRecurring.success,
       targets.getRecurring.failed,
     ]),
-    getRecurringTiming: panel.timeLinear('Time Get Recurring Average').addTargets([
+    getRecurringTiming: panel.timeLinear('Time Get Recurring').addTargets([
       targets.getRecurring.time.avg,
+      targets.getRecurring.time.p95,
+      targets.getRecurring.time.p99,
     ]),
 
     deleteRecurring: panel.counter('Delete Recurring').addTargets([
@@ -276,8 +291,10 @@ local panels = {
       targets.deleteRecurring.success,
       targets.deleteRecurring.failed,
     ]),
-    deleteRecurringTiming: panel.timeLinear('Time Delete Recurring Average').addTargets([
+    deleteRecurringTiming: panel.timeLinear('Time Delete Recurring').addTargets([
       targets.deleteRecurring.time.avg,
+      targets.deleteRecurring.time.p95,
+      targets.deleteRecurring.time.p99,
     ]),
   },
 
@@ -287,8 +304,10 @@ local panels = {
       targets.getPaymentConfig.success,
       targets.getPaymentConfig.failed,
     ]),
-    getPaymentConfigTiming: panel.timeLinear('Timing Get Payment Config Average').addTargets([
+    getPaymentConfigTiming: panel.timeLinear('Timing Get Payment Config').addTargets([
       targets.getPaymentConfig.time.avg,
+      targets.getPaymentConfig.time.p95,
+      targets.getPaymentConfig.time.p99,
     ]),
 
     updatePaymentConfig: panel.counter('Update Payment Config').addTargets([
@@ -296,8 +315,10 @@ local panels = {
       targets.updatePaymentConfig.success,
       targets.updatePaymentConfig.failed,
     ]),
-    updatePaymentConfigTiming: panel.timeLinear('Timing Update Payment Config Average').addTargets([
+    updatePaymentConfigTiming: panel.timeLinear('Timing Update Payment Config').addTargets([
       targets.updatePaymentConfig.time.avg,
+      targets.updatePaymentConfig.time.p95,
+      targets.updatePaymentConfig.time.p99,
     ]),
   },
 
@@ -309,6 +330,8 @@ local panels = {
     ]),
     handleAdyenNotificationTiming: panel.timeLinear('Timing Handle Adyen Notification Average').addTargets([
       targets.handleAdyenNotification.time.avg,
+      targets.handleAdyenNotification.time.p95,
+      targets.handleAdyenNotification.time.p99,
     ]),
 
     handleAdyen3DS: panel.counter('Handle Adyen 3DS').addTargets([
@@ -319,6 +342,8 @@ local panels = {
     ]),
     handleAdyen3DSTiming: panel.timeLinear('Timing Handle Adyen 3DS Average').addTargets([
       targets.handleAdyen3DS.time.avg,
+      targets.handleAdyen3DS.time.p95,
+      targets.handleAdyen3DS.time.p99,
     ]),
   },
 };
