@@ -11,32 +11,37 @@ generate_dashboard () {
   echo " ------ "
   echo "generating dashboard $1 for $PROJECT_NAME"
 
+  tmpJson=$(mktemp /tmp/gen-dashboard.XXXXXX)
+  jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE > "$tmpJson"
+
   # run create for alerts first without overwrite as alerts only initialized on update
   if [[ $3 == "alerts" ]]; then
-    create_payload="{\"dashboard\": $(jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE), \"folderId\": ${2:-0} }"
+    tmpCreateDashboard=$(mktemp /tmp/gen-dashboard-create.XXXXXX)
+    jq "{dashboard: ., folderId: ${2:-0} }" "$tmpJson" > "$tmpCreateDashboard"
     curl \
       -H "Authorization: Bearer $API_TOKEN" \
       -H 'Content-Type: application/json' \
-      -d "${create_payload}" \
+      --data @"${tmpCreateDashboard}" \
       "$GRAFANA_BASE_URL/api/dashboards/db"
     echo ""
   fi
 
-  update_payload="{\"dashboard\": $(jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE), \"overwrite\": true, \"folderId\": ${2:-0} }"
+  tmpUpdateDashboard=$(mktemp /tmp/gen-dashboard-update.XXXXXX)
+  jq "{dashboard: ., folderId: ${2:-0}, overwrite: true }" "$tmpJson" > "$tmpUpdateDashboard"
   curl --fail \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
-    -d "${update_payload}" \
+    --data @"${tmpUpdateDashboard}" \
     "$GRAFANA_BASE_URL/api/dashboards/db"
   echo ""
 }
 
 for F in dashboards/*.jsonnet; do
-  generate_dashboard $F
+  generate_dashboard "$F"
 done
 
 for D in dashboards/*/; do
-  basename=$(basename $D)
+  basename=$(basename "$D")
 
   PROJECT_NAME=vehicles-283509
   DATASOURCE=Stackdriver
