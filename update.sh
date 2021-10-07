@@ -7,7 +7,7 @@ GRAFANA_BASE_URL=http://beam-grafana-prod.ap-southeast-1.elasticbeanstalk.com
 PROJECT_NAME=vehicles-283509
 DATASOURCE=Stackdriver
 
-generate_dashboard () {
+generate_dashboard() {
   echo " ------ "
   echo "generating dashboard $1 for $PROJECT_NAME"
 
@@ -36,10 +36,6 @@ generate_dashboard () {
   echo ""
 }
 
-for F in dashboards/*.jsonnet; do
-  generate_dashboard "$F"
-done
-
 for D in dashboards/*/; do
   basename=$(basename "$D")
 
@@ -54,20 +50,23 @@ for D in dashboards/*/; do
   echo " ------ "
   echo "preparing folder $D"
 
+  tmpFolder=$(mktemp /tmp/gen-dashboard-folder.XXXXXX)
+  jsonnet "$F" >"${tmpFolder}"
+
   # PUT only allows to update, so we create and update, to ensure changes apply
   curl -s \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
-    -d "$(jsonnet $F)" \
+    --data @"${tmpFolder}" \
     "$GRAFANA_BASE_URL/api/folders"
   echo ""
 
   ID=$(curl -s --fail -X PUT \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
-    -d "$(jsonnet $F)" \
-    "$GRAFANA_BASE_URL/api/folders/$(jsonnet $F | jq '.uid' -r)" \
-     | jq '.id')
+    --data @"${tmpFolder}" \
+    "$GRAFANA_BASE_URL/api/folders/$(cat $tmpFolder | jq '.uid' -r)" |
+    jq '.id')
   echo ""
 
   # now we can upload dashboards
