@@ -3,12 +3,12 @@ local row = grafana.row;
 local template = grafana.template;
 local k8s_helper = import '../k8s.libsonnet';
 
-local k8s = k8s_helper.init();
+local k8s = k8s_helper.init('ridebeam-core');
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'GCP Go Service (vehicles)',
-  uid='gcp-go-service',
+  'GCP Go Service (production)',
+  uid='gcp-go-service-core',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',

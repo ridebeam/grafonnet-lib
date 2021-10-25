@@ -1,12 +1,14 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local template = grafana.template;
-local k8s = import '../k8s.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+
+local k8s = k8s_helper.init('ridebeam-payments');
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'GCP Go Service (staging)',
-  uid='gcp-go-service-staging',
+  'GCP Go Service (payments)',
+  uid='gcp-go-service-core',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',

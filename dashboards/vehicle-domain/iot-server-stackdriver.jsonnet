@@ -3,49 +3,55 @@ local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
-local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+local gcp = import '../../helper/gcp.libsonnet';
 
-local helpers = prom.init();
+local k8s = k8s_helper.init();
+local helpers = gcp.init();
 local target = helpers.target;
 local panel = helpers.panel;
+local m = target.customMetric;
+local l = target.label;
 
 local filters = {
-  manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
-  firmware: target.likeFilter('firmware', '$firmware'),
+  manufacturer: target.likeFilter(l('manufacturer'), '$manufacturer'),
+  firmware: [],  // target.likeFilter(l('firmware'), '$firmware'), // deactivating firmware until used in prod
 };
 
 local targets = {
   connections: {
     combined: target.gauge(
       alias='combined',
-      metric='server-devices-connected',
+      metric=m('server-devices-connected'),
       filters=filters.manufacturer,
-      gaugeFunc=target.gaugeFuncs.sum,
+      aligner=target.gaugeReducers.sum.aligner,
+      reducer=target.gaugeReducers.sum.reducer,
     ),
     each: target.gauge(
-      metric='server-devices-connected',
+      metric=m('server-devices-connected'),
       filters=filters.manufacturer,
-      groupBys=['manufacturer'],
-      gaugeFunc=target.gaugeFuncs.sum,
+      groupBys=[l('manufacturer')],
+      aligner=target.gaugeReducers.sum.aligner,
+      reducer=target.gaugeReducers.sum.reducer,
     ),
     perInstance: target.gauge(
-      metric='server-devices-connected',
+      metric=m('server-devices-connected'),
       filters=filters.manufacturer,
       groupBys=['resource.label.pod_name'],
-      gaugeFunc=target.gaugeFuncs.sum,
+      aligner=target.gaugeReducers.sum.aligner,
+      reducer=target.gaugeReducers.sum.reducer,
     ),
     new: target.counter(
       alias='incoming',
-      metric='server-incoming',
+      metric=m('server-incoming'),
       filters=filters.manufacturer,
-      groupBys=['manufacturer'],
+      groupBys=[l('manufacturer')],
     ),
     failed: target.counter(
       alias='failed to connect',
-      metric='server-incoming-error',
+      metric=m('server-incoming-error'),
       filters=filters.manufacturer,
-      groupBys=['manufacturer'],
+      groupBys=[l('manufacturer')],
     ),
     prodDisconnects: cloudwatch.target(
       region='default',
@@ -56,41 +62,41 @@ local targets = {
   },
   commands: {
     received: target.counter(
-      metric='adapter-incoming',
+      metric=m('adapter-incoming'),
       filters=target.combineFilters(
         filters.firmware,
         filters.manufacturer,
       ),
-      groupBys=['cmd'],
+      groupBys=[l('cmd')],
     ),
     receivedFW: target.counter(
-      metric='adapter-incoming',
+      metric=m('adapter-incoming'),
       filters=filters.manufacturer,
-      groupBys=['firmware'],
+      groupBys=[l('firmware')],
     ),
     send: target.counter(
-      metric='device-outgoing',
+      metric=m('device-outgoing'),
       filters=target.combineFilters(
         filters.firmware,
         filters.manufacturer,
       ),
-      groupBys=['cmd_outgoing'],
+      groupBys=[l('cmd_outgoing')],
     ),
     rerouted: target.counter(
-      metric='gateway-incoming-rerouted',
+      metric=m('gateway-incoming-rerouted'),
     ),
     traffic: {
       read: target.counter(
         alias='read',
-        metric='device-incoming-bytes',
+        metric=m('device-incoming-bytes'),
       ),
       write: target.counter(
         alias='write',
-        metric='device-outgoing-bytes',
+        metric=m('device-outgoing-bytes'),
       ),
       skipped: target.counter(
         alias='skipped',
-        metric='device-incoming-bytes-skipped',
+        metric=m('device-incoming-bytes-skipped'),
       ),
     },
   },
@@ -158,8 +164,8 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'iot-server (promql)',
-  uid='vehicle-domain_iot-server_promql',
+  'iot-server',
+  uid='vehicle-domain_iot-server',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
@@ -193,18 +199,15 @@ grafana.dashboard.new(
   )
 )
 
-.addTemplate(
-  template.new(
-    name='firmware',
-    datasource=null,
-    query='label_values(adapter_incoming, firmware)',
-    allValues='.*',
-    current='All',
-    includeAll=true,
-    refresh=1,
-    sort=1,
-  )
-)
+//  .addTemplate(
+//    template.custom(
+//      name='firmware',
+//      query='1414,1411,1394,unknown',
+//      allValues='.*',
+//      current='All',
+//      includeAll=true,
+//    )
+//  )
 
 .addRows([
   k8s.rows.service,

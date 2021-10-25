@@ -34,7 +34,7 @@ Payments (has its own for PCI compliance) - ridebeam-payments / Stackdriver-paym
 
 Run the command and copy the JSON response
 ```
-jsonnet --ext-str DATASOURCE={relevant data source} --ext-str PROJECT_NAME={relevant gcp project} -J grafonnet-lib ${jsonnet file} | pbcopy
+jsonnet -J grafonnet-lib ${jsonnet file} | pbcopy
 ```
 
 Go to beam grafana and import a new dashboard using the JSON above

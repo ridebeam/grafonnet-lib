@@ -3,72 +3,75 @@ local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
-local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+local gcp = import '../../helper/gcp.libsonnet';
 
-local helpers = prom.init();
+local k8s = k8s_helper.init();
+local helpers = gcp.init();
 local target = helpers.target;
 local panel = helpers.panel;
+local m = target.customMetric;
+local l = target.label;
 
 local filters = {
-  manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
+  manufacturer: target.likeFilter(l('manufacturer'), '$manufacturer'),
 };
 
 local targets = {
   georegion: {
     switches: target.counter(
       alias='switches',
-      metric='georegion-switch',
+      metric=m('georegion-switch'),
     ),
     global: target.counter(
       alias='global',
-      metric='georegion-global',
+      metric=m('georegion-global'),
     ),
     country: target.counter(
       alias='country',
-      metric='georegion-country',
+      metric=m('georegion-country'),
     ),
     city: target.counter(
       alias='city',
-      metric='georegion-city',
+      metric=m('georegion-city'),
     ),
     geofence: target.counter(
       alias='geofence',
-      metric='georegion-geofence',
+      metric=m('georegion-geofence'),
     ),
   },
   state: {
     processingTime: target.timers(
-      metric='kafka-consume-duration',
-      filters=target.equalsFilter('kafka_source_topic', 'vehicle-state'),
+      metric=m('kafka-consume-duration'),
+      filters=target.equalsFilter(l('kafka_source_topic'), 'vehicle-state'),
     ),
-    flushes: target.timers('flush-duration'),
-    flushAmount: target.gauges('vehicle-repository-flush-amount'),
+    flushes: target.timers(m('flush-duration')),
+    flushAmount: target.gauges(m('vehicle-repository-flush-amount')),
     changeTime: target.timers(
-      metric='state-changed-latency',
-      groupBys=['state_name'],
+      metric=m('state-changed-latency'),
+      groupBys=[l('state_name')],
     ),
     changes: target.counter(
-      metric='state-changed',
-      groupBys=['state_name'],
+      metric=m('state-changed'),
+      groupBys=[l('state_name')],
     ),
     changeErrors: target.counter(
-      metric='state-changed-error',
-      groupBys=['state_name'],
+      metric=m('state-changed-error'),
+      groupBys=[l('state_name')],
     ),
   },
   vehicles: {
     disconnects: target.counter(
-      metric='iot-disconnected',
-      groupBys=['city_id'],
+      metric=m('iot-disconnected'),
+      groupBys=[l('city_id')],
     ),
     reconnects: target.counter(
-      metric='iot-disconnected-dead-connection',
-      groupBys=['city_id'],
+      metric=m('iot-disconnected-dead-connection'),
+      groupBys=[l('city_id')],
     ),
     disconnectDuration: target.timers(
-      metric='iot-disconnected-duration',
-      groupBys=['city_id'],
+      metric=m('iot-disconnected-duration'),
+      groupBys=[l('city_id')],
     ),
   },
 };
@@ -87,6 +90,7 @@ local panels = {
   },
   state: {
     processingTime: panel.timeLinear('Processing Time').addTargets([
+      targets.state.processingTime.avg,
       targets.state.processingTime.p50,
       targets.state.processingTime.p99,
     ]),
@@ -95,8 +99,8 @@ local panels = {
       targets.state.flushes.p99,
     ]),
     flushAmount: panel.new('Full Flush Entries').addTargets([
-      targets.state.flushAmount.avg,
-      targets.state.flushAmount.max,
+      targets.state.flushAmount.p50,
+      targets.state.flushAmount.p99,
     ]),
     changeTimeP50: panel.timeLog2('Latency p50').addTargets([
       targets.state.changeTime.p50,
@@ -117,6 +121,9 @@ local panels = {
     ]),
     reconnects: panel.counter('Disconnects with Dead Connection').addTargets([
       targets.vehicles.reconnects,
+    ]),
+    disconnectDurationAvg: panel.timeLinear('Time Disconnected avg').addTargets([
+      targets.vehicles.disconnectDuration.avg,
     ]),
     disconnectDurationP50: panel.timeLinear('Time Disconnected p50').addTargets([
       targets.vehicles.disconnectDuration.p50,
@@ -160,6 +167,7 @@ local rows = {
   ] + [
     panel.thirdRow(p)
     for p in [
+      panels.vehicles.disconnectDurationAvg,
       panels.vehicles.disconnectDurationP50,
       panels.vehicles.disconnectDurationP99,
     ]
@@ -168,8 +176,8 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'vehicle-controller (promql)',
-  uid='vehicle-domain_vehicle-controller_promql',
+  'vehicle-controller',
+  uid='vehicle-domain_vehicle-controller',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',

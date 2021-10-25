@@ -61,7 +61,7 @@ local prom = grafana.prometheus;
   ):: {
     [name]: $.timer(
       metric=metric,
-      quantile=$.timerQuantiles[name].quantile,
+      timerQuantile=$.timerQuantiles[name],
       alias=name,
       filters=filters,
       groupBys=groupBys,
@@ -72,14 +72,14 @@ local prom = grafana.prometheus;
 
   timer(
     metric,
-    quantile,
+    timerQuantile,
     alias='',
     filters='',
     groupBys=[],
     withServiceFilters=true,
   )::
-    prom.target(
-      'histogram_quantile(%s, sum(rate(%s_bucket%s[$__interval])) %s)' % [quantile, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(['le'] + groupBys)],
+    $.target(
+      'histogram_quantile(%s, sum(rate(%s_bucket%s[$__interval])) %s)' % [timerQuantile.quantile, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(['le'] + groupBys)],
       legendFormat=$.alias(alias, groupBys)
     ),
 
@@ -94,7 +94,7 @@ local prom = grafana.prometheus;
   ):: {
     [name]: $.gauge(
       metric=metric,
-      func=$.gaugeFuncs[name].func,
+      gaugeFunc=$.gaugeFuncs[name],
       alias=name,
       filters=filters,
       groupBys=groupBys,
@@ -105,14 +105,14 @@ local prom = grafana.prometheus;
 
   gauge(
     metric,
-    func,
+    gaugeFunc,
     alias='',
     filters='',
     groupBys=[],
     withServiceFilters=true,
   )::
-    prom.target(
-      '%s(%s%s[$__interval]) %s > 0' % [func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys)],
+    $.target(
+      '%s(%s%s[$__interval]) %s > 0' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys)],
       legendFormat=$.alias(alias, groupBys)
     ),
 
@@ -127,14 +127,17 @@ local prom = grafana.prometheus;
     local metricsList = if std.length(metric) > 0 then [metric] else metrics;
     local metricsAgg = std.join(' + ', std.map(function(m) 'rate(%s%s[$__interval])' % [$.filterKey(m), $.targetFilters(filters, withServiceFilters)], metricsList));
 
-    prom.target(
+    $.target(
       'sum(%s) %s > 0' % [metricsAgg, $.groupBys(groupBys)],
       legendFormat=$.alias(alias, groupBys)
     ),
 
-  withAlias(
-    target,
-    alias,
-  ):: target { legendFormat: alias },
+  target(expr, legendFormat='')::
+    prom.target(expr, legendFormat=legendFormat)
+    + {
+      withAlias(
+        alias,
+      ):: self { legendFormat: alias },
+    },
 
 }

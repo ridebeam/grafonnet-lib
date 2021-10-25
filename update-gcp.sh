@@ -4,15 +4,14 @@ set -e
 API_TOKEN=$1
 JSONNET_PATH=grafonnet-lib
 GRAFANA_BASE_URL=https://grafana.devops.ridebeam.cloud
-PROJECT_NAME=vehicles-283509
-DATASOURCE=Stackdriver
+FILTER=${2:-'dashboards/*/'}
 
 generate_dashboard() {
   echo " ------ "
   echo "generating dashboard $1 for $PROJECT_NAME"
 
   tmpJson=$(mktemp /tmp/gen-dashboard.XXXXXX)
-  jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE > "$tmpJson"
+  jsonnet "$1" > "$tmpJson"
 
   # run create for alerts first without overwrite as alerts only initialized on update
   if [[ $3 == "alerts" ]]; then
@@ -36,14 +35,8 @@ generate_dashboard() {
   echo ""
 }
 
-for D in dashboards/*/; do
+for D in $FILTER; do
   basename=$(basename "$D")
-
-  PROJECT_NAME=vehicles-283509
-  DATASOURCE=Stackdriver
-  if [[ -f "${D}args.env" ]]; then
-    source "${D}args.env"
-  fi
 
   # make sure folders exist, before uploading dashboards
   F=${D}folder.jsonnet

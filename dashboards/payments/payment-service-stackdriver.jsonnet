@@ -3,201 +3,204 @@ local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
-local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+local gcp = import '../../helper/gcp.libsonnet';
 
-local helpers = prom.init();
+local k8s = k8s_helper.init('ridebeam-payments');
+local helpers = gcp.init('ridebeam-payments');
 local target = helpers.target;
 local panel = helpers.panel;
+local m = target.customMetric;
+local l = target.label;
 
 local targets = {
 
   getPaymentConfig: {
     attempt: target.counter(
-      metric='get-payment-config-attempt',
+      metric=m('get-payment-config-attempt'),
     ),
     success: target.counter(
-      metric='get-payment-config-success',
+      metric=m('get-payment-config-success'),
     ),
     failed: target.counter(
-      metric='get-payment-config-failed',
+      metric=m('get-payment-config-failed'),
     ),
     time: target.timers(
-      metric='get-payment-config-timing',
+      metric=m('get-payment-config-timing'),
     ),
   },
 
   updatePaymentConfig: {
     attempt: target.counter(
-      metric='update-payment-config-attempt',
+      metric=m('update-payment-config-attempt'),
     ),
     success: target.counter(
-      metric='update-payment-config-success',
+      metric=m('update-payment-config-success'),
     ),
     failed: target.counter(
-      metric='update-payment-config-failed',
+      metric=m('update-payment-config-failed'),
     ),
     time: target.timers(
-      metric='update-payment-config-timing',
+      metric=m('update-payment-config-timing'),
     ),
   },
 
   addRecurring: {
     attempt: target.counter(
-      metric='add-recurring-attempt',
+      metric=m('add-recurring-attempt'),
     ),
     success: target.counter(
-      metric='add-recurring-success',
+      metric=m('add-recurring-success'),
     ),
     failed: target.counter(
-      metric='add-recurring-failed',
+      metric=m('add-recurring-failed'),
     ),
     action: target.counter(
-      metric='add-recurring-action',
+      metric=m('add-recurring-action'),
     ),
     cardError: target.counter(
-      metric='add-recurring-error',
+      metric=m('add-recurring-error'),
     ),
     time: target.timers(
-      metric='add-recurring-timing',
+      metric=m('add-recurring-timing'),
     ),
   },
 
   getRecurring: {
     attempt: target.counter(
-      metric='get-recurring-attempt',
+      metric=m('get-recurring-attempt'),
     ),
     success: target.counter(
-      metric='get-recurring-success',
+      metric=m('get-recurring-success'),
     ),
     failed: target.counter(
-      metric='get-recurring-failed',
+      metric=m('get-recurring-failed'),
     ),
     time: target.timers(
-      metric='get-recurring-timing',
+      metric=m('get-recurring-timing'),
     ),
   },
 
   deleteRecurring: {
     attempt: target.counter(
-      metric='delete-recurring-attempt',
+      metric=m('delete-recurring-attempt'),
     ),
     success: target.counter(
-      metric='delete-recurring-success',
+      metric=m('delete-recurring-success'),
     ),
     failed: target.counter(
-      metric='delete-recurring-failed',
+      metric=m('delete-recurring-failed'),
     ),
     time: target.timers(
-      metric='delete-recurring-timing',
+      metric=m('delete-recurring-timing'),
     ),
   },
 
   createOrder: {
     attempt: target.counter(
-      metric='create-order-attempt',
+      metric=m('create-order-attempt'),
     ),
     success: target.counter(
-      metric='create-order-success',
+      metric=m('create-order-success'),
     ),
     failed: target.counter(
-      metric='create-order-failed',
+      metric=m('create-order-failed'),
     ),
     time: target.timers(
-      metric='create-order-timing',
+      metric=m('create-order-timing'),
     ),
   },
 
   refundOrder: {
     attempt: target.counter(
-      metric='refund-order-attempt',
+      metric=m('refund-order-attempt'),
     ),
     success: target.counter(
-      metric='refund-order-success',
+      metric=m('refund-order-success'),
     ),
     failed: target.counter(
-      metric='refund-order-failed',
+      metric=m('refund-order-failed'),
     ),
     time: target.timers(
-      metric='refund-order-timing',
+      metric=m('refund-order-timing'),
     ),
   },
 
   cancelOrder: {
     attempt: target.counter(
-      metric='cancel-order-attempt',
+      metric=m('cancel-order-attempt'),
     ),
     success: target.counter(
-      metric='cancel-order-success',
+      metric=m('cancel-order-success'),
     ),
     failed: target.counter(
-      metric='cancel-order-failed',
+      metric=m('cancel-order-failed'),
     ),
     time: target.timers(
-      metric='cancel-order-timing',
+      metric=m('cancel-order-timing'),
     ),
   },
 
   retryOrder: {
     attempt: target.counter(
-      metric='retry-order-attempt',
+      metric=m('retry-order-attempt'),
     ),
     success: target.counter(
-      metric='retry-order-success',
+      metric=m('retry-order-success'),
     ),
     failed: target.counter(
-      metric='retry-order-failed',
+      metric=m('retry-order-failed'),
     ),
     time: target.timers(
-      metric='retry-order-timing',
+      metric=m('retry-order-timing'),
     ),
   },
 
   getOrder: {
     attempt: target.counter(
-      metric='get-order-attempt',
+      metric=m('get-order-attempt'),
     ),
     success: target.counter(
-      metric='get-order-success',
+      metric=m('get-order-success'),
     ),
     failed: target.counter(
-      metric='get-order-failed',
+      metric=m('get-order-failed'),
     ),
     time: target.timers(
-      metric='get-order-timing',
+      metric=m('get-order-timing'),
     ),
   },
 
   handleAdyenNotification: {
     attempt: target.counter(
-      metric='handle-adyen-notification-attempt',
+      metric=m('handle-adyen-notification-attempt'),
     ),
     success: target.counter(
-      metric='handle-adyen-notification-success',
+      metric=m('handle-adyen-notification-success'),
     ),
     failed: target.counter(
-      metric='handle-adyen-notification-failed',
+      metric=m('handle-adyen-notification-failed'),
     ),
     time: target.timers(
-      metric='handle-adyen-notification-timing',
+      metric=m('handle-adyen-notification-timing'),
     ),
   },
 
   handleAdyen3DS: {
     attempt: target.counter(
-      metric='handle-adyen-3ds-attempt',
+      metric=m('handle-adyen-3ds-attempt'),
     ),
     success: target.counter(
-      metric='handle-adyen-3ds-success',
+      metric=m('handle-adyen-3ds-success'),
     ),
     failed: target.counter(
-      metric='handle-adyen-3ds-failed',
+      metric=m('handle-adyen-3ds-failed'),
     ),
     cardError: target.counter(
-      metric='handle-adyen-3ds-error',
+      metric=m('handle-adyen-3ds-error'),
     ),
     time: target.timers(
-      metric='handle-adyen-3ds-timing',
+      metric=m('handle-adyen-3ds-timing'),
     ),
   },
 };
@@ -210,7 +213,7 @@ local panels = {
       targets.createOrder.failed,
     ]),
     createOrderTiming: panel.timeLinear('Time Create Order').addTargets([
-      targets.createOrder.time.p50,
+      targets.createOrder.time.avg,
       targets.createOrder.time.p95,
       targets.createOrder.time.p99,
     ]),
@@ -221,7 +224,7 @@ local panels = {
       targets.refundOrder.failed,
     ]),
     refundOrderTiming: panel.timeLinear('Time Refund Order').addTargets([
-      targets.refundOrder.time.p50,
+      targets.refundOrder.time.avg,
       targets.refundOrder.time.p95,
       targets.refundOrder.time.p99,
     ]),
@@ -233,7 +236,7 @@ local panels = {
       targets.cancelOrder.failed,
     ]),
     cancelOrderTiming: panel.timeLinear('Time Cancel Order').addTargets([
-      targets.cancelOrder.time.p50,
+      targets.cancelOrder.time.avg,
       targets.cancelOrder.time.p95,
       targets.cancelOrder.time.p99,
     ]),
@@ -244,7 +247,7 @@ local panels = {
       targets.retryOrder.failed,
     ]),
     retryOrderTiming: panel.timeLinear('Time Retry Order').addTargets([
-      targets.retryOrder.time.p50,
+      targets.retryOrder.time.avg,
       targets.retryOrder.time.p95,
       targets.retryOrder.time.p99,
     ]),
@@ -255,7 +258,7 @@ local panels = {
       targets.getOrder.failed,
     ]),
     getOrderTiming: panel.timeLinear('Time Get Order').addTargets([
-      targets.getOrder.time.p50,
+      targets.getOrder.time.avg,
       targets.getOrder.time.p95,
       targets.getOrder.time.p99,
     ]),
@@ -270,7 +273,7 @@ local panels = {
       targets.addRecurring.cardError,
     ]),
     addRecurringTiming: panel.timeLinear('Time Add Recurring').addTargets([
-      targets.addRecurring.time.p50,
+      targets.addRecurring.time.avg,
       targets.addRecurring.time.p95,
       targets.addRecurring.time.p99,
     ]),
@@ -281,7 +284,7 @@ local panels = {
       targets.getRecurring.failed,
     ]),
     getRecurringTiming: panel.timeLinear('Time Get Recurring').addTargets([
-      targets.getRecurring.time.p50,
+      targets.getRecurring.time.avg,
       targets.getRecurring.time.p95,
       targets.getRecurring.time.p99,
     ]),
@@ -292,7 +295,7 @@ local panels = {
       targets.deleteRecurring.failed,
     ]),
     deleteRecurringTiming: panel.timeLinear('Time Delete Recurring').addTargets([
-      targets.deleteRecurring.time.p50,
+      targets.deleteRecurring.time.avg,
       targets.deleteRecurring.time.p95,
       targets.deleteRecurring.time.p99,
     ]),
@@ -305,7 +308,7 @@ local panels = {
       targets.getPaymentConfig.failed,
     ]),
     getPaymentConfigTiming: panel.timeLinear('Timing Get Payment Config').addTargets([
-      targets.getPaymentConfig.time.p50,
+      targets.getPaymentConfig.time.avg,
       targets.getPaymentConfig.time.p95,
       targets.getPaymentConfig.time.p99,
     ]),
@@ -316,7 +319,7 @@ local panels = {
       targets.updatePaymentConfig.failed,
     ]),
     updatePaymentConfigTiming: panel.timeLinear('Timing Update Payment Config').addTargets([
-      targets.updatePaymentConfig.time.p50,
+      targets.updatePaymentConfig.time.avg,
       targets.updatePaymentConfig.time.p95,
       targets.updatePaymentConfig.time.p99,
     ]),
@@ -329,7 +332,7 @@ local panels = {
       targets.handleAdyenNotification.failed,
     ]),
     handleAdyenNotificationTiming: panel.timeLinear('Timing Handle Adyen Notification Average').addTargets([
-      targets.handleAdyenNotification.time.p50,
+      targets.handleAdyenNotification.time.avg,
       targets.handleAdyenNotification.time.p95,
       targets.handleAdyenNotification.time.p99,
     ]),
@@ -341,7 +344,7 @@ local panels = {
       targets.handleAdyen3DS.cardError,
     ]),
     handleAdyen3DSTiming: panel.timeLinear('Timing Handle Adyen 3DS Average').addTargets([
-      targets.handleAdyen3DS.time.p50,
+      targets.handleAdyen3DS.time.avg,
       targets.handleAdyen3DS.time.p95,
       targets.handleAdyen3DS.time.p99,
     ]),

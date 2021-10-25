@@ -1,31 +1,34 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local alerts = import '../../helper/alerts.libsonnet';
-local panel = import '../../helper/panel.libsonnet';
-local gcp = import '../../helper/gcp-target.libsonnet';
-local m = gcp.customMetric;
-local l = gcp.label;
+local gcp = import '../../helper/gcp.libsonnet';
+
+local helpers = gcp.init();
+local target = helpers.target;
+local panel = helpers.panel;
+local m = target.customMetric;
+local l = target.label;
 
 local filters = {
-  service: gcp.combineFilters(
-    gcp.equalsFilter('resource.label.namespace_name', 'production'),
-    gcp.equalsFilter('resource.label.container_name', 'vehicle-controller'),
+  service: target.combineFilters(
+    target.equalsFilter('resource.label.namespace_name', 'production'),
+    target.equalsFilter('resource.label.container_name', 'vehicle-controller'),
   ),
 };
 
 local targets = {
   state: {
-    changeErrors: gcp.counter(
-      metric=m('state-changed-error'),
-      groupBys=[l('state_name')],
+    changeErrors: target.counter(
+      metric='state-changed-error',
+      groupBys=['state_name'],
       filters=filters.service,
       withServiceFilters=false,
     ),
   },
   vehicles: {
-    disconnects: gcp.counter(
-      metric=m('iot-disconnected'),
-      groupBys=[l('city_id')],
+    disconnects: target.counter(
+      metric='iot-disconnected',
+      groupBys=['city_id'],
       filters=filters.service,
       withServiceFilters=false,
     ),
@@ -37,12 +40,12 @@ local panels = {
     changeErrors: panel.counter('Errors').addTargets([
       targets.state.changeErrors,
     ])
-    .addAlert(
+                  .addAlert(
       'State error alerts',
       notifications=alerts.notifications.test,
       message='state errors above 1',
     )
-    .addConditions([
+                  .addConditions([
       alerts.newCondition(threshold=0.1, thresholdType='gt'),
     ]),
   },
@@ -50,12 +53,12 @@ local panels = {
     disconnects: panel.counter('Disconnects').addTargets([
       targets.vehicles.disconnects,
     ])
-    .addAlert(
+                 .addAlert(
       'Vehicle error alerts',
       notifications=alerts.notifications.test,
       message='disconnects errors above 1',
     )
-    .addConditions([
+                 .addConditions([
       alerts.newCondition(threshold=1, thresholdType='gt'),
     ]),
   },

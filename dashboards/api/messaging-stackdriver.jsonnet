@@ -1,41 +1,44 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local template = grafana.template;
 local row = grafana.row;
-local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+local gcp = import '../../helper/gcp.libsonnet';
 
-local helpers = prom.init();
+local k8s = k8s_helper.init();
+local helpers = gcp.init();
 local target = helpers.target;
 local panel = helpers.panel;
+local m = target.customMetric;
+local l = target.label;
 
 local targets = {
   kafka: {
     scooterMessages: target.counter(
-      metric='scooter-messages',
+      metric=m('scooter-messages'),
     ),
     vehicleEvent: target.counter(
-      metric='vehicle-event',
+      metric=m('vehicle-event'),
     ),
     lag: target.timers(
-      metric='kafka-consume-lag',
-      groupBys=['kafka_source_topic'],
+      metric=m('kafka-consume-lag'),
+      groupBys=[l('kafka_source_topic')],
     ),
   },
   vehicles: {
     events: target.counter(
-      metric='handle.vehicle.event.count',
-      groupBys=['property'],
+      metric=m('handle.vehicle.event.count'),
+      groupBys=[l('property')],
     ),
     eventHandlingDuration: target.timers(
-      metric='handle.vehicle.event.duration',
-      groupBys=['property'],
+      metric=m('handle.vehicle.event.duration'),
+      groupBys=[l('property')],
     ),
     skippedEvents: target.counter(
-      metric='handle.skipped.vehicle.event.count',
-      groupBys=['reason'],
+      metric=m('handle.skipped.vehicle.event.count'),
+      groupBys=[l('reason')],
     ),
     eventHandlingTotal: target.timers(
-      metric='vehicle-event-latency',
+      metric=m('vehicle-event-latency'),
     ),
   },
 };
@@ -48,6 +51,7 @@ local panels = {
     ]),
     lagP99: panel.timeLog2('Consumer Lag P99').addTarget(targets.kafka.lag.p99),
     lagP50: panel.timeLog2('Consumer Lag P50').addTarget(targets.kafka.lag.p50),
+    lagAvg: panel.timeLog2('Consumer Lag AVG').addTarget(targets.kafka.lag.avg),
   },
   vehicles: {
     events: panel.counter('Events').addTarget(targets.vehicles.events),
@@ -64,6 +68,7 @@ local rows = {
       panels.kafka.consume,
       panels.kafka.lagP99,
       panels.kafka.lagP50,
+      panels.kafka.lagAvg,
     ]
   ]),
   vehicles: row.new('Vehicles').addPanels([
@@ -79,7 +84,7 @@ local rows = {
 
 grafana.dashboard.new(
   'messaging',
-  uid='prom_api_messaging',
+  uid='api_messaging',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',

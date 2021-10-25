@@ -1,5 +1,19 @@
 version: 2.1
 jobs:
+  build:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: git clone https://github.com/ridebeam/grafonnet-lib
+      - run:
+          name: download jsonnet
+          command: |
+            curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
+            tar -xzf tool.tar.gz
+            ./jsonnet --version
+      - run: PATH=$PATH:$(pwd) .circleci/build-all.sh
+
   fetch-and-publish:
     docker:
       - image: cimg/base:2020.01
@@ -18,6 +32,10 @@ workflows:
   version: 2
   publish:
     jobs:
+    - build:
+      filters:
+        branches:
+          ignore: master
     - fetch-and-publish:
         filters:
           branches:

@@ -1,20 +1,35 @@
 local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
-local panel = import '../helper/promql-panel.libsonnet';
-local prom = import '../helper/promql-target.libsonnet';
 local libProm = grafana.prometheus;
+local prom = import '../helper/promql.libsonnet';
+
+local helpers = prom.init();
+local target = helpers.target;
+local panel = helpers.panel;
 
 {
   targets: {
     process: {
-      cpu: prom.counter(
+      cpu: target.counter(
         metric='container_cpu_usage_seconds_total',
-        filters=prom.combineFilters(prom.equalsFilter('namespace', '$env'), prom.equalsFilter('container', '$service')),
+        filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         withServiceFilters=false,
       ),
-      mem: prom.gauges(
+      cpuEach: target.counter(
+        metric='container_cpu_usage_seconds_total',
+        filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
+        groupBys=['pod'],
+        withServiceFilters=false,
+      ),
+      mem: target.gauges(
         metric='container_memory_usage_bytes',
-        filters=prom.combineFilters(prom.equalsFilter('namespace', '$env'), prom.equalsFilter('container', '$service')),
+        filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
+        withServiceFilters=false,
+      ),
+      memEach: target.gauges(
+        metric='container_memory_usage_bytes',
+        filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
+        groupBys=['pod'],
         withServiceFilters=false,
       ),
       log: libProm.target(
@@ -24,69 +39,75 @@ local libProm = grafana.prometheus;
       ),
     },
     golang: {
-      goroutines: prom.gauges('process/cpu_goroutines'),
+      goroutines: target.gauges('process/cpu_goroutines'),
+      goroutinesEach: target.gauges(
+        metric='process/cpu_goroutines',
+        groupBys=['pod_name'],
+      ),
     },
     http: {
-      latency: prom.timers('opencensus.io/http/server/latency'),
-      status: prom.counter(
+      latency: target.timers('opencensus.io/http/server/latency'),
+      status: target.counter(
         metric='opencensus.io/http/server/response_count_by_status_code',
         groupBys=['http_status'],
       ),
     },
     grpc: {
-      latency: prom.timers('grpc.io/server/server_latency'),
-      status: prom.counter(
+      latency: target.timers('grpc.io/server/server_latency'),
+      status: target.counter(
         metric='grpc.io/server/completed_rpcs',
         groupBys=['grpc_server_status'],
       ),
     },
     kafka: {
-      consume: prom.counter(
+      consume: target.counter(
         metric='kafka-consume',
         groupBys=['kafka_source_topic'],
       ),
-      duration: prom.timers(
+      duration: target.timers(
         metric='kafka-consume-duration',
         groupBys=['kafka_source_topic'],
       ),
-      lag: prom.timers(
+      lag: target.timers(
         metric='kafka-consume-lag',
         groupBys=['kafka_source_topic'],
       ),
-      produce: prom.counter(
+      produce: target.counter(
         metric='kafka-produce',
         groupBys=['kafka_target_topic'],
       ),
-      errors: prom.counter(
+      errors: target.counter(
         metric='kafka-produce-error',
         groupBys=['kafka_target_topic'],
       ),
-      repartition: prom.counter(
+      repartition: target.counter(
         metric='kafka-consume-repartition',
         groupBys=['kafka_source_topic'],
       ),
     },
     postgres: {
       connections: {
-        open: prom.gauges('go.sql/db/connections/open'),
-        idle: prom.gauges('go.sql/db/connections/idle'),
-        active: prom.gauges('go.sql/db/connections/active'),
+        open: target.gauges('go.sql/db/connections/open'),
+        idle: target.gauges('go.sql/db/connections/idle'),
+        active: target.gauges('go.sql/db/connections/active'),
       },
-      latency: prom.timers(
+      latency: target.timers(
         metric='go.sql/client/latency',
         groupBys=['go_sql_method'],
       ),
-      calls: prom.counter(
+      calls: target.counter(
         metric='go.sql/client/calls',
         groupBys=['go_sql_method'],
       ),
-      errors: prom.counter('pg-put-error'),
+      errors: target.counter('pg-put-error').withAlias('pg-put-error'),
     },
   },
   panels: {
     service: {
-      cpu: panel.timeLinear('CPU Usage', legend_show=false).addTarget($.targets.process.cpu),
-      mem: panel.new('Memory Usage', 'bytes', false).addTarget($.targets.process.mem.sum),
+      cpu: panel.timeLinear('CPU Usage Total', legend_show=false).addTarget($.targets.process.cpu),
+      cpuEach: panel.timeLinear('CPU Usage Each', legend_show=true).addTarget($.targets.process.cpuEach),
+      mem: panel.new('Memory Usage Total', 'bytes', false).addTarget($.targets.process.mem.sum),
+      memEach: panel.new('Memory Usage Each', 'bytes', true).addTarget($.targets.process.memEach.max),
       goroutines: panel.new('Go Routines').addTargets([
         $.targets.golang.goroutines.avg,
         $.targets.golang.goroutines.max,
@@ -119,16 +140,16 @@ local libProm = grafana.prometheus;
       consume: panel.counter('Consumed').addTarget($.targets.kafka.consume),
       lagP99: panel.timeLog2('Consumer Lag P99').addTarget($.targets.kafka.lag.p99),
       lagP50: panel.timeLog2('Consumer Lag P50').addTarget($.targets.kafka.lag.p50),
-      durationP99: panel.timeLog2('Consuming Duration P99').addTarget($.targets.kafka.duration.p99),
+      durationP99: panel.timeLinear('Consuming Duration P99').addTarget($.targets.kafka.duration.p99),
       produce: panel.counter('Produced').addTarget($.targets.kafka.produce),
       errors: panel.counter('Producer Errors').addTarget($.targets.kafka.errors),
       repartition: panel.counter('Repartitioned Messages').addTarget($.targets.kafka.repartition),
     },
     postgres: {
       connections: panel.new('Connections').addTargets([
-        prom.withAlias($.targets.postgres.connections.open.sum, 'open'),
-        prom.withAlias($.targets.postgres.connections.idle.sum, 'idle'),
-        prom.withAlias($.targets.postgres.connections.active.sum, 'active'),
+        $.targets.postgres.connections.open.sum.withAlias('open'),
+        $.targets.postgres.connections.idle.sum.withAlias('idle'),
+        $.targets.postgres.connections.active.sum.withAlias('active'),
       ]),
       latency: panel.timeLinear('Latency', format='ms').addTarget($.targets.postgres.latency.p99),
       calls: panel.counter('Calls').addTarget($.targets.postgres.calls),
@@ -140,8 +161,10 @@ local libProm = grafana.prometheus;
       panel.halfRow(p)
       for p in [
         $.panels.service.cpu,
-        $.panels.service.goroutines,
         $.panels.service.mem,
+        $.panels.service.cpuEach,
+        $.panels.service.memEach,
+        $.panels.service.goroutines,
         $.panels.service.log,
       ]
     ]),

@@ -4,15 +4,13 @@ set -e
 API_TOKEN=$1
 JSONNET_PATH=grafonnet-lib
 GRAFANA_BASE_URL=http://beam-grafana-prod.ap-southeast-1.elasticbeanstalk.com
-PROJECT_NAME=vehicles-283509
-DATASOURCE=Stackdriver
 
 generate_dashboard() {
   echo " ------ "
-  echo "generating dashboard $1 for $PROJECT_NAME"
+  echo "generating dashboard $1"
 
   tmpJson=$(mktemp /tmp/gen-dashboard.XXXXXX)
-  jsonnet "$1" --ext-str PROJECT_NAME=$PROJECT_NAME --ext-str DATASOURCE=$DATASOURCE > "$tmpJson"
+  jsonnet "$1" > "$tmpJson"
 
   # run create for alerts first without overwrite as alerts only initialized on update
   if [[ $3 == "alerts" ]]; then
@@ -38,12 +36,6 @@ generate_dashboard() {
 
 for D in dashboards/*/; do
   basename=$(basename "$D")
-
-  PROJECT_NAME=vehicles-283509
-  DATASOURCE=Stackdriver
-  if [[ -f "${D}args.env" ]]; then
-    source "${D}args.env"
-  fi
 
   # make sure folders exist, before uploading dashboards
   F=${D}folder.jsonnet
