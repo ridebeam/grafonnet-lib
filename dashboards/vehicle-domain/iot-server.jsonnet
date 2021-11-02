@@ -32,7 +32,7 @@ local targets = {
     perInstance: target.gauge(
       metric='server-devices-connected',
       filters=filters.manufacturer,
-      groupBys=['resource.label.pod_name'],
+      groupBys=['pod_name'],
       gaugeFunc=target.gaugeFuncs.sum,
     ),
     new: target.counter(
