@@ -10,401 +10,75 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-local targets = {
-
-  getPaymentConfig: {
-    attempt: target.counter(
-      metric='get-payment-config-attempt',
-    ),
-    success: target.counter(
-      metric='get-payment-config-success',
-    ),
-    failed: target.counter(
-      metric='get-payment-config-failed',
-    ),
-    time: target.timers(
-      metric='get-payment-config-timing',
-    ),
+// one entry per row, with a list of panel pairs (counter/timing)
+local metrics = [
+  {
+    row: 'Orders',
+    panels: [
+      { title: 'Create Order', prefix: 'create-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Refund Order', prefix: 'refund-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
+    ],
   },
-
-  updatePaymentConfig: {
-    attempt: target.counter(
-      metric='update-payment-config-attempt',
-    ),
-    success: target.counter(
-      metric='update-payment-config-success',
-    ),
-    failed: target.counter(
-      metric='update-payment-config-failed',
-    ),
-    time: target.timers(
-      metric='update-payment-config-timing',
-    ),
+  {
+    row: 'Recurring',
+    panels: [
+      { title: 'Add Recurring', prefix: 'add-recurring', counters: ['attempt', 'success', 'failed', 'action', 'error'] },
+      { title: 'Get Recurring', prefix: 'get-recurring', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Delete Recurring', prefix: 'delete-recurring', counters: ['attempt', 'success', 'failed'] },
+    ],
   },
-
-  addRecurring: {
-    attempt: target.counter(
-      metric='add-recurring-attempt',
-    ),
-    success: target.counter(
-      metric='add-recurring-success',
-    ),
-    failed: target.counter(
-      metric='add-recurring-failed',
-    ),
-    action: target.counter(
-      metric='add-recurring-action',
-    ),
-    cardError: target.counter(
-      metric='add-recurring-error',
-    ),
-    time: target.timers(
-      metric='add-recurring-timing',
-    ),
+  {
+    row: 'Payment Config',
+    panels: [
+      { title: 'Get Payment Config', prefix: 'get-payment-config', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Update Payment Config', prefix: 'update-payment-config', counters: ['attempt', 'success', 'failed'] },
+    ],
   },
-
-  getRecurring: {
-    attempt: target.counter(
-      metric='get-recurring-attempt',
-    ),
-    success: target.counter(
-      metric='get-recurring-success',
-    ),
-    failed: target.counter(
-      metric='get-recurring-failed',
-    ),
-    time: target.timers(
-      metric='get-recurring-timing',
-    ),
+  {
+    row: 'Adyen',
+    panels: [
+      { title: 'Handle Adyen Notification', prefix: 'handle-adyen-notification', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Handle Adyen 3DS', prefix: 'handle-adyen-3ds', counters: ['attempt', 'success', 'failed', 'error'] },
+    ],
   },
+];
 
-  deleteRecurring: {
-    attempt: target.counter(
-      metric='delete-recurring-attempt',
-    ),
-    success: target.counter(
-      metric='delete-recurring-success',
-    ),
-    failed: target.counter(
-      metric='delete-recurring-failed',
-    ),
-    time: target.timers(
-      metric='delete-recurring-timing',
-    ),
-  },
+// create a simple counter, with the metric name as alias
+local cnt(metric) = target.counter(metric=metric, alias=metric);
 
-  createOrder: {
-    attempt: target.counter(
-      metric='create-order-attempt',
-    ),
-    success: target.counter(
-      metric='create-order-success',
-    ),
-    failed: target.counter(
-      metric='create-order-failed',
-    ),
-    time: target.timers(
-      metric='create-order-timing',
-    ),
-  },
+// create for each metric prefix a timer panel and the various counters
+local pnls(title, prefix, suffixes) =
+  local tmr = target.timers('%s-timing' % [prefix]);
 
-  refundOrder: {
-    attempt: target.counter(
-      metric='refund-order-attempt',
-    ),
-    success: target.counter(
-      metric='refund-order-success',
-    ),
-    failed: target.counter(
-      metric='refund-order-failed',
-    ),
-    time: target.timers(
-      metric='refund-order-timing',
-    ),
-  },
-
-  cancelOrder: {
-    attempt: target.counter(
-      metric='cancel-order-attempt',
-    ),
-    success: target.counter(
-      metric='cancel-order-success',
-    ),
-    failed: target.counter(
-      metric='cancel-order-failed',
-    ),
-    time: target.timers(
-      metric='cancel-order-timing',
-    ),
-  },
-
-  retryOrder: {
-    attempt: target.counter(
-      metric='retry-order-attempt',
-    ),
-    success: target.counter(
-      metric='retry-order-success',
-    ),
-    failed: target.counter(
-      metric='retry-order-failed',
-    ),
-    time: target.timers(
-      metric='retry-order-timing',
-    ),
-  },
-
-  getOrder: {
-    attempt: target.counter(
-      metric='get-order-attempt',
-    ),
-    success: target.counter(
-      metric='get-order-success',
-    ),
-    failed: target.counter(
-      metric='get-order-failed',
-    ),
-    time: target.timers(
-      metric='get-order-timing',
-    ),
-  },
-
-  handleAdyenNotification: {
-    attempt: target.counter(
-      metric='handle-adyen-notification-attempt',
-    ),
-    success: target.counter(
-      metric='handle-adyen-notification-success',
-    ),
-    failed: target.counter(
-      metric='handle-adyen-notification-failed',
-    ),
-    time: target.timers(
-      metric='handle-adyen-notification-timing',
-    ),
-  },
-
-  handleAdyen3DS: {
-    attempt: target.counter(
-      metric='handle-adyen-3ds-attempt',
-    ),
-    success: target.counter(
-      metric='handle-adyen-3ds-success',
-    ),
-    failed: target.counter(
-      metric='handle-adyen-3ds-failed',
-    ),
-    cardError: target.counter(
-      metric='handle-adyen-3ds-error',
-    ),
-    time: target.timers(
-      metric='handle-adyen-3ds-timing',
-    ),
-  },
-};
-
-local panels = {
-  orders: {
-    createOrder: panel.counter('Create Order').addTargets([
-      targets.createOrder.attempt,
-      targets.createOrder.success,
-      targets.createOrder.failed,
-    ]),
-    createOrderTiming: panel.timeLinear('Time Create Order').addTargets([
-      targets.createOrder.time.p50,
-      targets.createOrder.time.p95,
-      targets.createOrder.time.p99,
+  [
+    panel.counter(title).addTargets([
+      cnt('%s-%s' % [prefix, suffix])
+      for suffix in suffixes
     ]),
 
-    refundOrder: panel.counter('Refund Order').addTargets([
-      targets.refundOrder.attempt,
-      targets.refundOrder.success,
-      targets.refundOrder.failed,
-    ]),
-    refundOrderTiming: panel.timeLinear('Time Refund Order').addTargets([
-      targets.refundOrder.time.p50,
-      targets.refundOrder.time.p95,
-      targets.refundOrder.time.p99,
+    panel.timeLinear('Timing %s' % [title]).addTargets([
+      tmr.p50,
+      tmr.p95,
+      tmr.p99,
     ]),
 
+  ];
 
-    cancelOrder: panel.counter('Cancel Order').addTargets([
-      targets.cancelOrder.attempt,
-      targets.cancelOrder.success,
-      targets.cancelOrder.failed,
-    ]),
-    cancelOrderTiming: panel.timeLinear('Time Cancel Order').addTargets([
-      targets.cancelOrder.time.p50,
-      targets.cancelOrder.time.p95,
-      targets.cancelOrder.time.p99,
-    ]),
-
-    retryOrder: panel.counter('Retry Order').addTargets([
-      targets.retryOrder.attempt,
-      targets.retryOrder.success,
-      targets.retryOrder.failed,
-    ]),
-    retryOrderTiming: panel.timeLinear('Time Retry Order').addTargets([
-      targets.retryOrder.time.p50,
-      targets.retryOrder.time.p95,
-      targets.retryOrder.time.p99,
-    ]),
-
-    getOrder: panel.counter('Get Order').addTargets([
-      targets.getOrder.attempt,
-      targets.getOrder.success,
-      targets.getOrder.failed,
-    ]),
-    getOrderTiming: panel.timeLinear('Time Get Order').addTargets([
-      targets.getOrder.time.p50,
-      targets.getOrder.time.p95,
-      targets.getOrder.time.p99,
-    ]),
-  },
-
-  recurring: {
-    addRecurring: panel.counter('Add Recurring').addTargets([
-      targets.addRecurring.attempt,
-      targets.addRecurring.success,
-      targets.addRecurring.failed,
-      targets.addRecurring.action,
-      targets.addRecurring.cardError,
-    ]),
-    addRecurringTiming: panel.timeLinear('Time Add Recurring').addTargets([
-      targets.addRecurring.time.p50,
-      targets.addRecurring.time.p95,
-      targets.addRecurring.time.p99,
-    ]),
-
-    getRecurring: panel.counter('Get Recurring').addTargets([
-      targets.getRecurring.attempt,
-      targets.getRecurring.success,
-      targets.getRecurring.failed,
-    ]),
-    getRecurringTiming: panel.timeLinear('Time Get Recurring').addTargets([
-      targets.getRecurring.time.p50,
-      targets.getRecurring.time.p95,
-      targets.getRecurring.time.p99,
-    ]),
-
-    deleteRecurring: panel.counter('Delete Recurring').addTargets([
-      targets.deleteRecurring.attempt,
-      targets.deleteRecurring.success,
-      targets.deleteRecurring.failed,
-    ]),
-    deleteRecurringTiming: panel.timeLinear('Time Delete Recurring').addTargets([
-      targets.deleteRecurring.time.p50,
-      targets.deleteRecurring.time.p95,
-      targets.deleteRecurring.time.p99,
-    ]),
-  },
-
-  configs: {
-    getPaymentConfig: panel.counter('Get Payment Config').addTargets([
-      targets.getPaymentConfig.attempt,
-      targets.getPaymentConfig.success,
-      targets.getPaymentConfig.failed,
-    ]),
-    getPaymentConfigTiming: panel.timeLinear('Timing Get Payment Config').addTargets([
-      targets.getPaymentConfig.time.p50,
-      targets.getPaymentConfig.time.p95,
-      targets.getPaymentConfig.time.p99,
-    ]),
-
-    updatePaymentConfig: panel.counter('Update Payment Config').addTargets([
-      targets.updatePaymentConfig.attempt,
-      targets.updatePaymentConfig.success,
-      targets.updatePaymentConfig.failed,
-    ]),
-    updatePaymentConfigTiming: panel.timeLinear('Timing Update Payment Config').addTargets([
-      targets.updatePaymentConfig.time.p50,
-      targets.updatePaymentConfig.time.p95,
-      targets.updatePaymentConfig.time.p99,
-    ]),
-  },
-
-  adyen: {
-    handleAdyenNotification: panel.counter('Handle Adyen Notification').addTargets([
-      targets.handleAdyenNotification.attempt,
-      targets.handleAdyenNotification.success,
-      targets.handleAdyenNotification.failed,
-    ]),
-    handleAdyenNotificationTiming: panel.timeLinear('Timing Handle Adyen Notification Average').addTargets([
-      targets.handleAdyenNotification.time.p50,
-      targets.handleAdyenNotification.time.p95,
-      targets.handleAdyenNotification.time.p99,
-    ]),
-
-    handleAdyen3DS: panel.counter('Handle Adyen 3DS').addTargets([
-      targets.handleAdyen3DS.attempt,
-      targets.handleAdyen3DS.success,
-      targets.handleAdyen3DS.failed,
-      targets.handleAdyen3DS.cardError,
-    ]),
-    handleAdyen3DSTiming: panel.timeLinear('Timing Handle Adyen 3DS Average').addTargets([
-      targets.handleAdyen3DS.time.p50,
-      targets.handleAdyen3DS.time.p95,
-      targets.handleAdyen3DS.time.p99,
-    ]),
-  },
-};
-
-local rows = {
-  orders: row.new('Orders').addPanels([
+// create panels for each row and put two panels side by side
+local rows = [
+  row.new(r.row).addPanels([
     panel.halfRow(p)
-    for p in [
-      panels.orders.createOrder,
-      panels.orders.createOrderTiming,
+    for p in std.flattenArrays([
+      pnls(panel.title, panel.prefix, panel.counters)
+      for panel in r.panels
+    ])
+  ])
+  for r in metrics
+];
 
-      panels.orders.refundOrder,
-      panels.orders.refundOrderTiming,
-
-      panels.orders.cancelOrder,
-      panels.orders.cancelOrderTiming,
-
-      panels.orders.retryOrder,
-      panels.orders.retryOrderTiming,
-
-      panels.orders.getOrder,
-      panels.orders.getOrderTiming,
-    ]
-  ]),
-
-  recurring: row.new('Recurring').addPanels([
-    panel.halfRow(p)
-    for p in [
-      panels.recurring.addRecurring,
-      panels.recurring.addRecurringTiming,
-
-      panels.recurring.getRecurring,
-      panels.recurring.getRecurringTiming,
-
-      panels.recurring.deleteRecurring,
-      panels.recurring.deleteRecurringTiming,
-    ]
-  ]),
-
-  config: row.new('Payment Config').addPanels([
-    panel.halfRow(p)
-    for p in [
-      panels.configs.getPaymentConfig,
-      panels.configs.getPaymentConfigTiming,
-
-      panels.configs.updatePaymentConfig,
-      panels.configs.updatePaymentConfigTiming,
-    ]
-  ]),
-
-  adyen: row.new('Adyen').addPanels([
-    panel.halfRow(p)
-    for p in [
-      panels.adyen.handleAdyenNotification,
-      panels.adyen.handleAdyenNotificationTiming,
-
-      panels.adyen.handleAdyen3DS,
-      panels.adyen.handleAdyen3DSTiming,
-    ]
-  ]),
-};
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
@@ -433,12 +107,11 @@ grafana.dashboard.new(
   )
 )
 
-.addRows([
-  k8s.rows.service,
-  panel.collapseRow(k8s.rows.grpc),
-  panel.collapseRow(k8s.rows.postgres),
-  rows.orders,
-  rows.recurring,
-  rows.config,
-  rows.adyen,
-])
+.addRows(
+  [
+    k8s.rows.service,
+    panel.collapseRow(k8s.rows.grpc),
+    panel.collapseRow(k8s.rows.postgres),
+  ]
+  + rows,
+)
