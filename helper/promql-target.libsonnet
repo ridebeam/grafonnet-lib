@@ -28,8 +28,9 @@ local prom = grafana.prometheus;
 
   groupBys(tags=[]):: if std.length(tags) > 0 then 'by (%s)' % [std.join(', ', $.filterKeys(tags))] else '',
 
-  alias(alias='', groupBys=[])::
-    if std.length(groupBys) == 0 then alias
+  alias(alias='', groupBys=[], metric='')::
+    if std.length(groupBys) == 0 && std.length(alias) == 0 then metric
+    else if std.length(groupBys) == 0 then alias
     else if std.length(alias) == 0 then $.aliasFromGroupBys(groupBys)
     else '%s - %s' % [$.aliasFromGroupBys(groupBys), alias],
 
@@ -86,7 +87,7 @@ local prom = grafana.prometheus;
   )::
     $.target(
       'histogram_quantile(%s, sum(rate(%s_bucket%s[%s])) %s)' % [timerQuantile.quantile, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), interval, $.groupBys(['le'] + groupBys)],
-      legendFormat=$.alias(alias, groupBys),
+      legendFormat=$.alias(alias, groupBys, metric),
       intervalFactor=intervalFactor,
     ),
 
@@ -120,7 +121,7 @@ local prom = grafana.prometheus;
   )::
     $.target(
       '%s(%s%s[$__interval]) %s > 0' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys)],
-      legendFormat=$.alias(alias, groupBys)
+      legendFormat=$.alias(alias, groupBys, metric)
     ),
 
   counter(
@@ -138,7 +139,7 @@ local prom = grafana.prometheus;
 
     $.target(
       'sum(%s) %s > 0' % [metricsAgg, $.groupBys(groupBys)],
-      legendFormat=$.alias(alias, groupBys)
+      legendFormat=$.alias(alias, groupBys, metric)
     ),
 
   target(expr, legendFormat='', intervalFactor=1)::
