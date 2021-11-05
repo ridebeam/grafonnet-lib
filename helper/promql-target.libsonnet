@@ -55,6 +55,8 @@ local prom = grafana.prometheus;
 
   timers(
     metric,
+    interval='$__interval',
+    intervalFactor=1,
     filters='',
     groupBys=[],
     withServiceFilters=true,
@@ -62,6 +64,8 @@ local prom = grafana.prometheus;
     [name]: $.timer(
       metric=metric,
       timerQuantile=$.timerQuantiles[name],
+      interval=interval,
+      intervalFactor=intervalFactor,
       alias=name,
       filters=filters,
       groupBys=groupBys,
@@ -73,14 +77,17 @@ local prom = grafana.prometheus;
   timer(
     metric,
     timerQuantile,
+    interval='$__interval',
+    intervalFactor=1,
     alias='',
     filters='',
     groupBys=[],
     withServiceFilters=true,
   )::
     $.target(
-      'histogram_quantile(%s, sum(rate(%s_bucket%s[$__interval])) %s)' % [timerQuantile.quantile, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(['le'] + groupBys)],
-      legendFormat=$.alias(alias, groupBys)
+      'histogram_quantile(%s, sum(rate(%s_bucket%s[%s])) %s)' % [timerQuantile.quantile, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), interval, $.groupBys(['le'] + groupBys)],
+      legendFormat=$.alias(alias, groupBys),
+      intervalFactor=intervalFactor,
     ),
 
   gauges(
@@ -119,21 +126,23 @@ local prom = grafana.prometheus;
   counter(
     metric='',
     metrics=[],
+    interval='$__interval',
+    intervalFactor=1,
     alias='',
     filters='',
     groupBys=[],
     withServiceFilters=true,
   )::
     local metricsList = if std.length(metric) > 0 then [metric] else metrics;
-    local metricsAgg = std.join(' + ', std.map(function(m) 'rate(%s%s[$__interval])' % [$.filterKey(m), $.targetFilters(filters, withServiceFilters)], metricsList));
+    local metricsAgg = std.join(' + ', std.map(function(m) 'rate(%s%s[%s])' % [$.filterKey(m), $.targetFilters(filters, withServiceFilters), interval], metricsList));
 
     $.target(
       'sum(%s) %s > 0' % [metricsAgg, $.groupBys(groupBys)],
       legendFormat=$.alias(alias, groupBys)
     ),
 
-  target(expr, legendFormat='')::
-    prom.target(expr, legendFormat=legendFormat)
+  target(expr, legendFormat='', intervalFactor=1)::
+    prom.target(expr, legendFormat=legendFormat, intervalFactor=intervalFactor)
     + {
       withAlias(
         alias,
