@@ -21,9 +21,32 @@ local targets = {
     filters=filters.country,
     groupBys=['country', 'operator'],
   ),
+  disconnected_duration: target.timers(
+    metric='vehicle-connection-reconnect-duration',
+    interval='24h',
+    filters=filters.country,
+    groupBys=['country', 'operator'],
+  ),
   call_duration: target.timers(
     metric='twilio-get-session-duration',
   ),
+  disconnected_sessions_amount: target.timers(
+    metric='twilio-get-session-amount',
+  ),
+};
+
+local panels = {
+  sessions_no_data: panel.counter(
+    'sessions without data *',
+    description='possible data completetion issue with data sessions not containing data on retrieval',
+  ).addTargets([
+    target.counter(
+      metric='vehicle-connection-without-data',
+      intervalFactor=10,
+      filters=filters.country,
+      groupBys=['country', 'operator'],
+    ),
+  ]),
 };
 
 // Make sure uid matches the name of the file
@@ -69,7 +92,30 @@ grafana.dashboard.new(
 )
 
 .addRows([
-  row.new('connections').addPanels([
+  row.new('Connection Issue Debugging').addPanels([
+    panel.thirdRow(p)
+    for p in [
+      panel.counter('per country').addTargets([
+        target.counter(
+          metric='vehicle-connection-established',
+          intervalFactor=10,
+          filters=filters.country,
+          groupBys=['country'],
+        ),
+      ]),
+      panel.counter('per operator').addTargets([
+        target.counter(
+          metric='vehicle-connection-established',
+          intervalFactor=10,
+          filters=filters.country,
+          groupBys=['country', 'operator'],
+        ),
+      ]),
+      panels.sessions_no_data,
+    ]
+  ]),
+
+  panel.collapseRow(row.new('Twilio - New Connections').addPanels([
     panel.halfRow(p)
     for p in [
       panel.counter('per country').addTargets([
@@ -89,9 +135,9 @@ grafana.dashboard.new(
         ),
       ]),
     ]
-  ]),
+  ])),
 
-  row.new('sessions').addPanels([
+  panel.collapseRow(row.new('Twilio - Data Sessions (possible data issues, see code comments)').addPanels([
     panel.thirdRow(p)
     for p in [
       panel.timeLinear('duration P95 (daily rate)').addTargets([
@@ -102,6 +148,15 @@ grafana.dashboard.new(
       ]),
       panel.timeLinear('duration P5 (daily rate)').addTargets([
         targets.session_duration.p05,
+      ]),
+      panel.timeLinear('time between data sessions P95 (daily rate)').addTargets([
+        targets.disconnected_duration.p95,
+      ]),
+      panel.timeLinear('time between data sessions P50 (daily rate)').addTargets([
+        targets.disconnected_duration.p50,
+      ]),
+      panel.timeLinear('time between data sessions P5 (daily rate)').addTargets([
+        targets.disconnected_duration.p05,
       ]),
     ]
   ] + [
@@ -115,13 +170,15 @@ grafana.dashboard.new(
           groupBys=['country', 'operator'],
         ),
       ]),
-      panel.counter('sessions without data').addTargets([
-        target.counter(
-          metric='vehicle-connection-without-data',
-          intervalFactor=10,
-          filters=filters.country,
-          groupBys=['country', 'operator'],
-        ),
+      panels.sessions_no_data,
+      panel.new(
+        'vehicles without sessions',
+        description='We keep track of disconnected vehicles that had no data sessions in a while. During restarts this might zero out, and gets repopulated after a few mins',
+        legend_show=false,
+      ).addTargets([
+        target.gauges(
+          metric='vehicle-connection-no-sessions',
+        ).sum,
       ]),
       panel.counter('data packets uploaded (daily rate)').addTargets([
         target.counter(
@@ -132,9 +189,9 @@ grafana.dashboard.new(
         ),
       ]),
     ]
-  ]),
+  ])),
 
-  panel.collapseRow(row.new('debug').addPanels([
+  panel.collapseRow(row.new('Twilio - Debug').addPanels([
     panel.halfRow(p)
     for p in [
       panel.timeLog2('GET twillio SID and Session').addTargets([
@@ -156,6 +213,11 @@ grafana.dashboard.new(
         target.counter(
           metric='vehicle-data-incomplete',
         ),
+      ]),
+      panel.timeLinear('sessions per disconnected vehicle', format='short').addTargets([
+        targets.disconnected_sessions_amount.p99,
+        targets.disconnected_sessions_amount.p95,
+        targets.disconnected_sessions_amount.p50,
       ]),
     ]
   ])),

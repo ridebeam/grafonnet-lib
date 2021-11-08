@@ -8,10 +8,12 @@ local panel = grafana.graphPanel;
 
     new(
       title,
+      description=null,
       format='short',
       legend_show=true,
     ):: panel.new(
       title=title,
+      description=description,
       datasource=datasource,
       format=format,
       min=0,
@@ -21,11 +23,13 @@ local panel = grafana.graphPanel;
 
     counter(
       title,
+      description=null,
       format='cps',
       legend_show=true,
       legend_sortDesc=true,
     ):: panel.new(
       title=title,
+      description=description,
       datasource=datasource,
       format=format,
       min=0,
@@ -36,10 +40,12 @@ local panel = grafana.graphPanel;
 
     timeLinear(
       title,
+      description=null,
       format='s',
       legend_show=true,
     ):: panel.new(
       title=title,
+      description=description,
       datasource=datasource,
       format=format,
       min=0,
@@ -49,6 +55,7 @@ local panel = grafana.graphPanel;
 
     timeLog2(
       title,
+      description=null,
       format='s',
       legend_show=true,
       min=null,
@@ -57,6 +64,7 @@ local panel = grafana.graphPanel;
       local m = if min != null then min else if format == 'ms' then '10' else '0.01';
       panel.new(
         title=title,
+        description=description,
         datasource=datasource,
         format=format,
         min=min,
