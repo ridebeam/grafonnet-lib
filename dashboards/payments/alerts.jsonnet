@@ -101,7 +101,7 @@ local rows = [
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Production Alerts',
-  uid='alerts',
+  uid='payments_alerts',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',

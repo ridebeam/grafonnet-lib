@@ -1,12 +1,14 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local template = grafana.template;
-local k8s = import '../k8s-promql.libsonnet';
+local k8s_helper = import '../k8s.libsonnet';
+
+local k8s = k8s_helper.init();
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'GCP Go Service (promQL)',
-  uid='prom-gcp-go-service',
+  'GCP Go Service (vehicles)',
+  uid='gcp-go-service',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
@@ -22,13 +24,10 @@ grafana.dashboard.new(
 )
 
 .addTemplate(
-  template.new(
+  template.custom(
     name='service',
-    datasource=null,
-    query='label_values(process_cpu_goroutines, service)',
+    query='iot-server,vehicle-controller,vehicle-gateway,payment-service,trip,settings,user-authz',
     current='iot-server',
-    refresh=1,
-    sort=1,
   )
 )
 

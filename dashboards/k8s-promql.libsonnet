@@ -54,9 +54,18 @@ local panel = helpers.panel;
     },
     grpc: {
       latency: target.timers('grpc.io/server/server_latency'),
+      latencyPerMethod: target.timers(
+        metric='grpc.io/server/server_latency',
+        filters=target.likeFilter('grpc_server_method', '$grpc_server_method'),
+      ),
       status: target.counter(
         metric='grpc.io/server/completed_rpcs',
         groupBys=['grpc_server_status'],
+      ),
+      statusPerMethod: target.counter(
+        metric='grpc.io/server/completed_rpcs',
+        groupBys=['grpc_server_status'],
+        filters=target.likeFilter('grpc_server_method', '$grpc_server_method'),
       ),
     },
     kafka: {
@@ -134,7 +143,12 @@ local panel = helpers.panel;
         $.targets.grpc.latency.p99,
         $.targets.grpc.latency.p50,
       ]),
+      latencyPerMethod: panel.timeLinear('Latency', format='ms').addTargets([
+        $.targets.grpc.latencyPerMethod.p99,
+        $.targets.grpc.latencyPerMethod.p50,
+      ]),
       status: panel.counter('Status Codes').addTarget($.targets.grpc.status),
+      statusPerMethod: panel.counter('Status Codes').addTarget($.targets.grpc.statusPerMethod),
     },
     kafka: {
       consume: panel.counter('Consumed').addTarget($.targets.kafka.consume),
@@ -180,6 +194,13 @@ local panel = helpers.panel;
       for p in [
         $.panels.grpc.latency,
         $.panels.grpc.status,
+      ]
+    ]),
+    grpcPerMethod: row.new('gRPC ${grpc_server_method}', repeat='grpc_server_method').addPanels([
+      panel.halfRow(p)
+      for p in [
+        $.panels.grpc.latencyPerMethod,
+        $.panels.grpc.statusPerMethod,
       ]
     ]),
     kafka: row.new('Kafka').addPanels([
