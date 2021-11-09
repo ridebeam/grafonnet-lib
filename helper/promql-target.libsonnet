@@ -124,7 +124,7 @@ local prom = grafana.prometheus;
       legendFormat=$.alias(alias, groupBys, metric)
     ),
 
-  counter(
+  delta(
     metric='',
     metrics=[],
     interval='$__interval',
@@ -132,13 +132,40 @@ local prom = grafana.prometheus;
     alias='',
     filters='',
     groupBys=[],
+    includeZero=false,
+    withServiceFilters=true,
+  ):: $.counter(metric, metrics, 'delta', interval, intervalFactor, alias, filters, groupBys, includeZero, withServiceFilters),
+
+  rate(
+    metric='',
+    metrics=[],
+    interval='$__interval',
+    intervalFactor=1,
+    alias='',
+    filters='',
+    groupBys=[],
+    includeZero=false,
+    withServiceFilters=true,
+  ):: $.counter(metric, metrics, 'rate', interval, intervalFactor, alias, filters, groupBys, includeZero, withServiceFilters),
+
+  counter(
+    metric='',
+    metrics=[],
+    func='rate',
+    interval='$__interval',
+    intervalFactor=1,
+    alias='',
+    filters='',
+    groupBys=[],
+    includeZero=false,
     withServiceFilters=true,
   )::
     local metricsList = if std.length(metric) > 0 then [metric] else metrics;
-    local metricsAgg = std.join(' + ', std.map(function(m) 'rate(%s%s[%s])' % [$.filterKey(m), $.targetFilters(filters, withServiceFilters), interval], metricsList));
+    local metricsAgg = std.join(' + ', std.map(function(m) '%s(%s%s[%s])' % [func, $.filterKey(m), $.targetFilters(filters, withServiceFilters), interval], metricsList));
+    local filterZero = if includeZero then '' else ' > 0';
 
     $.target(
-      'sum(%s) %s > 0' % [metricsAgg, $.groupBys(groupBys)],
+      'sum(%s) %s%s' % [metricsAgg, $.groupBys(groupBys), filterZero],
       legendFormat=$.alias(alias, groupBys, metric)
     ),
 

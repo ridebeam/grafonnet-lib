@@ -4,6 +4,6 @@ local target = import 'promql-target.libsonnet';
 {
   init():: {
     target: target,
-    panel: panel.init('default'),
+    panel: panel.init('Prometheus'),
   },
 }
