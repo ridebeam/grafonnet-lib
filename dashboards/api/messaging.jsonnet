@@ -78,7 +78,7 @@ local rows = {
 };
 
 grafana.dashboard.new(
-  'messaging',
+  'messaging (promql)',
   uid='prom_api_messaging',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

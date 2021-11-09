@@ -7,6 +7,8 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
+local countsSD = import './vehicle-counts-stackdriver.libsonnet';
+
 local filters = {
   city: target.combineFilters(target.envFilter, target.likeFilter('city_id', '$city_id')),
   controllerVersion: target.likeFilter('controller_version', '[0-9]+'),
@@ -15,13 +17,13 @@ local filters = {
 local targets = {
   vehicles: {
     countAll: target.gauges(
-      'custom.googleapis.com/opencensus/vehicle-count',
+      'vehicle-count',
       filters=target.combineFilters(filters.city, filters.controllerVersion),
       groupBys=['city_id'],
       withServiceFilters=false,
     ),
     byCity: target.gauges(
-      'custom.googleapis.com/opencensus/vehicle-count',
+      'vehicle-count',
       filters=target.combineFilters(filters.city, filters.controllerVersion),
       groupBys=['city_id', 'iot_version', 'display_version', 'controller_version'],
       withServiceFilters=false,
@@ -252,11 +254,13 @@ local rows = {
     .addRows([
       rows.summary,
       panel.collapseRow(rows.vehicles),
-      rows.startTrip,
-      rows.endTrip,
-      rows.collect,
-      rows.deploy,
-      rows.errorCode,
-      rows.batteryLock,
+
+      // those coming from API still need to be retrieved from GCP Monitoring
+      countsSD.rows.startTrip,
+      countsSD.rows.endTrip,
+      countsSD.rows.collect,
+      countsSD.rows.deploy,
+      countsSD.rows.errorCode,
+      countsSD.rows.batteryLock,
     ]),
 }
