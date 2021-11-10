@@ -20,10 +20,10 @@ local msg = 'Please check the playbook page and look for the corresponding alert
 local alertDefinitions = [
   {
     row: 'Orders',
-    panels: [
+    alerts: [
       {
         title: '[payment-002] Create Order Failed',
-        counter: 'create-order-failed',
+        counter: { name: 'create-order-failed' },
         channels: alerts.notifications.test,
         threshold: 0,
         evaluateFor: '1m',
@@ -33,10 +33,10 @@ local alertDefinitions = [
   },
   {
     row: 'Recurring',
-    panels: [
+    alerts: [
       {
         title: '[payment-001] Add Credit Card Failed',
-        counter: 'add-recurring-failed',
+        counter: { name: 'add-recurring-failed' },
         channels: alerts.notifications.test,
         threshold: 0,
         evaluateFor: '2m',
@@ -46,10 +46,10 @@ local alertDefinitions = [
   },
   {
     row: 'Adyen',
-    panels: [
+    alerts: [
       {
         title: '[payment-003] Failed to handle Adyen 3DS',
-        counter: 'handle-adyen-3ds-failed',
+        counter: { name: 'handle-adyen-3ds-failed' },
         channels: alerts.notifications.test,
         threshold: 0,
         evaluateFor: '2m',
@@ -57,45 +57,6 @@ local alertDefinitions = [
       },
     ],
   },
-];
-
-// create a simple counter, with the metric name as alias
-local createCounter(metric) = target.delta(
-  metric=metric,
-  alias=metric,
-  filters=serviceFilter,
-  includeZero=true,
-  withServiceFilters=false,
-);
-
-// create for each entry a counter panel with alert
-// TODO support for timer
-// TODO move to helper
-local createAlert(def) =
-  [
-    panel.counter(def.title, format='short').addTargets([
-      createCounter(def.counter),
-    ]).addAlert(
-      def.title,
-      notifications=def.channels,
-      message='%s\n\n%s' % [def.title, def.message],
-      forDuration=def.evaluateFor,
-      frequency='1m',
-    ).addConditions([
-      alerts.newCondition(reducerType='max', threshold=def.threshold, thresholdType='gt'),
-    ]),
-  ];
-
-// create panels for each row and put two panels side by side
-local rows = [
-  row.new(r.row).addPanels([
-    panel.halfRow(p)
-    for p in std.flattenArrays([
-      createAlert(alert)
-      for alert in r.panels
-    ])
-  ])
-  for r in alertDefinitions
 ];
 
 // Make sure uid matches the name of the file
@@ -109,4 +70,12 @@ grafana.dashboard.new(
   tags=['generated'],
   editable=true,
 )
-.addRows(rows)
+.addRows(alerts.createRows(alertDefinitions, alerts.defaults {
+  alerts+: {
+    reducerType: 'max',
+  },
+  counters+: {
+    func: 'delta',
+    filters: serviceFilter,
+  },
+}))

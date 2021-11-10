@@ -15,18 +15,14 @@ local gcpPanel = gcpHelpers.panel;
 local m = gcpTarget.customMetric;
 local l = gcpTarget.label;
 
-local prom = import '../../helper/promql.libsonnet';
-local promHelpers = prom.init();
-local promTarget = promHelpers.target;
-local promPanel = promHelpers.panel;
-
-
 local alertDefaults = {
   format: 'short',
   channels: alerts.notifications.test,
   thresholdType: 'gt',
   evaluateFor: '5m',
 };
+
+local gcpFilterMessaging = gcpTarget.equalsFilter('resource.label.container_name', 'messaging');
 
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
@@ -85,7 +81,6 @@ local alertDefinitions = [
       {
         title: 'Production DB Vehicle Table Bloat',
         gcpGauge: {
-          namespace: 'Custom',
           name: m('table-bloat'),
           filters: gcpTarget.equalsFilter(l('table_name'), 'Vehicles'),
         },
@@ -154,6 +149,36 @@ local alertDefinitions = [
         cloudwatch: { namespace: 'AWS/ElasticBeanstalk', name: 'EnvironmentHealth', dimensions: { EnvironmentName: 'docker-production-messaging' } },
         threshold: 20,
         message: '',  // TODO message
+      },
+      {
+        title: 'Kafka: vehicle-event consumption lag',
+        gcpTimer: {
+          name: m('kafka-consume-lag'),
+          filters: gcpTarget.combineFilters(
+            gcpFilterMessaging,
+            gcpTarget.equalsFilter(l('kafka_source_topic'), 'vehicle-event'),
+          ),
+        },
+        threshold: 60,
+        // TODO message
+        message: |||
+          TODO
+        |||,
+      },
+      {
+        title: 'Kafka: vehicle-event consumption lag',
+        gcpTimer: {
+          name: m('kafka-consume-lag'),
+          filters: gcpTarget.combineFilters(
+            gcpFilterMessaging,
+            gcpTarget.equalsFilter(l('kafka_source_topic'), 'vehicle-event'),
+          ),
+        },
+        threshold: 60,
+        // TODO message
+        message: |||
+          TODO
+        |||,
       },
     ],
   },
@@ -295,6 +320,15 @@ local createGCPGauge(metric) = gcpTarget.gauges(
   withServiceFilters=false,
 ).max;
 
+local createGCPTimer(metric) = gcpTarget.timers(
+  metric=metric.name,
+  filters=gcpTarget.combineFilters(
+    metric.filters,
+    gcpTarget.equalsFilter('resource.label.namespace_name', 'production'),
+  ),
+  withServiceFilters=false,
+).p99;
+
 // create a simple counter, with the metric name as alias
 local createCloudwatchTarget(metric) = cloudwatch.target(
   region='default',
@@ -311,6 +345,8 @@ local createTarget(alertDefinition) =
     createGCPCounter(alertDefinition.gcpCounter)
   else if 'gcpGauge' in alertDefinition then
     createGCPGauge(alertDefinition.gcpGauge)
+  else if 'gcpTimer' in alertDefinition then
+    createGCPTimer(alertDefinition.gcpTimer)
   else {};
 
 local panelHelper(alertDefinition) =
@@ -320,10 +356,11 @@ local panelHelper(alertDefinition) =
     gcpPanel
   else if 'gcpGauge' in alertDefinition then
     gcpPanel
+  else if 'gcpTimer' in alertDefinition then
+    gcpPanel
   else {};
 
 // create for each entry a counter panel with alert
-// TODO support for timer
 // TODO move to helper
 local createAlert(definition) =
   local def = alertDefaults + definition;

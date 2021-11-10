@@ -98,6 +98,7 @@ local prom = grafana.prometheus;
     groupBys=[],
     unit=null,
     valueType=null,
+    includeZero=false,
     withServiceFilters=true,
   ):: {
     [name]: $.gauge(
@@ -106,6 +107,7 @@ local prom = grafana.prometheus;
       alias=name,
       filters=filters,
       groupBys=groupBys,
+      includeZero=includeZero,
       withServiceFilters=withServiceFilters,
     )
     for name in std.objectFields($.gaugeFuncs)
@@ -117,10 +119,12 @@ local prom = grafana.prometheus;
     alias='',
     filters='',
     groupBys=[],
+    includeZero=false,
     withServiceFilters=true,
   )::
+    local filterZero = if includeZero then '' else ' > 0';
     $.target(
-      '%s(%s%s[$__interval]) %s > 0' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys)],
+      '%s(%s%s[$__interval]) %s%s' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys), filterZero],
       legendFormat=$.alias(alias, groupBys, metric)
     ),
 

@@ -18,6 +18,7 @@ local panel = grafana.graphPanel;
       format=format,
       min=0,
       legend_show=legend_show,
+      legend_sortDesc=true,
       nullPointMode='null as zero',
     ),
 
