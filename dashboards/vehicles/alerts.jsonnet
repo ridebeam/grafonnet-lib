@@ -9,13 +9,6 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-local alertDefaults = {
-  format: 'short',
-  channels: alerts.notifications.test,
-  thresholdType: 'gt',
-  evaluateFor: '5m',
-};
-
 local filterIotServer = target.equalsFilter('service', 'iot-server');
 local filterVehicleController = target.equalsFilter('service', 'vehicle-controller');
 local filterVehicleGateway = target.equalsFilter('service', 'vehicle-gateway');

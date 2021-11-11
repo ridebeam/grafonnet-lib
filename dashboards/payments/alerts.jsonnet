@@ -24,9 +24,7 @@ local alertDefinitions = [
       {
         title: '[payment-002] Create Order Failed',
         counter: { name: 'create-order-failed' },
-        channels: alerts.notifications.test,
         threshold: 0,
-        evaluateFor: '1m',
         message: msg,
       },
     ],
@@ -37,9 +35,7 @@ local alertDefinitions = [
       {
         title: '[payment-001] Add Credit Card Failed',
         counter: { name: 'add-recurring-failed' },
-        channels: alerts.notifications.test,
         threshold: 0,
-        evaluateFor: '2m',
         message: msg,
       },
     ],
@@ -50,9 +46,7 @@ local alertDefinitions = [
       {
         title: '[payment-003] Failed to handle Adyen 3DS',
         counter: { name: 'handle-adyen-3ds-failed' },
-        channels: alerts.notifications.test,
         threshold: 0,
-        evaluateFor: '2m',
         message: msg,
       },
     ],
@@ -73,6 +67,7 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
     channels: alerts.notifications.productionWarnings,
+    evaluateFor: '1m',
     reducerType: 'max',
   },
   counters+: {
