@@ -7,7 +7,7 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-local countsSD = import './vehicle-counts-stackdriver.libsonnet';
+local kpi = import './kpi.libsonnet';
 
 local filters = {
   city: target.combineFilters(target.envFilter, target.likeFilter('city_id', '$city_id')),
@@ -256,11 +256,11 @@ local rows = {
       panel.collapseRow(rows.vehicles),
 
       // those coming from API still need to be retrieved from GCP Monitoring
-      countsSD.rows.startTrip,
-      countsSD.rows.endTrip,
-      countsSD.rows.collect,
-      countsSD.rows.deploy,
-      countsSD.rows.errorCode,
-      countsSD.rows.batteryLock,
+      kpi.rows.startTrip,
+      kpi.rows.endTrip,
+      kpi.rows.collect,
+      kpi.rows.deploy,
+      kpi.rows.errorCode,
+      kpi.rows.batteryLock,
     ]),
 }

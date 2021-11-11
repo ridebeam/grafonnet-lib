@@ -115,8 +115,8 @@ local panel = helpers.panel;
     service: {
       cpu: panel.timeLinear('CPU Usage Total', legend_show=false).addTarget($.targets.process.cpu),
       cpuEach: panel.timeLinear('CPU Usage Each', legend_show=true).addTarget($.targets.process.cpuEach),
-      mem: panel.new('Memory Usage Total', 'bytes', false).addTarget($.targets.process.mem.sum),
-      memEach: panel.new('Memory Usage Each', 'bytes', true).addTarget($.targets.process.memEach.max),
+      mem: panel.new('Memory Usage Total', format='bytes', legend_show=false).addTarget($.targets.process.mem.sum),
+      memEach: panel.new('Memory Usage Each', format='bytes', legend_show=true).addTarget($.targets.process.memEach.max),
       goroutines: panel.new('Go Routines').addTargets([
         $.targets.golang.goroutines.avg,
         $.targets.golang.goroutines.max,

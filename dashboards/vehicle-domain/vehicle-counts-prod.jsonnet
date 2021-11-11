@@ -1,5 +1,0 @@
-local cities = import '../../data/prod-cities.json';
-local vehicleCounts = import 'vehicle-counts.libsonnet';
-
-
-vehicleCounts.dashboard('vehicle-counts-prod', cities, 'production')

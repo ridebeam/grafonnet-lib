@@ -17,20 +17,6 @@ local filters = {
 
 {
   targets:: {
-    vehicles: {
-      countAll: target.gauges(
-        'custom.googleapis.com/opencensus/vehicle-count',
-        filters=target.combineFilters(filters.city, filters.controllerVersion),
-        groupBys=[l('city_id')],
-        withServiceFilters=false,
-      ),
-      byCity: target.gauges(
-        'custom.googleapis.com/opencensus/vehicle-count',
-        filters=target.combineFilters(filters.city, filters.controllerVersion),
-        groupBys=[l('city_id'), l('iot_version'), l('display_version'), l('controller_version')],
-        withServiceFilters=false,
-      ),
-    },
     startTrip: {
       success: target.counter(
         alias='start-trip-success',
@@ -136,12 +122,6 @@ local filters = {
   panels:: {
     local targets = $.targets,
 
-    vehicles: {
-      all: panel.fullRow(panel.showTable(panel.counter(title='Vehicle all', format='none').addTargets([
-        targets.vehicles.countAll.sum,
-      ]), current=true, sort='current')),
-      byCity: panel.repeatPanel(panel.fullRow(panel.showTable(panel.counter(title='Vehicles in ' + '$city_id', format='none', legend_sortDesc=true).addTargets([targets.vehicles.byCity.avg]), current=true, sort='current')), 'city_id', 'v'),
-    },
     startTrip: {
       success: panel.halfRow(panel.showTable(panel.counter(title='Start trip success').addTargets([
         targets.startTrip.success,
@@ -201,10 +181,6 @@ local filters = {
   rows:: {
     local panels = $.panels,
 
-    summary: row.new('All Vehicles').addPanels([panels.vehicles.all]),
-    vehicles: row.new('Vehicles per city').addPanels([
-      panels.vehicles.byCity,
-    ]),
     startTrip: row.new('Start Trip').addPanels([panels.startTrip.success, panels.startTrip.err, panels.startTrip.timing]),
     endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),
     collect: row.new('End Trip').addPanels([panels.collect.success, panels.collect.err, panels.collect.timing]),
@@ -212,56 +188,4 @@ local filters = {
     errorCode: row.new('Error Code').addPanels([panels.errorCode.errorCode]),
     batteryLock: row.new('Battery Lock').addPanels([panels.batteryLock.batteryLock]),
   },
-
-  dashboard(uid, cities, env)::
-    local rows = $.rows;
-
-    local cityIds = std.objectFields(cities);
-    grafana.dashboard.new(
-      'Vehicle Counts ' + env,
-      uid=uid,
-      refresh='30s',
-      timepicker=grafana.timepicker.new() { nowDelay: '1m' },
-      time_to='now-1m',
-      tags=['overview', 'generic', 'generated']
-    )
-
-    .addTemplate(
-      template.custom(
-        name='env',
-        query='staging,production',
-        current=env,
-        hide='true',
-      )
-    )
-
-    .addTemplate(
-      template.custom(
-        name='service',
-        query='vehicle-gateway',
-        current='vehicle-gateway',
-        hide='true',
-      )
-    )
-
-    .addTemplate(
-      template.custom(
-        name='city_id',
-        query=std.join(',', cityIds),
-        valuelabels=cities,
-        includeAll=true,
-        current='All',
-      )
-    )
-
-    .addRows([
-      rows.summary,
-      panel.collapseRow(rows.vehicles),
-      rows.startTrip,
-      rows.endTrip,
-      rows.collect,
-      rows.deploy,
-      rows.errorCode,
-      rows.batteryLock,
-    ]),
 }

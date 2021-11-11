@@ -82,7 +82,7 @@ local rows = [
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'payment-service',
+  'payment-service (promql)',
   uid='payments_payment-service',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

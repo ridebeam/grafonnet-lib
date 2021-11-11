@@ -7,7 +7,6 @@ GRAFANA_BASE_URL=https://grafana.devops.ridebeam.cloud
 FILTER=${2:-'dashboards/*/'}
 
 generate_dashboard() {
-  echo " ------ "
   echo "generating dashboard '$1'"
 
   filename=$(basename $1)
@@ -16,18 +15,6 @@ generate_dashboard() {
 
   tmpJson=$(mktemp /tmp/gen-dashboard.XXXXXX)
   jsonnet "$1" | jq ".uid=\"$dashboardUID\"" >"$tmpJson"
-
-  # run create for alerts first without overwrite as alerts only initialized on update
-  if [[ $3 == "alerts" ]]; then
-    tmpCreateDashboard=$(mktemp /tmp/gen-dashboard-create.XXXXXX)
-    jq "{dashboard: ., folderId: ${2:-0} }" "$tmpJson" >"$tmpCreateDashboard"
-    curl \
-      -H "Authorization: Bearer $API_TOKEN" \
-      -H 'Content-Type: application/json' \
-      --data @"${tmpCreateDashboard}" \
-      "$GRAFANA_BASE_URL/api/dashboards/db"
-    echo ""
-  fi
 
   tmpUpdateDashboard=$(mktemp /tmp/gen-dashboard-update.XXXXXX)
   jq "{dashboard: ., folderId: ${2:-0}, overwrite: true }" "$tmpJson" >"$tmpUpdateDashboard"
@@ -40,15 +27,15 @@ generate_dashboard() {
 }
 
 for D in $FILTER; do
-  basename=$(basename "$D")
+  folderUID=$(basename "$D")
 
   # make sure folders exist, before uploading dashboards
   F=${D}folder.jsonnet
   echo " ------ "
-  echo "preparing folder $D"
+  echo "preparing folder $D (UID: $folderUID)"
 
   tmpFolder=$(mktemp /tmp/gen-dashboard-folder.XXXXXX)
-  jsonnet "$F" >"${tmpFolder}"
+  jsonnet "$F" | jq ".uid=\"$folderUID\"" > "${tmpFolder}"
 
   # PUT only allows to update, so we create and update, to ensure changes apply
   curl -s \
@@ -58,7 +45,6 @@ for D in $FILTER; do
     "$GRAFANA_BASE_URL/api/folders"
   echo ""
 
-  folderUID=$(cat $tmpFolder | jq '.uid' -r)
   folderID=$(curl -s --fail -X PUT \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
