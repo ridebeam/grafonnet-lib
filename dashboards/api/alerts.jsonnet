@@ -290,6 +290,7 @@ local alertDefinitions = [
         },
         format: 'percent',
         threshold: 75,
+        channels: alerts.notifications.productionWarnings,
         message: |||
           Redash memory usage is above 75%.
 
