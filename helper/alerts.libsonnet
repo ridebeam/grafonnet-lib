@@ -8,10 +8,9 @@ local promTarget = promHelpers.target;
 local promPanel = promHelpers.panel;
 
 {
-  slack: { uid: 'XQBRmY3mk' },
+  slack: { uid: 'tcneVhOnz' },
   slackTest: { uid: '5th60Gc7z' },
-  opsgenie: { uid: 'th3O1VVZk' },
-  telegram: { uid: 'W8H360mnk' },
+  opsgenie: { uid: 'krSwV2d7k' },
 
   notifications: {
     productionAlerts: [$.slack, $.opsgenie],
@@ -21,7 +20,7 @@ local promPanel = promHelpers.panel;
 
   alertDefaults:: {
     format: 'short',
-    channels: $.notifications.test,
+    channels: $.notifications.productionAlerts,
     thresholdType: 'gt',
     evaluateFor: '5m',
     reducerType: 'avg',

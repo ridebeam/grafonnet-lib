@@ -17,7 +17,7 @@ local l = gcpTarget.label;
 
 local alertDefaults = {
   format: 'short',
-  channels: alerts.notifications.test,
+  channels: alerts.notifications.productionAlerts,
   thresholdType: 'gt',
   evaluateFor: '5m',
 };
@@ -41,6 +41,7 @@ local alertDefinitions = [
         cloudwatch: { namespace: 'AWS/RDS', name: 'OldestReplicationSlotLag', dimensions: { DBInstanceIdentifier: 'liveescooter' } },
         format: 'bytes',
         threshold: 10000000000,
+        channels: alerts.notifications.productionWarnings,
         message: '',  // TODO message
       },
       {
@@ -62,6 +63,7 @@ local alertDefinitions = [
         cloudwatch: { namespace: 'AWS/RDS', name: 'CPUUtilization', dimensions: { DBInstanceIdentifier: 'liveescooter' } },
         format: 'percent',
         threshold: 60,
+        channels: alerts.notifications.productionWarnings,
         message: '',  // TODO message
       },
       {
