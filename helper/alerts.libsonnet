@@ -9,12 +9,13 @@ local promPanel = promHelpers.panel;
 
 {
   slack: { uid: 'tcneVhOnz' },
+  slackWarn: { uid: 'z_hJjK57z' },
   slackTest: { uid: '5th60Gc7z' },
   opsgenie: { uid: 'krSwV2d7k' },
 
   notifications: {
     productionAlerts: [$.slack, $.opsgenie],
-    productionWarnings: [$.slack],
+    productionWarnings: [$.slackWarn],
     test: [$.slackTest],
   },
 
