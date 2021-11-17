@@ -10,15 +10,13 @@ local panel = cwHelpers.panel;
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'external-data-api',
+  'External Data API Overview',
   uid='external-data-api',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
   tags=['generated'],
 )
-
-
 
 .addRows([
   row.new('Service Overview').addPanels([
@@ -53,7 +51,7 @@ grafana.dashboard.new(
           dimensions={ EnvironmentName: 'external-data-api-production' },
           period='auto',
         )
-    ),
+      ),
     ]
   ]),
 ])
