@@ -1,7 +1,7 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local template = grafana.template;
 local row = grafana.row;
-local k8s_helper = import '../k8s.libsonnet';
+local k8s_helper = import '../k8s-stackdriver.libsonnet';
 local gcp = import '../../helper/gcp.libsonnet';
 
 local k8s = k8s_helper.init();

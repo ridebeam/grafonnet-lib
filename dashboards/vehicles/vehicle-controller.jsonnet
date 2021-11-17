@@ -168,7 +168,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'vehicle-controller (promql)',
+  'vehicle-controller',
   uid='vehicle-domain_vehicle-controller_promql',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

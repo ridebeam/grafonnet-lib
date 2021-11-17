@@ -54,7 +54,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'user-authz (promql)',
+  'user-authz',
   uid='user_user-authz',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

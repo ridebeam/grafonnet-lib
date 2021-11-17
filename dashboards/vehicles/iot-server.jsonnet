@@ -158,7 +158,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'iot-server (promql)',
+  'iot-server',
   uid='vehicle-domain_iot-server_promql',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
