@@ -56,7 +56,7 @@ grafana.dashboard.new(
           withServiceFilters=false,
         )
       ),
-      panel.new('Memory Usage', 'bytes', legend_show=true).addTarget(
+      panel.new('Memory Usage', format='bytes', legend_show=true).addTarget(
         target.gauges(
           metric='container_memory_usage_bytes',
           filters=target.combineFilters(target.equalsFilter('container', '$service'), target.likeFilter('cluster', '$cluster')),
