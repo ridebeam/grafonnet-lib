@@ -33,9 +33,9 @@ workflows:
   publish:
     jobs:
     - build:
-      filters:
-        branches:
-          ignore: master
+        filters:
+          branches:
+            ignore: master
     - fetch-and-publish:
         filters:
           branches:
