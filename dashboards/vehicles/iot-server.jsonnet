@@ -5,6 +5,7 @@ local template = grafana.template;
 local row = grafana.row;
 local prom = import '../../helper/promql.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
+local k8sSD = import '../k8s-stackdriver.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
@@ -207,7 +208,7 @@ grafana.dashboard.new(
 )
 
 .addRows([
-  k8s.rows.service,
+  k8s.rows.service.addPanel(panel.halfRow(k8sSD.init().panels.service.log)),
   panel.collapseRow(k8s.rows.http),
   k8s.rows.kafka,
   panel.collapseRow(k8s.rows.postgres),
