@@ -176,9 +176,7 @@ local prom = grafana.prometheus;
   target(expr, legendFormat='', intervalFactor=1)::
     prom.target(expr, legendFormat=legendFormat, intervalFactor=intervalFactor)
     + {
-      withAlias(
-        alias,
-      ):: self { legendFormat: alias },
+      withAlias(alias):: self { legendFormat: alias },
     },
 
 }

@@ -12,7 +12,7 @@ local promPanel = promHelpers.panel;
   slackWarn: { uid: 'z_hJjK57z' },
   slackTest: { uid: '5th60Gc7z' },
   opsgenie: { uid: 'krSwV2d7k' },
-  opsgenieOpsGR: {uid: 'y_LC8a5nk' },
+  opsgenieOpsGR: { uid: 'y_LC8a5nk' },
 
   notifications: {
     productionAlerts: [$.slack, $.opsgenie],
@@ -85,6 +85,11 @@ local promPanel = promHelpers.panel;
     withServiceFilters=false,
   ).p99,
 
+  createCustom(metric):: promTarget.target(
+    expr=metric.query,
+    legendFormat=metric.alias,
+  ),
+
   createTarget(alertDefinition, defaults)::
     if 'counter' in alertDefinition then
       $.createCounter(alertDefinition.counter, defaults.counters)
@@ -92,6 +97,8 @@ local promPanel = promHelpers.panel;
       $.createGauge(alertDefinition.gauge)
     else if 'timer' in alertDefinition then
       $.createTimer(alertDefinition.timer)
+    else if 'custom' in alertDefinition then
+      $.createCustom(alertDefinition.custom)
     else {},
 
 

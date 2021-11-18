@@ -9,9 +9,18 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-local filterIotServer = target.equalsFilter('service', 'iot-server');
-local filterVehicleController = target.equalsFilter('service', 'vehicle-controller');
-local filterVehicleGateway = target.equalsFilter('service', 'vehicle-gateway');
+local filterIotServer = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'iot-server'),
+);
+local filterVehicleController = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'vehicle-controller'),
+);
+local filterVehicleGateway = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'vehicle-gateway'),
+);
 
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
@@ -93,13 +102,14 @@ local alertDefinitions = [
     row: 'vehicle-gateway',
     alerts: [
       {
-        title: 'kafka consumption lag: vehicle-event',
-        timer: {
+        title: 'kafka consumption lag: vehicle-event (serving instances only)',
+        custom: {
           name: 'kafka-consume-lag',
-          filters: target.combineFilters(
-            filterVehicleGateway,
-            target.equalsFilter('kafka_source_topic', 'vehicle-event'),
-          ),
+          query: |||
+            histogram_quantile(0.95, sum(rate(kafka_consume_lag_bucket{namespace="production",service="vehicle-gateway", kafka_source_topic="vehicle-event"}[1m])) by (pod_name, le))
+            * group(grpc_io_server_completed_rpcs{namespace="production", service="vehicle-gateway"}) by (pod_name)
+          |||,
+          alias: '{{pod_name}}',
         },
         format: 's',
         threshold: 60,
