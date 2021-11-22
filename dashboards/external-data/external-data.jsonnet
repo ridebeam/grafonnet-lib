@@ -22,7 +22,7 @@ grafana.dashboard.new(
   row.new('Service Overview').addPanels([
     panel.halfRow(p)
     for p in [
-      panel.timeLinear('Average 2XX', legend_show=true).addTarget(
+      panel.new('Average 2XX', legend_show=true).addTarget(
         cloudwatch.target(
           region='ap-southeast-1',
           namespace='AWS/ElasticBeanstalk',
@@ -32,7 +32,7 @@ grafana.dashboard.new(
           period='auto',
         )
       ),
-      panel.timeLinear('Average 5XX ', legend_show=true).addTarget(
+      panel.new('Average 5XX ', legend_show=true).addTarget(
         cloudwatch.target(
           region='ap-southeast-1',
           namespace='AWS/ElasticBeanstalk',
@@ -42,7 +42,7 @@ grafana.dashboard.new(
           period='auto',
         )
       ),
-      panel.timeLinear('Average P90 Latency', legend_show=true).addTarget(
+      panel.new('Average P90 Latency', legend_show=true).addTarget(
         cloudwatch.target(
           region='ap-southeast-1',
           namespace='AWS/ElasticBeanstalk',
