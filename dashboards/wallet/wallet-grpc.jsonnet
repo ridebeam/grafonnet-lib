@@ -10,7 +10,7 @@ local k8s = import '../k8s-promql.libsonnet';
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Wallet gRPC',
-  uid='wallet-grpc',
+  uid='wallet_wallet-grpc',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
