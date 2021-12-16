@@ -27,6 +27,7 @@ local promPanel = promHelpers.panel;
     thresholdType: 'gt',
     evaluateFor: '5m',
     reducerType: 'avg',
+    queryTimeStart: '5m',
   },
 
   counterDefaults:: {
@@ -115,7 +116,12 @@ local promPanel = promHelpers.panel;
         forDuration=def.evaluateFor,
         frequency='1m',
       ).addConditions([
-        $.newCondition(reducerType=def.reducerType, threshold=def.threshold, thresholdType=def.thresholdType),
+        $.newCondition(
+          reducerType=def.reducerType, 
+          threshold=def.threshold, 
+          thresholdType=def.thresholdType, 
+          queryTimeStart=def.queryTimeStart,
+        ),
       ]),
     ],
 
