@@ -9,40 +9,61 @@ local panel = helpers.panel;
 
 local k8s = import '../k8s-promql.libsonnet';
 
-// TODO: custom metrics will be added later
 // one entry per row, with a list of panel pairs (counter/timing)
 local metrics = [
+  {
+    row: 'Credit',
+    panels: [
+      { title: 'Topup Credit Attempt', metric: 'top-up-credit-attempt' },
+      { title: 'Topup Credit Success', metric: 'top-up-credit-success' },
+      { title: 'Topup Credit Failed', metric: 'top-up-credit-failed' },
+      { title: 'Deduct Credit Attempt', metric: 'deduct-credit-attempt' },
+      { title: 'Deduct Credit Success', metric: 'deduct-credit-success' },
+      { title: 'Deduct Credit Failed', metric: 'deduct-credit-failed' },
+      { title: 'Refund Credit Attempt', metric: 'refund-credit-attempt' },
+      { title: 'Refund Credit Success', metric: 'refund-credit-success' },
+      { title: 'Refund Credit Failed', metric: 'refund-credit-failed' },
+    ],
+  },
 ];
 
-// create a simple counter, with the metric name as alias
-local cnt(metric) = target.counter(metric=metric, alias=metric);
-
 // create for each metric prefix a timer panel and the various counters
-local pnls(title, prefix, suffixes) =
-  local tmr = target.timers('%s-timing' % [prefix]);
+local pnls(title, metric) =
   [
     panel.counter(title).addTargets([
-      cnt('%s-%s' % [prefix, suffix])
-      for suffix in suffixes
-    ]),
-    panel.timeLinear('Timing %s' % [title]).addTargets([
-      tmr.p50,
-      tmr.p95,
-      tmr.p99,
+      target.counter(
+        metric=metric,
+        groupBys=['currency'],
+        filters=target.likeFilter('currency', '$currency')
+      )
     ]),
   ];
 
 // create panels for each row and put two panels side by side
-local rows = [
+local creditRows = [
   row.new(r.row).addPanels([
-    panel.halfRow(p)
+    panel.thirdRow(p)
     for p in std.flattenArrays([
-      pnls(metricPanel.title, metricPanel.prefix, metricPanel.counters)
+      pnls(metricPanel.title, metricPanel.metric)
       for metricPanel in r.panels
     ])
   ])
   for r in metrics
 ];
+
+local jobRows = [
+    row.new('Expiring Job').addPanels([
+      panel.halfRow(p)
+      for p in [
+        panel.counter('Expiring Job Success').addTargets([
+          target.counter(metric='job-expiring-success')
+        ]),
+        panel.counter('Expiring Job Failed').addTargets([
+          target.counter(metric='job-expiring-failed')
+        ])
+      ]
+    ]),
+  ];
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
@@ -68,11 +89,18 @@ grafana.dashboard.new(
     hide='variable',
   )
 )
+.addTemplate(
+  template.new(
+    name='currency',
+    datasource=null,
+    query='label_values(currency)',
+    current='$__all',
+    multi=true,
+    includeAll=true,
+    refresh=1,
+    sort=1,
+  )
+)
 .addRows(
-  [
-    k8s.rows.service,
-    panel.collapseRow(k8s.rows.grpc),
-    panel.collapseRow(k8s.rows.postgres),
-  ]
-  + rows,
+  creditRows + jobRows
 )
