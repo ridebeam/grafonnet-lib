@@ -16,30 +16,27 @@ local serviceFilter = target.combineFilters(
 
 local alertMessage = '%s\nPlease check the followup action: https://docs.google.com/document/d/1YQStb5-RwsH4d5TBg7C8jOE52civRWM6UPDgREWBl4Y/edit?usp=sharing';
 
-// alerts for crashes, using gauages.sum for reducer
-local crashAlertDefinitions = [
+local alertDefinitions = [
   {
     row: 'Crashes',
     alerts: [
       {
         title: 'Android Crashes',
-        gauge: { name: 'bq_crash', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.equalsFilter('error_type', 'FATAL')) },
+        gauge: { name: 'bq_crash', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.equalsFilter('error_type', 'FATAL')), func: target.gaugeFuncs.sum.func },
         threshold: 200,
         message: alertMessage % "Android fatal crash exceeds 200",
       },
 
       {
         title: 'IOS Crashes',
-        gauge: { name: 'bq_crash', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.equalsFilter('error_type', 'FATAL'))},
+        gauge: { name: 'bq_crash', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.equalsFilter('error_type', 'FATAL')), func: target.gaugeFuncs.sum.func},
         threshold: 200,
         message: alertMessage % "IOS fatal crash exceeds 200",
       },
     ],
   },
-];
 
-// alerts for app start time and frame ratio, using gauages.max for reducer
-local startTimeAndFrameRatioAlertDefinitions = [
+
   {
     row: 'Start Time',
     alerts: [
@@ -83,7 +80,7 @@ local startTimeAndFrameRatioAlertDefinitions = [
     alerts: [
       {
         title: 'Android Frozen Frame Ratio',
-        gauge: { name: 'screen_ffr_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')) },
+        gauge: { name: 'screen_ffr_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+'))},
         threshold: 20,
         message: alertMessage % "Android frozen frame ratio P95 exceeds 2%",
       },
@@ -109,21 +106,9 @@ grafana.dashboard.new(
   tags=['generated'],
   editable=true,
 )
-.addRows(alerts.createRows(crashAlertDefinitions, alerts.defaults {
+.addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
     channels: alerts.notifications.productionWarnings,
     evaluateFor: '5m',
   },
-  gauges+: {
-    func: target.gaugeFuncs.sum.func,
-  }
-}))
-.addRows(alerts.createRows(startTimeAndFrameRatioAlertDefinitions, alerts.defaults {
-  alerts+: {
-    channels: alerts.notifications.productionWarnings,
-    evaluateFor: '5m',
-  },
-  gauges+: {
-    func: target.gaugeFuncs.max.func,
-  }
 }))

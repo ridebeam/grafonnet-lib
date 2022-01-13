@@ -76,13 +76,15 @@ local promPanel = promHelpers.panel;
       withServiceFilters=false,
     ),
 
-  createGauge(metric, defaults):: promTarget.gauges(
-    metric=metric.name,
-    interval='1m',
-    filters=metric.filters,
-    includeZero=true,
-    withServiceFilters=false,
-  )[defaults.func],
+  createGauge(metricDef, defaults)::
+    local metric = defaults + metricDef;
+    promTarget.gauges(
+      metric=metric.name,
+      interval='1m',
+      filters=metric.filters,
+      includeZero=true,
+      withServiceFilters=false,
+    )[metric.func],
 
   createTimer(metric):: promTarget.timers(
     metric=metric.name,
