@@ -18,7 +18,7 @@ generate_dashboard() {
 
   tmpUpdateDashboard=$(mktemp /tmp/gen-dashboard-update.XXXXXX)
   jq "{dashboard: ., folderId: ${2:-0}, overwrite: true }" "$tmpJson" >"$tmpUpdateDashboard"
-  curl --fail \
+  curl --fail - \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
     --data @"${tmpUpdateDashboard}" \
