@@ -95,6 +95,7 @@ local prom = grafana.prometheus;
     metric,
     alignmentPeriod=null,
     filters='',
+    interval='$__interval',
     groupBys=[],
     unit=null,
     valueType=null,
@@ -106,6 +107,7 @@ local prom = grafana.prometheus;
       gaugeFunc=$.gaugeFuncs[name],
       alias=name,
       filters=filters,
+      interval=interval,
       groupBys=groupBys,
       includeZero=includeZero,
       withServiceFilters=withServiceFilters,
@@ -118,13 +120,14 @@ local prom = grafana.prometheus;
     gaugeFunc,
     alias='',
     filters='',
+    interval='$__interval',
     groupBys=[],
     includeZero=false,
     withServiceFilters=true,
   )::
     local filterZero = if includeZero then '' else ' > 0';
     $.target(
-      '%s(%s%s[$__interval]) %s%s' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), $.groupBys(groupBys), filterZero],
+      '%s(%s%s[%s]) %s%s' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), interval, $.groupBys(groupBys), filterZero],
       legendFormat=$.alias(alias, groupBys, metric)
     ),
 

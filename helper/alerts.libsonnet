@@ -35,9 +35,14 @@ local promPanel = promHelpers.panel;
     filters: promTarget.equalsFilter('namespace', 'production'),
   },
 
+  gaugesDefaults:: {
+    func: promTarget.gaugeFuncs.max.func,
+  },
+
   defaults:: {
     alerts: $.alertDefaults,
     counters: $.counterDefaults,
+    gauges: $.gaugesDefaults,
   },
 
   newCondition(
@@ -71,13 +76,13 @@ local promPanel = promHelpers.panel;
       withServiceFilters=false,
     ),
 
-  createGauge(metric):: promTarget.gauges(
+  createGauge(metric, defaults):: promTarget.gauges(
     metric=metric.name,
     interval='1m',
     filters=metric.filters,
     includeZero=true,
     withServiceFilters=false,
-  ).max,
+  )[defaults.func],
 
   createTimer(metric):: promTarget.timers(
     metric=metric.name,
@@ -95,7 +100,7 @@ local promPanel = promHelpers.panel;
     if 'counter' in alertDefinition then
       $.createCounter(alertDefinition.counter, defaults.counters)
     else if 'gauge' in alertDefinition then
-      $.createGauge(alertDefinition.gauge)
+      $.createGauge(alertDefinition.gauge, defaults.gauges)
     else if 'timer' in alertDefinition then
       $.createTimer(alertDefinition.timer)
     else if 'custom' in alertDefinition then
