@@ -29,7 +29,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'bigquery',
+  'bigquery monitoring',
   uid='bq',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
