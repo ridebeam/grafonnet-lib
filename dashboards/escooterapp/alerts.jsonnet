@@ -30,7 +30,7 @@ local alertDefinitions = [
       {
         title: 'IOS Crashes',
         gauge: { name: 'bq_crash', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.equalsFilter('error_type', 'FATAL')), func: target.gaugeFuncs.sum.func},
-        threshold: 200,
+        threshold: 400,
         message: alertMessage % "IOS fatal crash exceeds 200",
       },
     ],
@@ -43,14 +43,14 @@ local alertDefinitions = [
       {
         title: 'Android Start Time',
         gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')) },
-        threshold: 3000,
+        threshold: 5000,
         message: alertMessage % "Android start time p95 exceeds 3s",
       },
 
       {
         title: 'IOS Start Time',
         gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+'))},
-        threshold: 3000,
+        threshold: 5000,
         message: alertMessage % "IOS start time p95 exceeds 3s",
       },
     ],
@@ -81,8 +81,8 @@ local alertDefinitions = [
       {
         title: 'Android Frozen Frame Ratio',
         gauge: { name: 'screen_ffr_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+'))},
-        threshold: 20,
-        message: alertMessage % "Android frozen frame ratio P95 exceeds 2%",
+        threshold: 30,
+        message: alertMessage % "Android frozen frame ratio P95 exceeds 3%",
       },
 
       {
