@@ -88,8 +88,8 @@ local alertDefinitions = [
       {
         title: 'IOS  Frozen Frame Ratio',
         gauge: { name: 'screen_ffr_p95', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+'))},
-        threshold: 10,
-        message: alertMessage % "IOS frozen frame ratio P95 exceeds 1%",
+        threshold: 30,
+        message: alertMessage % "IOS frozen frame ratio P95 exceeds 3%",
       },
     ],
   },
