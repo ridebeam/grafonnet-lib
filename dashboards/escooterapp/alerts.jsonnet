@@ -42,14 +42,14 @@ local alertDefinitions = [
     alerts: [
       {
         title: 'Android Start Time',
-        gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')) },
+        gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')), func: target.gaugeFuncs.max.func },
         threshold: 5000,
         message: alertMessage % "Android start time p95 exceeds 3s",
       },
 
       {
         title: 'IOS Start Time',
-        gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+'))},
+        gauge: { name: 'start_time_p95', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+')), func: target.gaugeFuncs.max.func },
         threshold: 5000,
         message: alertMessage % "IOS start time p95 exceeds 3s",
       },
@@ -61,14 +61,14 @@ local alertDefinitions = [
     alerts: [
       {
         title: 'Android Slow Frame Ratio',
-        gauge: { name: 'screen_sfr_p75', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')) },
+        gauge: { name: 'screen_sfr_p75', filters: target.combineFilters(target.equalsFilter('platform', 'android'), target.likeFilter('app_version', '1.7+.+')), func: target.gaugeFuncs.avg.func},
         threshold: 30,
         message: alertMessage % "Android slow frame ratio P75 exceeds 30%",
       },
 
       {
         title: 'IOS Slow Frame Ratio',
-        gauge: { name: 'screen_sfr_p75', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+'))},
+        gauge: { name: 'screen_sfr_p75', filters: target.combineFilters(target.equalsFilter('platform', 'ios'), target.likeFilter('app_version', '1.7+.+')), func: target.gaugeFuncs.avg.func},
         threshold: 10,
         message: alertMessage % "Android slow frame ratio P75 exceeds 10%",
       },
