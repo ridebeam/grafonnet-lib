@@ -27,6 +27,12 @@ local alertDefinitions = [
         threshold: 5,
         message: msg,
       },
+      {
+        title: '[payment-004] Refund order failed after retrial',
+        counter: { name: 'refund-processing-failure' },
+        threshold: 1,
+        message: msg,
+      },
     ],
   },
   {
