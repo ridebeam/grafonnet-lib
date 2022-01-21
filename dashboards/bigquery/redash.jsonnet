@@ -51,6 +51,20 @@ grafana.dashboard.new(
           withServiceFilters=false,
         )
       ),
+      panel.timeLinear('CPU Usage Workers', legend_show=true).addTargets([
+        target.counter(
+          metric='container_cpu_usage_seconds_total',
+          filters=target.equalsFilter('container', 'redash-adhoc-worker'),
+          groupBys=['pod'],
+          withServiceFilters=false,
+        ),
+        target.counter(
+          metric='container_cpu_usage_seconds_total',
+          filters=target.equalsFilter('container', 'redash-scheduled-worker'),
+          groupBys=['pod'],
+          withServiceFilters=false,
+        ),
+      ]),
       panel.new('Memory Usage Workers', format='bytes', legend_show=true).addTargets([
         target.gauge(
           metric='container_memory_usage_bytes',
