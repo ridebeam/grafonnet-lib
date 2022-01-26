@@ -5,7 +5,7 @@ local alerts = import '../../helper/alerts.libsonnet';
 local helpers = prom.init();
 local target = helpers.target;
 
-local env = 'dev';
+local env = 'production';
 local service = 'wallet';
 local commonMsg = 'Please check the playbook page and look for the corresponding alert code: https://beammobility.atlassian.net/wiki/spaces/BE/pages/2441674761/Wallet+Service+Alert+Playbook';
 
@@ -87,7 +87,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(endpointAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.test, //TODO: update to prod when testing done
+      channels: alerts.notifications.productionWarnings, // TODO: change to productionAlerts (ops genie) when it's okay
       reducerType: 'sum',
     }
   })
@@ -95,7 +95,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(jobAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.test, //TODO: update to prod when testing done
+      channels: alerts.notifications.productionWarnings, // TODO: change to productionAlerts (ops genie) when it's okay
       queryTimeStart: '15m',
       reducerType: 'sum',
     }
