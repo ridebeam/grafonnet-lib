@@ -18,7 +18,7 @@ local endpointAlerts = [
         custom: {
           name: 'Unexpected Internal Error ${grpc_server_method}',
           query: |||
-            sum(delta(grpc_io_server_completed_rpcs{namespace="%(env)s", service="$(service)s", grpc_server_status="INTERNAL"}[1m])) by (grpc_server_method)
+            sum(delta(grpc_io_server_completed_rpcs{namespace="%(env)s", service="%(service)s", grpc_server_status="INTERNAL"}[1m])) by (grpc_server_method)
           ||| % { env: env, service: service },
           alias: '{{grpc_server_method}}',
         },
@@ -30,7 +30,7 @@ local endpointAlerts = [
         custom: {
           name: 'p95 Latency ${grpc_server_method}',
           query: |||
-            histogram_quantile(0.95, sum(rate(grpc_io_server_server_latency_bucket{namespace="$(env)s", service="$(service)s"}[1m])) by (le, grpc_server_method))
+            histogram_quantile(0.95, sum(rate(grpc_io_server_server_latency_bucket{namespace="%(env)s", service="%(service)s"}[1m])) by (le, grpc_server_method))
           ||| % { env: env, service: service },
           alias: '{{grpc_server_method}}',
         },
@@ -50,7 +50,7 @@ local jobAlerts = [
         custom: {
           name: 'no-expiring-job-triggered',
           query: |||
-            sum(delta(grpc_io_server_completed_rpcs{namespace="$(env)s", service="$(service)s", grpc_server_method="ridebeam.user.Wallet/RunExpiryJob"}))
+            sum(delta(grpc_io_server_completed_rpcs{namespace="%(env)s", service="%(service)s", grpc_server_method="ridebeam.user.Wallet/RunExpiryJob"}))
           ||| % { env: env, service: service },
           alias: 'Job Trigger',
         },
@@ -63,7 +63,7 @@ local jobAlerts = [
         custom: {
           name: 'Expiring Job Error',
           query: |||
-            sum(delta(job_expiring_failed{namespace="$(env)s", service="$(service)s"}))
+            sum(delta(job_expiring_failed{namespace="%(env)s", service="%(service)s"}))
           ||| % { env: env, service: service },
           alias: 'Credit error',
         },
