@@ -34,7 +34,7 @@ local endpointAlerts = [
           ||| % { env: env, service: service },
           alias: '{{grpc_server_method}}',
         },
-        threshold: 200,
+        threshold: 1000,
         message: 'p95 latency is greater than 200ms in the last 5 minutes. ' + commonMsg,
       },
     ],
@@ -87,7 +87,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(endpointAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.productionWarnings, // TODO: change to productionAlerts (ops genie) when it's okay
+      channels: alerts.notifications.productionAlerts,
       reducerType: 'sum',
     }
   })
@@ -95,7 +95,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(jobAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.productionWarnings, // TODO: change to productionAlerts (ops genie) when it's okay
+      channels: alerts.notifications.productionAlerts,
       queryTimeStart: '15m',
       reducerType: 'sum',
     }
