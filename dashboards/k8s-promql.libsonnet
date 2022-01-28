@@ -21,6 +21,14 @@ local panel = helpers.panel;
         groupBys=['pod'],
         withServiceFilters=false,
       ),
+      cpuReserved: libProm.target(
+        'min(container_spec_cpu_shares{namespace="$env", container="$service"}[$__interval]) / 1024',
+        legendFormat='reserved',
+      ),
+      cpuLimit: libProm.target(
+        'min(container_spec_cpu_quota{namespace="$env", container="$service"}[$__interval]) / min(container_spec_cpu_period{namespace="$env", container="$service"}[$__interval])',
+        legendFormat='limit',
+      ),
       mem: target.gauges(
         metric='container_memory_usage_bytes',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
@@ -30,6 +38,13 @@ local panel = helpers.panel;
         metric='container_memory_usage_bytes',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         groupBys=['pod'],
+        withServiceFilters=false,
+      ),
+      memLimit: target.gauge(
+        metric='container_spec_memory_limit_bytes',
+        gaugeFunc=target.gaugeFuncs.min,
+        alias='limit',
+        filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         withServiceFilters=false,
       ),
       log: libProm.target(
@@ -114,9 +129,31 @@ local panel = helpers.panel;
   panels: {
     service: {
       cpu: panel.timeLinear('CPU Usage Total', legend_show=false).addTarget($.targets.process.cpu),
-      cpuEach: panel.timeLinear('CPU Usage Each', legend_show=true).addTarget($.targets.process.cpuEach),
+      cpuEach: panel.timeLinear('CPU Usage Each', legend_show=true).addTargets([
+        $.targets.process.cpuEach,
+        $.targets.process.cpuReserved,
+        $.targets.process.cpuLimit,
+      ]).addSeriesOverride({
+        alias: 'limit',
+        fill: 0,
+        linewidth: 2,
+        color: '#C4162A',
+      }).addSeriesOverride({
+        alias: 'reserved',
+        fill: 0,
+        linewidth: 2,
+        color: '#56A64B',
+      }),
       mem: panel.new('Memory Usage Total', format='bytes', legend_show=false).addTarget($.targets.process.mem.sum),
-      memEach: panel.new('Memory Usage Each', format='bytes', legend_show=true).addTarget($.targets.process.memEach.max),
+      memEach: panel.new('Memory Usage Each', format='bytes', legend_show=true).addTargets([
+        $.targets.process.memEach.max,
+        $.targets.process.memLimit,
+      ]).addSeriesOverride({
+        alias: 'limit',
+        fill: 0,
+        linewidth: 2,
+        color: '#C4162A',
+      }),
       goroutines: panel.new('Go Routines').addTargets([
         $.targets.golang.goroutines.avg,
         $.targets.golang.goroutines.max,
