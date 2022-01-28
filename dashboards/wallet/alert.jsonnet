@@ -34,7 +34,7 @@ local endpointAlerts = [
           ||| % { env: env, service: service },
           alias: '{{grpc_server_method}}',
         },
-        threshold: 1000,
+        threshold: 5000,
         message: 'p95 latency is greater than 200ms in the last 5 minutes. ' + commonMsg,
       },
     ],
