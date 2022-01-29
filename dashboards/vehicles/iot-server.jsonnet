@@ -208,7 +208,7 @@ grafana.dashboard.new(
 )
 
 .addRows([
-  k8s.rows.service.addPanel(panel.halfRow(k8sSD.init().panels.service.log)),
+  k8s.rows.service,
   panel.collapseRow(k8s.rows.http),
   k8s.rows.kafka,
   panel.collapseRow(k8s.rows.postgres),
