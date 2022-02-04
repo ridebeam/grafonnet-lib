@@ -1,4 +1,5 @@
 local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
+local cloudwatch = grafana.cloudwatch;
 local alertCondition = grafana.alertCondition;
 local row = grafana.row;
 
@@ -6,6 +7,12 @@ local prom = import 'promql.libsonnet';
 local promHelpers = prom.init();
 local promTarget = promHelpers.target;
 local promPanel = promHelpers.panel;
+
+local gcp = import 'gcp.libsonnet';
+
+local cloudwatchHelpers = import 'cloudwatch.libsonnet';
+local cwHelpers = cloudwatchHelpers.init();
+local cwPanel = cwHelpers.panel;
 
 {
   slack: { uid: 'tcneVhOnz' },
@@ -39,10 +46,27 @@ local promPanel = promHelpers.panel;
     func: promTarget.gaugeFuncs.max.func,
   },
 
+  gcpDefaults:: {
+    filters: [],
+  },
+  gcpCountersDefaults:: $.gcpDefaults {
+    filters: [],
+  },
+  gcpGaugesDefaults:: $.gcpDefaults {
+    filters: [],
+  },
+  gcpTimersDefaults:: $.gcpDefaults {
+    filters: [],
+  },
+
   defaults:: {
     alerts: $.alertDefaults,
     counters: $.counterDefaults,
     gauges: $.gaugesDefaults,
+
+    gcpCounters: $.gcpCountersDefaults,
+    gcpGauges: $.gcpGaugesDefaults,
+    gcpTimers: $.gcpTimersDefaults,
   },
 
   newCondition(
@@ -65,8 +89,7 @@ local promPanel = promHelpers.panel;
     reducerType=reducerType,
   ),
 
-  createCounter(metricDef, defaults)::
-    local metric = defaults + metricDef;
+  createCounter(metric)::
     promTarget.counter(
       metric=metric.name,
       func=metric.func,
@@ -76,8 +99,7 @@ local promPanel = promHelpers.panel;
       withServiceFilters=false,
     ),
 
-  createGauge(metricDef, defaults)::
-    local metric = defaults + metricDef;
+  createGauge(metric)::
     promTarget.gauges(
       metric=metric.name,
       interval='1m',
@@ -98,23 +120,83 @@ local promPanel = promHelpers.panel;
     legendFormat=metric.alias,
   ),
 
+  createGCPCounter(metric)::
+    metric.gcpHelpers.target.counter(
+      metric=metric.name,
+      filters=metric.filters,
+      withServiceFilters=false,
+    ),
+
+  createGCPGauge(metric)::
+    metric.gcpHelpers.target.gauges(
+      metric=metric.name,
+      filters=metric.filters,
+      withServiceFilters=false,
+    ).max,
+
+  createGCPTimer(metric)::
+    metric.gcpHelpers.target.timers(
+      metric=metric.name,
+      filters=metric.filters,
+      withServiceFilters=false,
+    ).p99,
+
+  // create a simple counter, with the metric name as alias
+  createCloudwatchTarget(metric)::
+    cloudwatch.target(
+      region='default',
+      namespace=metric.namespace,
+      metric=metric.name,
+      dimensions=metric.dimensions,
+      period='auto',
+    ),
+
   createTarget(alertDefinition, defaults)::
     if 'counter' in alertDefinition then
-      $.createCounter(alertDefinition.counter, defaults.counters)
+      $.createCounter(defaults.counters + alertDefinition.counter)
     else if 'gauge' in alertDefinition then
-      $.createGauge(alertDefinition.gauge, defaults.gauges)
+      $.createGauge(defaults.gauges + alertDefinition.gauge)
     else if 'timer' in alertDefinition then
       $.createTimer(alertDefinition.timer)
     else if 'custom' in alertDefinition then
       $.createCustom(alertDefinition.custom)
+    else if 'cloudwatch' in alertDefinition then
+      $.createCloudwatchTarget(alertDefinition.cloudwatch)
+    else if 'gcpCounter' in alertDefinition then
+      $.createGCPCounter(defaults.gcpCounters + alertDefinition.gcpCounter)
+    else if 'gcpGauge' in alertDefinition then
+      $.createGCPGauge(defaults.gcpGauges + alertDefinition.gcpGauge)
+    else if 'gcpTimer' in alertDefinition then
+      $.createGCPTimer(defaults.gcpTimers + alertDefinition.gcpTimer)
     else {},
 
+  panelHelper(alertDefinition, defaults)::
+    if 'counter' in alertDefinition then
+      promPanel
+    else if 'gauge' in alertDefinition then
+      promPanel
+    else if 'timer' in alertDefinition then
+      promPanel
+    else if 'custom' in alertDefinition then
+      promPanel
+    else if 'cloudwatch' in alertDefinition then
+      cwPanel
+    else if 'gcpCounter' in alertDefinition then
+      local def = defaults.gcpCounters + alertDefinition.gcpCounter;
+      def.gcpHelpers.panel
+    else if 'gcpGauge' in alertDefinition then
+      local def = defaults.gcpGauges + alertDefinition.gcpGauge;
+      def.gcpHelpers.panel
+    else if 'gcpTimer' in alertDefinition then
+      local def = defaults.gcpTimers + alertDefinition.gcpTimer;
+      def.gcpHelpers.panel
+    else {},
 
   // create for each entry a panel with alert
   createAlert(definition, defaults)::
     local def = defaults.alerts + definition;
     [
-      promPanel.new(def.title, format=def.format).addTargets([
+      $.panelHelper(def, defaults).new(def.title, format=def.format).addTargets([
         $.createTarget(def, defaults),
       ]).addAlert(
         def.title,
@@ -124,9 +206,9 @@ local promPanel = promHelpers.panel;
         frequency='1m',
       ).addConditions([
         $.newCondition(
-          reducerType=def.reducerType, 
-          threshold=def.threshold, 
-          thresholdType=def.thresholdType, 
+          reducerType=def.reducerType,
+          threshold=def.threshold,
+          thresholdType=def.thresholdType,
           queryTimeStart=def.queryTimeStart,
         ),
       ]),

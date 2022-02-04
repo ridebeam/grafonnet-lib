@@ -8,6 +8,14 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
+local gcp = import '../../helper/gcp.libsonnet';
+local gcpHelpers = gcp.init('ridebeam-core');
+local gcpTarget = gcpHelpers.target;
+local gcpPanel = gcpHelpers.panel;
+local m = gcpTarget.customMetric;
+local l = gcpTarget.label;
+
+
 // we need to use non-templetized service filters for alerts
 local serviceFilter = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
@@ -18,13 +26,40 @@ local serviceFilter = target.combineFilters(
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
   {
-    row: 'Table size',
+    row: 'Scheduled Queries',
     alerts: [
       {
         title: 'Zero byte tables > 0',
         counter: { name: 'bq-zero-byte-table' },
         threshold: 0,
-        message: "Some tables are empty",
+        message: 'Some tables are empty',
+      },
+    ],
+  },
+  {
+    row: 'Redash',
+    alerts: [
+      {
+        title: 'DB CPU Usage',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/cpu/utilization',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
+          format: 'percentunit',
+        },
+        threshold: 75,
+        message: 'High CPU Usage',
+        evaluateFor: '15m',
+      },
+      {
+        title: 'DB Memory Usage',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/memory/total_usage',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
+          format: 'bytes',
+        },
+        threshold: 3 * 1024 * 1024 * 1024,
+        message: 'High Memory Usage',
+        evaluateFor: '15m',
       },
     ],
   },
@@ -50,5 +85,8 @@ grafana.dashboard.new(
   counters+: {
     func: 'delta',
     filters: serviceFilter,
+  },
+  gcpGauges+: {
+    gcpHelpers: gcpHelpers,
   },
 }))
