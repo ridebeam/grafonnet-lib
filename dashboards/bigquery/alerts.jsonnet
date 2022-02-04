@@ -32,6 +32,8 @@ local alertDefinitions = [
         title: 'Zero byte tables > 0',
         counter: { name: 'bq-zero-byte-table' },
         threshold: 0,
+        reducerType: 'sum',
+        evaluateFor: '1m',
         message: 'Some tables are empty',
       },
     ],
@@ -46,7 +48,7 @@ local alertDefinitions = [
           filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
           format: 'percentunit',
         },
-        threshold: 75,
+        threshold: 0.75,
         message: 'High CPU Usage',
         evaluateFor: '15m',
       },
@@ -79,8 +81,6 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
     channels: alerts.notifications.productionWarnings,
-    evaluateFor: '1m',
-    reducerType: 'sum',
   },
   counters+: {
     func: 'delta',
