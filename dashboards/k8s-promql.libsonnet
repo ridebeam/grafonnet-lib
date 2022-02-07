@@ -160,11 +160,28 @@ local panel = helpers.panel;
       ]),
       log: panel.new('Log Output (aprox entries per minute)').addTarget($.targets.process.log) {
         options: {
-          dataLinks: [{
-            title: 'Logs Explorer for ${__series.name}',
-            url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%0Aseverity%3D﻿${__series.name};timeRange=${__from:date}%2F${__to:date}﻿?project=﻿${__field.labels.project_id}',
-            targetBlank: true,
-          }],
+          dataLinks: [
+            {
+              title: 'Logs Explorer for ${service}',
+              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22?project=﻿${__field.labels.project_id}',
+              targetBlank: true,
+            },
+            {
+              title: 'Logs Explorer for ${__series.name}',
+              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%0Aseverity%3D﻿${__series.name}?project=﻿${__field.labels.project_id}',
+              targetBlank: true,
+            },
+            {
+              title: 'Logs Explorer for ${service} for current time range',
+              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22;timeRange=${__from:date}%2F${__to:date}﻿?project=﻿${__field.labels.project_id}',
+              targetBlank: true,
+            },
+            {
+              title: 'Logs Explorer for ${__series.name} for current time range',
+              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0Alabels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%0Aseverity%3D﻿${__series.name};timeRange=${__from:date}%2F${__to:date}﻿?project=﻿${__field.labels.project_id}',
+              targetBlank: true,
+            },
+          ],
         },
       },
     },
