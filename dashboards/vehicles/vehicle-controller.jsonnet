@@ -5,7 +5,6 @@ local template = grafana.template;
 local row = grafana.row;
 local prom = import '../../helper/promql.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
-local k8sSD = import '../k8s-stackdriver.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
@@ -66,8 +65,8 @@ local targets = {
       groupBys=['kafka_source_topic'],
     ),
     asyncChannelLatency: target.timers(
-       metric='vehicle_state_channel_buffer_latency',
-       groupBys=['kafka_source_topic'],
+      metric='vehicle_state_channel_buffer_latency',
+      groupBys=['kafka_source_topic'],
     ),
     asyncChannelBuffer: target.gauges(
       'vehicle_state_channel_buffer',
@@ -143,9 +142,9 @@ local panels = {
       targets.state.asyncChannelLatency.p99,
     ]),
     channelBufferFull: panel.new('Channel Buffer').addTargets([
-     targets.state.asyncChannelBuffer.avg,
-     targets.state.asyncChannelBuffer.max,
-   ]),
+      targets.state.asyncChannelBuffer.avg,
+      targets.state.asyncChannelBuffer.max,
+    ]),
   },
   vehicles: {
     disconnects: panel.counter('Disconnects').addTargets([
@@ -236,7 +235,7 @@ grafana.dashboard.new(
 )
 
 .addRows([
-  k8s.rows.service.addPanel(panel.halfRow(k8sSD.init().panels.service.log)),
+  k8s.rows.service,
   k8s.rows.kafka,
   panel.collapseRow(k8s.rows.postgres),
   rows.georegion,
