@@ -77,6 +77,11 @@ local targets = {
       ),
       groupBys=['cmd_outgoing'],
     ),
+    actionDuration: target.timers(
+      metric='action-duration',
+      filters=filters.manufacturer,
+      groupBys=['state_name'],
+    ),
     rerouted: target.counter(
       metric='gateway-incoming-rerouted',
     ),
@@ -124,6 +129,15 @@ local panels = {
     send: panel.counter('Send').addTargets([
       targets.commands.send,
     ]),
+    actionDurationP50: panel.timeLinear('Action duration p50').addTargets([
+      targets.commands.actionDuration.p50,
+    ]),
+    actionDurationP95: panel.timeLinear('Action duration p95').addTargets([
+      targets.commands.actionDuration.p95,
+    ]),
+    actionDurationP99: panel.timeLinear('Action duration p99').addTargets([
+      targets.commands.actionDuration.p99,
+    ]),
     rerouted: panel.counter('Rerouted', legend_show=false).addTargets([
       targets.commands.rerouted,
     ]),
@@ -151,6 +165,9 @@ local rows = {
       panel.showTable(panels.commands.received, avg=true, current=true),
       panel.showTable(panels.commands.receivedFW, avg=true, current=true),
       panel.showTable(panels.commands.send, avg=true, current=true),
+      panels.commands.actionDurationP50,
+      panels.commands.actionDurationP95,
+      panels.commands.actionDurationP99,
       panels.commands.rerouted,
       panel.showTable(panels.commands.traffic, avg=true, current=true),
     ]
