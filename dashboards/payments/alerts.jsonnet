@@ -33,6 +33,12 @@ local alertDefinitions = [
         threshold: 1,
         message: msg,
       },
+      {
+        title: '[payment-005] Orders stuck in notification',
+        counter: { name: 'orders-stuck-for-notification'},
+        threshold: 1,
+        message: msg,
+      }
     ],
   },
   {
