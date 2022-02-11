@@ -117,6 +117,9 @@ local panels = {
     changeTimeP50: panel.timeLog2('Latency p50').addTargets([
       targets.state.changeTime.p50,
     ]),
+    changeTimeP95: panel.timeLog2('Latency p95').addTargets([
+      targets.state.changeTime.p95,
+    ]),
     changeTimeP99: panel.timeLog2('Latency p99').addTargets([
       targets.state.changeTime.p99,
     ]),
@@ -182,6 +185,7 @@ local rows = {
     for p in [
       panels.state.changeTimeP50,
       panels.state.changes,
+      panels.state.changeTimeP95,
       panels.state.changeTimeP99,
       panels.state.changeErrors,
       panels.state.asyncMsgLag95,
