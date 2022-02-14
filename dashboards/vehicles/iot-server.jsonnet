@@ -77,6 +77,11 @@ local targets = {
       ),
       groupBys=['cmd_outgoing'],
     ),
+    actionExecuted: target.counter(
+      metric='action-executed',
+      filters=filters.manufacturer,
+      groupBys=['state_name'],
+    ),
     actionDuration: target.timers(
       metric='action-duration',
       filters=filters.manufacturer,
@@ -129,6 +134,9 @@ local panels = {
     send: panel.counter('Send').addTargets([
       targets.commands.send,
     ]),
+    actionExecuted: panel.counter('Action executed').addTargets([
+      targets.commands.actionExecuted,
+    ]),
     actionDurationP50: panel.timeLinear('Action duration p50').addTargets([
       targets.commands.actionDuration.p50,
     ]),
@@ -165,6 +173,7 @@ local rows = {
       panel.showTable(panels.commands.received, avg=true, current=true),
       panel.showTable(panels.commands.receivedFW, avg=true, current=true),
       panel.showTable(panels.commands.send, avg=true, current=true),
+      panels.commands.actionExecuted,
       panels.commands.actionDurationP50,
       panels.commands.actionDurationP95,
       panels.commands.actionDurationP99,
