@@ -39,6 +39,20 @@ local alertDefinitions = [
     ],
   },
   {
+    row: 'BQ data completeness alerts',
+    alerts: [
+      {
+        title: '[bq] mutations > 10000',
+        custom: { query: 'sum(bq_mutations_hourly) by (table_id)', alias: '{{table_id}}' },
+        threshold: 10000,
+        reducerType: 'max',
+        evaluateFor: '30m',
+        evaluateEvery: '1m',
+        message: 'Some tables have too many mutations',
+      },
+    ],
+  },
+  {
     row: 'Redash',
     alerts: [
       {

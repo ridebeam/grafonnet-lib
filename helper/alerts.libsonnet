@@ -33,6 +33,7 @@ local cwPanel = cwHelpers.panel;
     channels: $.notifications.productionAlerts,
     thresholdType: 'gt',
     evaluateFor: '5m',
+    evaluateEvery: '1m',
     reducerType: 'avg',
     queryTimeStart: '5m',
   },
@@ -203,7 +204,7 @@ local cwPanel = cwHelpers.panel;
         notifications=def.channels,
         message='%s\n\n%s' % [def.title, def.message],
         forDuration=def.evaluateFor,
-        frequency='1m',
+        frequency=def.evaluateEvery,
       ).addConditions([
         $.newCondition(
           reducerType=def.reducerType,
