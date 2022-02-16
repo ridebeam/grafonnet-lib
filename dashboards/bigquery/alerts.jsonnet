@@ -53,6 +53,19 @@ local alertDefinitions = [
     ],
   },
   {
+      row: 'BQ scheduled queries',
+      alerts: [
+        {
+          title: '[bq] scheduled queries fails',
+          counter: { name: 'bq-scheduled-query', filters: target.equalsFilter('scheduled_query_state', 'FAILED') },
+          threshold: 0,
+          reducerType: 'sum',
+          evaluateFor: '1m',
+          message: 'Scheduled query failure',
+        },
+      ],
+    },
+  {
     row: 'Redash',
     alerts: [
       {

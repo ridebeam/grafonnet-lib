@@ -26,6 +26,7 @@ local targets = {
       format: 'table',
       instant: true,
     },
+    scheduledQueries: target.gauges(metric='bq_scheduled_query', groupBys=['scheduled_query_state']).sum,
   },
   dataCompleteness: {
     snapshotRowCount: target.gauge(
@@ -41,6 +42,7 @@ local panels = {
   general: {
     zeroByte: panel.counter('Number of tables with zero bytes').addTargets([targets.general.zeroByte]),
     tableSize: panel.new('Size of tables').addTargets([targets.general.tableSize]) + lcdGauge.new(key='table_id', value='bytes', unit='decbytes'),
+    scheduledQueries: panel.new('Scheduled queries state').addTargets([targets.general.scheduledQueries]),
   },
   dataCompleteness: {
     snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
@@ -55,6 +57,7 @@ local rows = {
     for p in [
       panels.general.zeroByte,
       panels.general.tableSize,
+      panels.general.scheduledQueries,
     ]
   ]),
   dataCompleteness: row.new('Data Completeness').addPanels([
