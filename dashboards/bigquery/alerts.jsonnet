@@ -79,6 +79,22 @@ local alertDefinitions = [
       },
     ],
   },
+  {
+    row: 'Data Completeness',
+    alerts: [
+      {
+        title: 'Snapshot row count difference > 0',
+        gauge: {
+          name: 'bq-row-diff-snapshot-tables',
+          groupBys: ['table_id'],
+        },
+        threshold: 0,
+        reducerType: 'max',
+        evaluateFor: '1h',
+        message: 'Some snapshot tables are not in sync',
+      },
+    ],
+  },
 ];
 
 // Make sure uid matches the name of the file
@@ -102,5 +118,8 @@ grafana.dashboard.new(
   },
   gcpGauges+: {
     gcpHelpers: gcpHelpers,
+  },
+  gauges+: {
+    filters: serviceFilter,
   },
 }))

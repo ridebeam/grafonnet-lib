@@ -45,6 +45,7 @@ local cwPanel = cwHelpers.panel;
 
   gaugesDefaults:: {
     func: promTarget.gaugeFuncs.max.func,
+    groupBys: [],
   },
 
   gcpDefaults:: {
@@ -107,6 +108,7 @@ local cwPanel = cwHelpers.panel;
       filters=metric.filters,
       includeZero=true,
       withServiceFilters=false,
+      groupBys=metric.groupBys,
     )[metric.func],
 
   createTimer(metric):: promTarget.timers(

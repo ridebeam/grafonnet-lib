@@ -27,12 +27,25 @@ local targets = {
       instant: true,
     },
   },
+  dataCompleteness: {
+    snapshotRowCount: target.gauge(
+      metric='bq-row-diff-snapshot-tables',
+      groupBys=['table_id'],
+      includeZero=true,
+      gaugeFunc=target.gaugeFuncs.max,
+    ),
+  },
 };
 
 local panels = {
   general: {
     zeroByte: panel.counter('Number of tables with zero bytes').addTargets([targets.general.zeroByte]),
-    tableSize: panel.new('Size of tables').addTargets([targets.general.tableSize]) + lcdGauge.new(key='table_id', value='bytes', unit='decbytes')
+    tableSize: panel.new('Size of tables').addTargets([targets.general.tableSize]) + lcdGauge.new(key='table_id', value='bytes', unit='decbytes'),
+  },
+  dataCompleteness: {
+    snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
+      targets.dataCompleteness.snapshotRowCount,
+    ]),
   },
 };
 
@@ -42,6 +55,12 @@ local rows = {
     for p in [
       panels.general.zeroByte,
       panels.general.tableSize,
+    ]
+  ]),
+  dataCompleteness: row.new('Data Completeness').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.dataCompleteness.snapshotRowCount,
     ]
   ]),
 };
@@ -75,4 +94,5 @@ grafana.dashboard.new(
 
 .addRows([
   rows.general,
+  rows.dataCompleteness,
 ])
