@@ -36,6 +36,12 @@ local targets = {
       gaugeFunc=target.gaugeFuncs.max,
     ),
   },
+  serviceUptime: {
+    queryLatency: target.timers(
+      metric='bq-query-latency',
+      groupBys=['query_id'],
+    ),
+  },
 };
 
 local panels = {
@@ -47,6 +53,14 @@ local panels = {
   dataCompleteness: {
     snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
       targets.dataCompleteness.snapshotRowCount,
+    ]),
+  },
+  serviceUptime: {
+    queryLatencyP50: panel.timeLog2('Query latency P50').addTargets([
+      targets.serviceUptime.queryLatency.p50,
+    ]),
+    queryLatencyP99: panel.timeLog2('Query latency P99').addTargets([
+      targets.serviceUptime.queryLatency.p99,
     ]),
   },
 };
@@ -64,6 +78,13 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.dataCompleteness.snapshotRowCount,
+    ]
+  ]),
+  serviceUptime: row.new('Service Uptime').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.serviceUptime.queryLatencyP50,
+      panels.serviceUptime.queryLatencyP99,
     ]
   ]),
 };
@@ -98,4 +119,5 @@ grafana.dashboard.new(
 .addRows([
   rows.general,
   rows.dataCompleteness,
+  rows.serviceUptime,
 ])
