@@ -106,6 +106,17 @@ local alertDefinitions = [
         evaluateFor: '1h',
         message: 'Some snapshot tables are not in sync',
       },
+      {
+        title: 'Partition row count difference > 0',
+        gauge: {
+          name: 'bq-row-diff-partition-tables',
+          groupBys: ['table_id'],
+        },
+        threshold: 0,
+        reducerType: 'max',
+        evaluateFor: '1h',
+        message: 'Some partition tables are not in sync',
+      },
     ],
   },
 ];

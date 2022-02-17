@@ -35,6 +35,12 @@ local targets = {
       includeZero=true,
       gaugeFunc=target.gaugeFuncs.max,
     ),
+    partitionRowCount: target.gauge(
+      metric='bq-row-diff-partition-tables',
+      groupBys=['table_id'],
+      includeZero=true,
+      gaugeFunc=target.gaugeFuncs.max,
+    ),
   },
   serviceUptime: {
     queryLatency: target.timers(
@@ -53,6 +59,9 @@ local panels = {
   dataCompleteness: {
     snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
       targets.dataCompleteness.snapshotRowCount,
+    ]),
+    partitionRowCount: panel.new('Partition row count difference').addTargets([
+      targets.dataCompleteness.partitionRowCount,
     ]),
   },
   serviceUptime: {
@@ -78,6 +87,7 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.dataCompleteness.snapshotRowCount,
+      panels.dataCompleteness.partitionRowCount,
     ]
   ]),
   serviceUptime: row.new('Service Uptime').addPanels([
