@@ -15,9 +15,14 @@ local cwHelpers = cloudwatchHelpers.init();
 local cwPanel = cwHelpers.panel;
 
 {
+  // configure webhook here: https://api.slack.com/apps/A02M0AZ8KEZ
+  // https://api.slack.com/apps/A02M0AZ8KEZ/incoming-webhooks?success=1
+  // find app on existing channel, and select `Add this app to a channel ...`
   slack: { uid: 'tcneVhOnz' },
   slackWarn: { uid: 'z_hJjK57z' },
   slackTest: { uid: '5th60Gc7z' },
+  slackData: { uid: 'v22AHAf7k' },
+  slackPayments: { uid: '_pd1H0fnk' },
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
 

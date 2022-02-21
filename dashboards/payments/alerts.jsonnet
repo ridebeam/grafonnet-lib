@@ -35,10 +35,10 @@ local alertDefinitions = [
       },
       {
         title: '[payment-005] Orders stuck in notification',
-        counter: { name: 'orders-stuck-for-notification'},
+        counter: { name: 'orders-stuck-for-notification' },
         threshold: 1,
         message: msg,
-      }
+      },
     ],
   },
   {
@@ -78,7 +78,7 @@ grafana.dashboard.new(
 )
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
-    channels: alerts.notifications.productionWarnings,
+    channels: [alerts.slackPayments],
     evaluateFor: '1m',
     reducerType: 'sum',
   },
