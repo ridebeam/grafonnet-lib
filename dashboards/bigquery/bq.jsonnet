@@ -27,6 +27,15 @@ local targets = {
       instant: true,
     },
     scheduledQueries: target.gauges(metric='bq_scheduled_query', groupBys=['scheduled_query_state']).sum,
+    queryCost: target.gauge(
+      metric='bq-cost-of-queries',
+      includeZero=true,
+      groupBys=['query_hash'],
+      gaugeFunc=target.gaugeFuncs.sum,
+    ) + {
+      format: 'table',
+      instant: true,
+    },
   },
   dataCompleteness: {
     snapshotRowCount: target.gauge(
@@ -55,6 +64,7 @@ local panels = {
     zeroByte: panel.counter('Number of tables with zero bytes').addTargets([targets.general.zeroByte]),
     tableSize: panel.new('Size of tables').addTargets([targets.general.tableSize]) + lcdGauge.new(key='table_id', value='bytes', unit='decbytes'),
     scheduledQueries: panel.new('Scheduled queries state').addTargets([targets.general.scheduledQueries]),
+    queryCost: panel.new('Cost of queries').addTargets([targets.general.queryCost]) + lcdGauge.new(key='query_hash', value='bytes', unit='decbytes'),
   },
   dataCompleteness: {
     snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
@@ -81,6 +91,7 @@ local rows = {
       panels.general.zeroByte,
       panels.general.tableSize,
       panels.general.scheduledQueries,
+      panels.general.queryCost,
     ]
   ]),
   dataCompleteness: row.new('Data Completeness').addPanels([
@@ -105,6 +116,7 @@ grafana.dashboard.new(
   uid='bq',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
+  time_from='now-24h',
   time_to='now-1m',
   tags=['generated'],
 )
