@@ -30,7 +30,7 @@ local targets = {
     queryCost: target.gauge(
       metric='bq-cost-of-queries',
       includeZero=true,
-      groupBys=['query_hash'],
+      groupBys=['query_hash', 'query_type'],
       gaugeFunc=target.gaugeFuncs.sum,
     ) + {
       format: 'table',

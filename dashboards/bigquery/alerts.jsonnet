@@ -53,18 +53,18 @@ local alertDefinitions = [
     ],
   },
   {
-      row: 'BQ scheduled queries',
-      alerts: [
-        {
-          title: '[bq] scheduled queries fails',
-          counter: { name: 'bq-scheduled-query', filters: target.equalsFilter('scheduled_query_state', 'FAILED') },
-          threshold: 0,
-          reducerType: 'sum',
-          evaluateFor: '1m',
-          message: 'Scheduled query failure',
-        },
-      ],
-    },
+    row: 'BQ scheduled queries',
+    alerts: [
+      {
+        title: '[bq] scheduled queries fails',
+        counter: { name: 'bq-scheduled-query', filters: target.equalsFilter('scheduled_query_state', 'FAILED') },
+        threshold: 0,
+        reducerType: 'sum',
+        evaluateFor: '1m',
+        message: 'Scheduled query failure',
+      },
+    ],
+  },
   {
     row: 'Redash',
     alerts: [
@@ -101,7 +101,7 @@ local alertDefinitions = [
           name: 'bq-row-diff-snapshot-tables',
           groupBys: ['table_id'],
         },
-        threshold: 0,
+        threshold: 100,
         reducerType: 'max',
         evaluateFor: '1h',
         message: 'Some snapshot tables are not in sync',
@@ -112,7 +112,7 @@ local alertDefinitions = [
           name: 'bq-row-diff-partition-tables',
           groupBys: ['table_id'],
         },
-        threshold: 0,
+        threshold: 100,
         reducerType: 'max',
         evaluateFor: '1h',
         message: 'Some partition tables are not in sync',

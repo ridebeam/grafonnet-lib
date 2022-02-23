@@ -57,6 +57,18 @@
         },
         {
           matcher: {
+            id: 'byType',
+            options: 'string',
+          },
+          properties: [
+            {
+              id: 'custom.width',
+              value: 150,
+            },
+          ],
+        },
+        {
+          matcher: {
             id: 'byName',
             options: key,
           },
