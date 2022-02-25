@@ -14,6 +14,12 @@ local serviceFilter = target.combineFilters(
   target.equalsFilter('service', 'payment-service'),
 );
 
+// alert metrics coming from analytics-watchdog
+local analyticsWatchdogAlertFilter = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'analytics-watchdog'),
+);
+
 local msg = 'Please check the playbook page and look for the corresponding alert code: https://beammobility.atlassian.net/wiki/spaces/BE/pages/2334654469/Payment+Service+Alert+Playbook';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
@@ -24,18 +30,12 @@ local alertDefinitions = [
       {
         title: '[payment-002] Create Order Failed',
         counter: { name: 'create-order-failed' },
-        threshold: 5,
+        threshold: 3,
         message: msg,
       },
       {
         title: '[payment-004] Refund order failed after retrial',
         counter: { name: 'refund-processing-failure' },
-        threshold: 1,
-        message: msg,
-      },
-      {
-        title: '[payment-005] Orders stuck in notification',
-        counter: { name: 'orders-stuck-for-notification' },
         threshold: 1,
         message: msg,
       },
@@ -65,6 +65,20 @@ local alertDefinitions = [
   },
 ];
 
+local analyticsWatchdogAlertDefinitions = [
+  {
+    row: 'Orders',
+    alerts: [
+      {
+        title: '[payment-005] Orders stuck in notification',
+        counter: { name: 'orders-stuck-for-notification' },
+        threshold: 1,
+        message: msg,
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Production Alerts',
@@ -79,11 +93,22 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
-    evaluateFor: '1m',
+    evaluateFor: '5m',
     reducerType: 'sum',
   },
   counters+: {
     func: 'delta',
     filters: serviceFilter,
+  },
+}))
+.addRows(alerts.createRows(analyticsWatchdogAlertDefinitions, alerts.defaults {
+  alerts+: {
+    channels: [alerts.slackPayments],
+    evaluateFor: '5m',
+    reducerType: 'sum',
+  },
+  counters+: {
+    func: 'delta',
+    filters: analyticsWatchdogAlertFilter,
   },
 }))

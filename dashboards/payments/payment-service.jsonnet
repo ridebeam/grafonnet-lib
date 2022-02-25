@@ -20,6 +20,7 @@ local metrics = [
       { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error'] },
     ],
   },
   {
@@ -44,6 +45,13 @@ local metrics = [
       { title: 'Handle Adyen 3DS', prefix: 'handle-adyen-3ds', counters: ['attempt', 'success', 'failed', 'error'] },
     ],
   },
+  {
+    row: 'Auth Adjust Timing',
+    panels: [
+      { title: 'Pre Auth Success Timing', prefix: 'auth-success', counters: [] },
+      { title: 'Pre Auth Failed Timing', prefix: 'auth-failed', counters: [] },
+    ],
+  }
 ];
 
 // create a simple counter, with the metric name as alias
