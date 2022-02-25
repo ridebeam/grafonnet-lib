@@ -20,7 +20,7 @@ local metrics = [
       { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
-      { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error'] },
+      { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error', 'timeout'] },
     ],
   },
   {
