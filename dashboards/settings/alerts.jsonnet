@@ -106,7 +106,7 @@ local alertDefinitions = [
           ||| % { env: env, service: service },
           alias: '{{grpc_server_method}}',
         },
-        threshold: 50000,
+        threshold: 5000,
         format: 'ms',
         message: 'p95 latency is greater than 200ms in the last 5 minutes. ',
       },
@@ -116,8 +116,8 @@ local alertDefinitions = [
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'Dev Alerts',
-  uid='settings_staging',
+  'Settings Lookup Alerts',
+  uid='settings-lookup_alerts',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',
