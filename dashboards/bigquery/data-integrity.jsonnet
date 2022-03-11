@@ -27,15 +27,6 @@ local targets = {
       instant: true,
     },
     scheduledQueries: target.gauges(metric='bq_scheduled_query', groupBys=['scheduled_query_state']).sum,
-    queryCost: target.gauge(
-      metric='bq-cost-of-queries',
-      includeZero=true,
-      groupBys=['query_hash', 'query_type'],
-      gaugeFunc=target.gaugeFuncs.sum,
-    ) + {
-      format: 'table',
-      instant: true,
-    },
   },
   dataCompleteness: {
     snapshotRowCount: target.gauge(
@@ -51,11 +42,10 @@ local targets = {
       gaugeFunc=target.gaugeFuncs.max,
     ),
   },
-  serviceUptime: {
-    queryLatency: target.timers(
-      metric='bq-query-latency',
-      groupBys=['query_id'],
-    ),
+  mutations: target.gauges(metric='bq_mutations', groupBys=['table_id'], filters=target.equalsFilter('table_id', '$bq_table_id')).sum,
+  mutationsHourly: target.gauges(metric='bq_mutations_hourly', groupBys=['hour'], filters=target.equalsFilter('table_id', '$bq_table_id')).sum {
+    format: 'table',
+    instant: true,
   },
 };
 
@@ -64,7 +54,6 @@ local panels = {
     zeroByte: panel.counter('Number of tables with zero bytes').addTargets([targets.general.zeroByte]),
     tableSize: panel.new('Size of tables').addTargets([targets.general.tableSize]) + lcdGauge.new(key='table_id', value='bytes', unit='decbytes'),
     scheduledQueries: panel.new('Scheduled queries state').addTargets([targets.general.scheduledQueries]),
-    queryCost: panel.new('Cost of queries').addTargets([targets.general.queryCost]) + lcdGauge.new(key='query_hash', value='bytes', unit='decbytes'),
   },
   dataCompleteness: {
     snapshotRowCount: panel.new('Snapshot row count difference').addTargets([
@@ -74,46 +63,68 @@ local panels = {
       targets.dataCompleteness.partitionRowCount,
     ]),
   },
-  serviceUptime: {
-    queryLatencyP50: panel.timeLog2('Query latency P50').addTargets([
-      targets.serviceUptime.queryLatency.p50,
-    ]),
-    queryLatencyP99: panel.timeLog2('Query latency P99').addTargets([
-      targets.serviceUptime.queryLatency.p99,
-    ]),
+  mutations: panel.new('Total number of mutations for ${bq_table_id}').addTargets([targets.mutations]),
+  mutationsHourly: panel.new('Hourly mutations for ${bq_table_id}').addTargets([targets.mutationsHourly]) + {
+    transformations: [
+      {
+        id: 'organize',
+        options: {
+          excludeByName: {
+            Time: true,
+          },
+          indexByName: {},
+          renameByName: {},
+        },
+      },
+    ],
+    type: 'barchart',
   },
 };
 
 local rows = {
-  general: row.new('General').addPanels([
+  tableSize: row.new('Tables Size').addPanels([
     panel.halfRow(p)
     for p in [
-      panels.general.zeroByte,
       panels.general.tableSize,
-      panels.general.scheduledQueries,
-      panels.general.queryCost,
+      panels.general.zeroByte,
     ]
   ]),
-  dataCompleteness: row.new('Data Completeness').addPanels([
-    panel.halfRow(p)
+
+  snapshot: row.new('Snapshots').addPanels([
+    panel.fullRow(p)
     for p in [
       panels.dataCompleteness.snapshotRowCount,
+    ]
+  ]),
+
+
+  partition: row.new('Partitions').addPanels([
+    panel.fullRow(p)
+    for p in [
       panels.dataCompleteness.partitionRowCount,
     ]
   ]),
-  serviceUptime: row.new('Service Uptime').addPanels([
+
+  etl: row.new('ETL - Scheduled Queries').addPanels([
+    panel.fullRow(p)
+    for p in [
+      panels.general.scheduledQueries,
+    ]
+  ]),
+
+  mutations: row.new('Mutations of ${bq_table_id}', repeat='bq_table_id', collapse=true).addPanels([
     panel.halfRow(p)
     for p in [
-      panels.serviceUptime.queryLatencyP50,
-      panels.serviceUptime.queryLatencyP99,
+      panels.mutations,
+      panels.mutationsHourly,
     ]
   ]),
 };
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'bigquery monitoring',
-  uid='bq',
+  'BQ Data Integrity',
+  uid='bq-data-integrity',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',
@@ -138,8 +149,24 @@ grafana.dashboard.new(
   )
 )
 
+.addTemplate(
+  template.new(
+    name='bq_table_id',
+    datasource=null,
+    query='label_values(bq_mutations_hourly, table_id)',
+    current='$__all',
+    multi=true,
+    includeAll=true,
+    refresh=1,
+    sort=1,
+    hide='variable',
+  )
+)
+
 .addRows([
-  rows.general,
-  rows.dataCompleteness,
-  rows.serviceUptime,
+  rows.tableSize,
+  rows.snapshot,
+  rows.partition,
+  rows.mutations,
+  rows.etl,
 ])
