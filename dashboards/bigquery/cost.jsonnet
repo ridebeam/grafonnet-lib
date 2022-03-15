@@ -8,6 +8,7 @@ local lcdGauge = import '../../helper/lcd-gauge.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
 
 local bq_cost = import './raw_bq/bq_cost_panel.json';
+local bq_cost_etl = import './raw_bq/bq_cost_etl_panel.json';
 
 local helpers = prom.init();
 local target = helpers.target;
@@ -36,7 +37,8 @@ local rows = {
     panel.fullRow(p)
     for p in [
       panels.general.queryCost,
-      bq_cost
+      bq_cost,
+      bq_cost_etl
     ]
   ]),
 };
