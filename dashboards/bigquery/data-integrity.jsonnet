@@ -41,6 +41,12 @@ local targets = {
       includeZero=true,
       gaugeFunc=target.gaugeFuncs.max,
     ),
+    partitionRowCountBimonthly: target.gauge(
+      metric='bq-row-diff-partition-tables-bimonthly',
+      groupBys=['table_id'],
+      includeZero=true,
+      gaugeFunc=target.gaugeFuncs.max,
+    ),
   },
   mutations: target.gauges(metric='bq_mutations', groupBys=['table_id'], filters=target.equalsFilter('table_id', '$bq_table_id')).sum,
   mutationsHourly: target.gauges(metric='bq_mutations_hourly', groupBys=['hour'], filters=target.equalsFilter('table_id', '$bq_table_id')).sum {
@@ -61,6 +67,9 @@ local panels = {
     ]),
     partitionRowCount: panel.new('Partition row count difference').addTargets([
       targets.dataCompleteness.partitionRowCount,
+    ]),
+    partitionRowCountBimonthly: panel.new('Partition row count difference - 2 months').addTargets([
+      targets.dataCompleteness.partitionRowCountBimonthly,
     ]),
   },
   mutations: panel.new('Total number of mutations for ${bq_table_id}').addTargets([targets.mutations]),
@@ -102,6 +111,7 @@ local rows = {
     panel.fullRow(p)
     for p in [
       panels.dataCompleteness.partitionRowCount,
+      panels.dataCompleteness.partitionRowCountBimonthly,
     ]
   ]),
 
