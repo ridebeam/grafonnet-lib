@@ -63,6 +63,18 @@ local alertDefinitions = [
         evaluateFor: '1m',
         message: 'Scheduled query failure',
       },
+      {
+        title: '[bq] failed scheduled queries',
+        gauge: {
+          name: 'bq-scheduled-query-failed',
+          groupBys: ['scheduled_query_name'],
+          func: target.gaugeFuncs.sum.func,
+        },
+        threshold: 0,
+        reducerType: 'sum',
+        evaluateFor: '1m',
+        message: 'Names of failed scheduled queries',
+      },
     ],
   },
   {
