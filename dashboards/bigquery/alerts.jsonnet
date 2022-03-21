@@ -115,7 +115,7 @@ local alertDefinitions = [
         },
         threshold: 100,
         reducerType: 'max',
-        evaluateFor: '1h',
+        evaluateFor: '2h',
         message: 'Some snapshot tables are not in sync',
       },
       {
@@ -126,7 +126,7 @@ local alertDefinitions = [
         },
         threshold: 100,
         reducerType: 'max',
-        evaluateFor: '1h',
+        evaluateFor: '2h',
         message: 'Some partition tables are not in sync',
       },
     ],
