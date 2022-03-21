@@ -32,6 +32,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         reducerType: 'max',
+        evaluateFor: '10m',
+        evaluateEvery: '1h',
         message: 'Some snapshot tables are not in sync',
       },
       {
@@ -45,6 +47,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         reducerType: 'max',
+        evaluateFor: '10m',
+        evaluateEvery: '1h',
         message: 'Some snapshot tables are not in sync',
       },
       {
@@ -58,6 +62,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         reducerType: 'max',
+        evaluateFor: '10m',
+        evaluateEvery: '1h',
         message: 'Some snapshot tables are not in sync',
       },
       {
@@ -71,6 +77,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         reducerType: 'max',
+        evaluateFor: '10m',
+        evaluateEvery: '1h',
         message: 'Some snapshot tables are not in sync',
       },
       {
@@ -84,6 +92,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         reducerType: 'max',
+        evaluateFor: '10m',
+        evaluateEvery: '1h',
         message: 'Some snapshot tables are not in sync',
       },
     ],
