@@ -87,7 +87,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(endpointAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.productionAlerts,
+      channels: alerts.notifications.productionWarnings,
       reducerType: 'avg',
     }
   })
@@ -95,7 +95,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(jobAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.productionAlerts,
+      channels: alerts.notifications.productionWarnings,
       queryTimeStart: '15m',
       reducerType: 'avg',
     }
