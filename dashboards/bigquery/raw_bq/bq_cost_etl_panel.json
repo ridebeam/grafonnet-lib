@@ -1,5 +1,5 @@
 {
-  "datasource": "Google BigQuery",
+  "datasource": "Google BigQuery Data Project",
   "fieldConfig": {
     "defaults": {
       "color": {
