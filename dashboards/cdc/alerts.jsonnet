@@ -77,20 +77,21 @@ local alertDefinitions = [
         evaluateFor: '1h',
         message: 'Some snapshot tables are not in sync',
       },
-      {
-        title: 'Beam API Snapshots aborted > 0',
-        gauge: {
-          name: 'debezium_metrics_snapshot_aborted',
-          filters: target.combineFilters(
-            target.equalsFilter('namespace', 'production'),
-            target.equalsFilter('service', 'cdc-postgres-interval-snapshot'),
-          ),
-        },
-        threshold: 1,
-        reducerType: 'max',
-        evaluateFor: '1h',
-        message: 'Some snapshot tables are not in sync',
-      },
+//      {
+//        title: 'Beam API Snapshots aborted > 0',
+//        gauge: {
+//          name: 'debezium_metrics_snapshot_aborted',
+//          filters: target.combineFilters(
+//            target.equalsFilter('namespace', 'production'),
+//            target.equalsFilter('service', 'cdc-postgres-interval-snapshot'),
+//          ),
+//        },
+//        threshold: 1,
+//        reducerType: 'max',
+//        evaluateFor: '1h',
+//        evaluateEvery: '2h',
+//        message: 'Some snapshot tables are not in sync',
+//      },
     ],
   },
 ];
