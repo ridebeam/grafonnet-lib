@@ -3,6 +3,7 @@ local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
+local text = grafana.text;
 local prom = import '../../helper/promql.libsonnet';
 local lcdGauge = import '../../helper/lcd-gauge.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
@@ -28,6 +29,11 @@ local targets = {
 
 local panels = {
   general: {
+    queryInstructions: text.new(
+      mode='html',
+      title='Query Hash Instructions',
+      content="<h4>How to find redash query using query_hash</h4><ol><li>Copy <code>query_hash</code> value with type redash from <code>Cost of Queries</code> table</li><li>Visit <a href='https://redash.ridebeam.com/queries/14499/source' target='_blank'>Redash query hash link</a></li><li>Replace <code>query_hash</code> value with the copied hash and execute</li></ol><h4>For other types refer to BigQuery to determine user</h4>"
+    ),
     queryCost: panel.new('Cost of queries').addTargets([targets.queryCost]) + lcdGauge.new(key='query_hash', value='bytes', unit='decbytes'),
   },
 };
@@ -36,9 +42,10 @@ local rows = {
   general: row.new('General').addPanels([
     panel.fullRow(p)
     for p in [
+      panels.general.queryInstructions,
       panels.general.queryCost,
       bq_cost,
-      bq_cost_etl
+      bq_cost_etl,
     ]
   ]),
 };
