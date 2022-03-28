@@ -1,12 +1,13 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
-local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local alerts = import '../../helper/alerts.libsonnet';
+local prom = import '../../helper/promql.libsonnet';
 
-local cw = import '../../helper/cloudwatch.libsonnet';
-local cwHelpers = cw.init();
-local panel = cwHelpers.panel;
+local helpers = prom.init();
+local target = helpers.target;
+local panel = helpers.panel;
+
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
@@ -18,40 +19,48 @@ grafana.dashboard.new(
   tags=['generated'],
 )
 
+.addTemplate(
+  template.custom(
+    name='env',
+    query='staging,production',
+    current='production',
+  )
+)
+
+.addTemplate(
+  template.custom(
+    name='service',
+    query='external-data-api',
+    current='external-data-api',
+    hide='variable',
+  )
+)
+
 .addRows([
   row.new('Service Overview').addPanels([
     panel.halfRow(p)
     for p in [
-      panel.new('Average 2XX', legend_show=true).addTarget(
-        cloudwatch.target(
-          region='ap-southeast-1',
-          namespace='AWS/ElasticBeanstalk',
-          metric='ApplicationRequests2xx',
-          statistic='Average',
-          dimensions={ EnvironmentName: 'external-data-api-production' },
-          period='auto',
+      panel.counter('Requests', legend_show=true).addTarget(
+        target.counter(
+          metric='http_requests_count_total',
         )
       ),
-      panel.new('Average 5XX ', legend_show=true).addTarget(
-        cloudwatch.target(
-          region='ap-southeast-1',
-          namespace='AWS/ElasticBeanstalk',
-          metric='ApplicationRequests5xx',
-          statistic='Average',
-          dimensions={ EnvironmentName: 'external-data-api-production' },
-          period='auto',
-        )
-      ),
-      panel.new('Average P90 Latency', legend_show=true).addTarget(
-        cloudwatch.target(
-          region='ap-southeast-1',
-          namespace='AWS/ElasticBeanstalk',
-          metric='ApplicationLatencyP90',
-          statistic='Average',
-          dimensions={ EnvironmentName: 'external-data-api-production' },
-          period='auto',
-        )
-      ),
+      panel.counter('HTTP Errors', legend_show=true).addTargets([
+        target.counter(
+          metric='http_error_5xx_count_total',
+        ),
+        target.counter(
+          metric='http_error_4xx_count_total',
+        ),
+      ]),
+      panel.timeLinear('Latency', legend_show=true).addTargets([
+        target.timers(
+          metric='http_request_latency_ms',
+        ).p99,
+        target.timers(
+          metric='http_request_latency_ms',
+        ).p95,
+      ]),
     ]
   ]),
 ])
