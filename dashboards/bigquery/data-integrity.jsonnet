@@ -7,6 +7,8 @@ local prom = import '../../helper/promql.libsonnet';
 local lcdGauge = import '../../helper/lcd-gauge.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
 
+local bq_row_count_diff = import './raw_bq/bq_row_count_diff.json';
+
 local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
@@ -112,6 +114,12 @@ local rows = {
   ]),
 
 
+  rowCountDiff: row.new('Row count diff', collapse=true).addPanels([
+    panel.fullRow(p)
+    for p in [
+      bq_row_count_diff,
+    ]
+  ]),
   partition: row.new('Partitions').addPanels([
     panel.fullRow(p)
     for p in [
@@ -182,6 +190,7 @@ grafana.dashboard.new(
 .addRows([
   rows.tableSize,
   rows.snapshot,
+  rows.rowCountDiff,
   rows.partition,
   rows.mutations,
   rows.etl,
