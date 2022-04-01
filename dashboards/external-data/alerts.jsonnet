@@ -22,10 +22,10 @@ local alertDefinitions = [
     row: '5XX Errors',
     alerts: [
       {
-        title: 'Percentage of Rate of 5XX Errors',
+        title: '[External Data API] Percentage of Rate of 5XX Errors',
         custom: {
           name: 'rate-of-5xx-errors-ratio-rate-of-requests',
-          query: '( sum(rate(http_error_5xx_count_total{namespace="production", service="external-data-api"}[1m]))  / sum(rate(http_requests_count_total{namespace="production", service="external-data-api"}[1m])) ) * 100',
+          query: '( sum(rate(http_error_5xx_count_total{namespace="production", service="external-data-api"}[1m])) OR vector(0)  / sum(rate(http_requests_count_total{namespace="production", service="external-data-api"}[1m])) ) * 100',
           alias: '{{route}}',
         },
         threshold: 30,
