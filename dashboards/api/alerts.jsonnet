@@ -94,6 +94,7 @@ local alertDefinitions = [
         },
         format: 'percentunit',
         threshold: 0.6,
+        channels: alerts.notifications.productionWarnings,
         message: '',  // TODO message
       },
       {
