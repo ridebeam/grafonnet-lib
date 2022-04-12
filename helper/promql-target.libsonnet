@@ -176,6 +176,37 @@ local prom = grafana.prometheus;
       legendFormat=$.alias(alias, groupBys, metric)
     ),
 
+  ratio(
+    metric='',
+    metrics=[],
+    func='rate',
+    interval='$__interval',
+    intervalFactor=1,
+    alias='',
+    filters='',
+    numeratorFilters='',  // eg status=~5..
+    denominatorFilters='',
+    withServiceFilters=true,
+  )::
+    local metricsList = if std.length(metric) > 0 then [metric] else metrics;
+    local numMetricsAgg = std.join(' + ', std.map(function(m) '%s(%s%s[%s])' % [
+      func,
+      $.filterKey(m),
+      $.targetFilters($.combineFilters(filters, numeratorFilters), withServiceFilters),
+      interval,
+    ], metricsList));
+    local denomMetricsAgg = std.join(' + ', std.map(function(m) '%s(%s%s[%s])' % [
+      func,
+      $.filterKey(m),
+      $.targetFilters($.combineFilters(filters, denominatorFilters), withServiceFilters),
+      interval,
+    ], metricsList));
+
+    $.target(
+      '(sum(%s) OR vector(0)) / sum(%s)' % [numMetricsAgg, denomMetricsAgg],
+      legendFormat=$.alias(alias, [], metric)
+    ),
+
   target(expr, legendFormat='', intervalFactor=1)::
     prom.target(expr, legendFormat=legendFormat, intervalFactor=intervalFactor)
     + {

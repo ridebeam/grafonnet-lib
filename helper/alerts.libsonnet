@@ -62,6 +62,7 @@ local cwPanel = cwHelpers.panel;
   },
   gcpGaugesDefaults:: $.gcpDefaults {
     filters: [],
+    groupBys: [],
   },
   gcpTimersDefaults:: $.gcpDefaults {
     filters: [],
@@ -137,11 +138,17 @@ local cwPanel = cwHelpers.panel;
     ),
 
   createGCPGauge(metric)::
-    metric.gcpHelpers.target.gauges(
+    local gauges = metric.gcpHelpers.target.gauges(
       metric=metric.name,
       filters=metric.filters,
+      groupBys=metric.groupBys,
       withServiceFilters=false,
-    ).max,
+    );
+    if std.length(metric.groupBys) > 0 then
+      gauges.sum
+    else
+      gauges.max
+  ,
 
   createGCPTimer(metric)::
     metric.gcpHelpers.target.timers(
