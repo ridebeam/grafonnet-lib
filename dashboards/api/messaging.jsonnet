@@ -10,11 +10,9 @@ local panel = helpers.panel;
 
 local targets = {
   kafka: {
-    scooterMessages: target.counter(
-      metric='scooter-messages',
-    ),
-    vehicleEvent: target.counter(
-      metric='vehicle-event',
+    consumed: target.counter(
+      metric='handle_kafka_message',
+      groupBys=['topic'],
     ),
     lag: target.timers(
       metric='kafka-consume-lag',
@@ -42,10 +40,7 @@ local targets = {
 
 local panels = {
   kafka: {
-    consume: panel.counter('Consumed').addTargets([
-      targets.kafka.scooterMessages.withAlias('scooter-messages'),
-      targets.kafka.vehicleEvent.withAlias('vehicle-event'),
-    ]),
+    consume: panel.counter('Consumed').addTarget(targets.kafka.consumed),
     lagP99: panel.timeLog2('Consumer Lag P99').addTarget(targets.kafka.lag.p99),
     lagP50: panel.timeLog2('Consumer Lag P50').addTarget(targets.kafka.lag.p50),
   },
