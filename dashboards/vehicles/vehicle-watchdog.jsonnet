@@ -221,4 +221,12 @@ grafana.dashboard.new(
       ]),
     ]
   ])),
+  panel.collapseRow(row.new('Vehicle Helmet Lock Type')).addPanels([
+    panel.counter('number of helmet by city').addTargets([
+      target.gauges(
+        metric='vehicle_helmet_lock',
+        groupBys=['city_id', 'helmet_lock_type'],
+      ).avg
+    ]) 
+  ])
 ])
