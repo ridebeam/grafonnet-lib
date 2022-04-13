@@ -56,6 +56,9 @@ local targets = {
       metric='state-changed-error',
       groupBys=['state_name'],
     ),
+    brokenHelmetLock: target.counter(
+      metric='helmet-lock-scan-failure',
+    ),
     asyncKafkaLag: target.timers(
       metric='kafka_lag_async',
       groupBys=['kafka_source_topic'],
@@ -116,6 +119,9 @@ local panels = {
     ]),
     changeTimeP50: panel.timeLog2('Latency p50').addTargets([
       targets.state.changeTime.p50,
+    ]),
+    brokenHelmetLock: panel.counter('Broken Helmet Lock').addTargets([
+      targets.state.brokenHelmetLock,
     ]),
     changeTimeP95: panel.timeLog2('Latency p95').addTargets([
       targets.state.changeTime.p95,
@@ -185,6 +191,7 @@ local rows = {
     for p in [
       panels.state.changeTimeP50,
       panels.state.changes,
+      panels.state.brokenHelmetLock,
       panels.state.changeTimeP95,
       panels.state.changeTimeP99,
       panels.state.changeErrors,
