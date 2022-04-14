@@ -14,7 +14,7 @@ local serviceFilter = target.combineFilters(
   target.equalsFilter('service', 'external-data-api'),
 );
 
-local msg = 'Over 30% of requests are resulting in 5xx errors!';
+local msg = 'Over 1% of requests are resulting in 5xx errors for last 5 minutes';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
@@ -25,10 +25,10 @@ local alertDefinitions = [
         title: '[External Data API] Percentage of Rate of 5XX Errors',
         custom: {
           name: 'rate-of-5xx-errors-ratio-rate-of-requests',
-          query: '( sum(rate(http_error_5xx_count_total{namespace="production", service="external-data-api"}[1m])) OR vector(0)  / sum(rate(http_requests_count_total{namespace="production", service="external-data-api"}[1m])) ) * 100',
-          alias: '{{route}}',
+          query: '((sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production", response_code=~"5.."}[$__interval])) OR vector(0)) / sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production"}[$__interval]))) * 100',
+          alias: 'rate of 5xx errors to rate of total requests',
         },
-        threshold: 30,
+        threshold: 1,
         message: msg,
       },
     ],

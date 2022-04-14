@@ -42,23 +42,64 @@ grafana.dashboard.new(
     for p in [
       panel.counter('Requests', legend_show=true).addTarget(
         target.counter(
-          metric='http_requests_count_total',
+          metric='istio_requests_total',
+          filters=target.combineFilters(
+            target.equalsFilter('reporter', 'source'), target.combineFilters(
+              target.equalsFilter('destination_service_name', 'external-data-api-http'),
+              target.equalsFilter('destination_service_namespace', '$env'),
+            ),
+          ),
+          withServiceFilters=false,
         )
       ),
       panel.counter('HTTP Errors', legend_show=true).addTargets([
-        target.counter(
-          metric='http_error_5xx_count_total',
+        target.ratio(
+          metric='istio_requests_total',
+          filters=target.combineFilters(
+            target.equalsFilter('reporter', 'source'), target.combineFilters(
+              target.equalsFilter('destination_service_name', 'external-data-api-http'),
+              target.equalsFilter('destination_service_namespace', '$env'),
+            ),
+          ),
+          numeratorFilters=target.likeFilter('response_code', '5..'),
+          withServiceFilters=false,
+          alias='5xx',
         ),
-        target.counter(
-          metric='http_error_4xx_count_total',
+        target.ratio(
+          metric='istio_requests_total',
+          filters=target.combineFilters(
+            target.equalsFilter('reporter', 'source'), target.combineFilters(
+              target.equalsFilter('destination_service_name', 'external-data-api-http'),
+              target.equalsFilter('destination_service_namespace', '$env'),
+            ),
+          ),
+          numeratorFilters=target.likeFilter('response_code', '4..'),
+          withServiceFilters=false,
+          alias='4xx',
         ),
       ]),
-      panel.timeLinear('Latency', legend_show=true).addTargets([
+      panel.timeLinear('Latency', format='ms', legend_show=true).addTargets([
         target.timers(
-          metric='http_request_latency_ms',
+          'istio_request_duration_milliseconds',
+          filters=target.combineFilters(
+            target.equalsFilter('reporter', 'source'), target.combineFilters(
+              target.equalsFilter('destination_service_name', 'external-data-api-http'),
+              target.equalsFilter('destination_service_namespace', '$env'),
+            ),
+          ),
+          intervalFactor=4,
+          withServiceFilters=false,
         ).p99,
         target.timers(
-          metric='http_request_latency_ms',
+          'istio_request_duration_milliseconds',
+          filters=target.combineFilters(
+            target.equalsFilter('reporter', 'source'), target.combineFilters(
+              target.equalsFilter('destination_service_name', 'external-data-api-http'),
+              target.equalsFilter('destination_service_namespace', '$env'),
+            ),
+          ),
+          intervalFactor=4,
+          withServiceFilters=false,
         ).p95,
       ]),
     ]
