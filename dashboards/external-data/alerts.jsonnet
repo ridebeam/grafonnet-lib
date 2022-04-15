@@ -25,7 +25,7 @@ local alertDefinitions = [
         title: '[External Data API] Percentage of Rate of 5XX Errors',
         custom: {
           name: 'rate-of-5xx-errors-ratio-rate-of-requests',
-          query: '((sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production", response_code=~"5.."}[$__interval])) OR vector(0)) / sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production"}[$__interval]))) * 100',
+          query: '((sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production", response_code=~"5.."}[2m])) OR vector(0)) / sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production"}[2m]))) * 100',
           alias: 'rate of 5xx errors to rate of total requests',
         },
         threshold: 1,
