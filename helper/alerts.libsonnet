@@ -42,6 +42,7 @@ local cwPanel = cwHelpers.panel;
     evaluateEvery: '1m',
     reducerType: 'avg',
     queryTimeStart: '5m',
+    noDataState: 'no_data',
   },
 
   counterDefaults:: {
@@ -220,6 +221,7 @@ local cwPanel = cwHelpers.panel;
         message='%s\n\n%s' % [def.title, def.message],
         forDuration=def.evaluateFor,
         frequency=def.evaluateEvery,
+        noDataState=def.noDataState,
       ).addConditions([
         $.newCondition(
           reducerType=def.reducerType,

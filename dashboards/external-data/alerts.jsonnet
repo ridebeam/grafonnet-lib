@@ -14,7 +14,8 @@ local serviceFilter = target.combineFilters(
   target.equalsFilter('service', 'external-data-api'),
 );
 
-local msg = 'Over 1% of requests are resulting in 5xx errors for last 5 minutes';
+local rateOf5xxErrorMessage = 'Over 1% of requests are resulting in 5xx errors for last 5 minutes';
+local rateOfBadDataErrorMessage = 'Rate of bad data in free bikes feed is over 1 count per second in last 5 minutes';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
@@ -24,12 +25,26 @@ local alertDefinitions = [
       {
         title: '[External Data API] Percentage of Rate of 5XX Errors',
         custom: {
-          name: 'rate-of-5xx-errors-ratio-rate-of-requests',
+          name: 'pct-rate-of-5xx-errors-ratio-rate-of-requests',
           query: '((sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production", response_code=~"5.."}[2m])) OR vector(0)) / sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production"}[2m]))) * 100',
-          alias: 'rate of 5xx errors to rate of total requests',
+          alias: 'percentage rate of 5xx errors to rate of total requests',
         },
         threshold: 1,
-        message: msg,
+        message: rateOf5xxErrorMessage,
+      },
+    ],
+  },
+  {
+    row: 'Rate of Bad Errors',
+    alerts: [
+      {
+        title: '[External Data API] Rate of Bad Data Errors',
+        counter: {
+          name: 'external_data_api_vehicle_bad_data_total',
+        },
+        threshold: 0,
+        message: rateOfBadDataErrorMessage,
+        noDataState: 'ok',
       },
     ],
   },
