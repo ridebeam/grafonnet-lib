@@ -15,17 +15,21 @@ local panel = helpers.panel;
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         withServiceFilters=false,
       ),
+      cpuReserved: libProm.target(
+        'sum(container_spec_cpu_shares{namespace="$env", container="$service"}[$__interval]) / 1024',
+        legendFormat='reserved',
+      ),
       cpuEach: target.counter(
         metric='container_cpu_usage_seconds_total',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         groupBys=['pod'],
         withServiceFilters=false,
       ),
-      cpuReserved: libProm.target(
+      cpuReservedEach: libProm.target(
         'min(container_spec_cpu_shares{namespace="$env", container="$service"}[$__interval]) / 1024',
         legendFormat='reserved',
       ),
-      cpuLimit: libProm.target(
+      cpuLimitEach: libProm.target(
         'min(container_spec_cpu_quota{namespace="$env", container="$service"}[$__interval]) / min(container_spec_cpu_period{namespace="$env", container="$service"}[$__interval])',
         legendFormat='limit',
       ),
@@ -128,11 +132,19 @@ local panel = helpers.panel;
   },
   panels: {
     service: {
-      cpu: panel.timeLinear('CPU Usage Total', legend_show=false).addTarget($.targets.process.cpu),
+      cpu: panel.timeLinear('CPU Usage Total', legend_show=true).addTargets([
+        $.targets.process.cpu,
+        $.targets.process.cpuReserved,
+      ]).addSeriesOverride({
+        alias: 'reserved',
+        fill: 0,
+        linewidth: 2,
+        color: '#56A64B',
+      }),
       cpuEach: panel.timeLinear('CPU Usage Each', legend_show=true).addTargets([
         $.targets.process.cpuEach,
-        $.targets.process.cpuReserved,
-        $.targets.process.cpuLimit,
+        $.targets.process.cpuReservedEach,
+        $.targets.process.cpuLimitEach,
       ]).addSeriesOverride({
         alias: 'limit',
         fill: 0,
