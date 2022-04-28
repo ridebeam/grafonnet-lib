@@ -24,6 +24,7 @@ local cwPanel = cwHelpers.panel;
   slackData: { uid: 'v22AHAf7k' },
   slackPayments: { uid: '_pd1H0fnk' },
   slackSettings: { uid: 'DA1AqzY7z' },
+  slackCompIntel: { uid: 'YoazTlw7z' },
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
 
