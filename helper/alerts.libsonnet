@@ -42,7 +42,7 @@ local cwPanel = cwHelpers.panel;
     evaluateFor: '5m',
     evaluateEvery: '1m',
     reducerType: 'avg',
-    queryTimeStart: '5m',
+    queryTimeStart: '1m',
     noDataState: 'no_data',
   },
 
@@ -86,7 +86,7 @@ local cwPanel = cwHelpers.panel;
     operatorType='and',
     queryRefId='A',
     queryTimeEnd='now',
-    queryTimeStart='5m',
+    queryTimeStart='1m',
     reducerParams=[],
     reducerType='avg',
   ):: alertCondition.new(
