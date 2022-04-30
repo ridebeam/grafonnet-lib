@@ -109,7 +109,7 @@ local targets = {
 
 local panels = {
   connections: {
-    connected: panel.new('Connected Devices').addTargets([
+    connected: panel.new('Connections (including dead ones)').addTargets([
       targets.connections.combined,
       targets.connections.each,
     ]),
@@ -117,7 +117,7 @@ local panels = {
       targets.connections.new,
       targets.connections.failed,
     ]),
-    perInstance: panel.new('Connected Devices per Instance').addTargets([
+    perInstance: panel.new('Connections per Instance (including dead ones)').addTargets([
       targets.connections.perInstance,
     ]),
     prodDisconnects: graphPanel.new('[Prod] Disconnect Events', datasource='CloudWatch', legend_show=false).addTargets([

@@ -11,21 +11,30 @@ local kpi = import './kpi.libsonnet';
 
 local filters = {
   city: target.combineFilters(target.envFilter, target.likeFilter('city_id', '$city_id')),
-  controllerVersion: target.likeFilter('controller_version', '[0-9]+'),
 };
 
 local targets = {
   vehicles: {
     countAll: target.gauges(
-      'vehicle-count',
-      filters=target.combineFilters(filters.city, filters.controllerVersion),
-      groupBys=['city_id'],
+      'vehicle-all',
+      filters=filters.city,
       withServiceFilters=false,
     ),
     byCity: target.gauges(
-      'vehicle-count',
-      filters=target.combineFilters(filters.city, filters.controllerVersion),
-      groupBys=['city_id', 'iot_version', 'display_version', 'controller_version'],
+      'vehicle-all',
+      filters=filters.city,
+      groupBys=['city_id'],
+      withServiceFilters=false,
+    ),
+    disconnected: target.gauges(
+      'vehicle-disconnected',
+      filters=filters.city,
+      withServiceFilters=false,
+    ),
+    disconnectedByCity: target.gauges(
+      'vehicle-disconnected',
+      filters=filters.city,
+      groupBys=['city_id'],
       withServiceFilters=false,
     ),
   },
@@ -133,14 +142,20 @@ local targets = {
 
 local panels = {
   vehicles: {
-    all: panel.fullRow(panel.showTable(panel.counter(title='Vehicle all', format='none').addTargets([
-      targets.vehicles.countAll.sum,
-    ]), current=true, sort='current')),
-    byCity: panel.repeatPanel(panel.fullRow(panel.showTable(
-      panel.counter(title='Vehicles in ' + '$city_id', format='none', legend_sortDesc=true).addTargets([
+    all: panel.fullRow(panel.counter(title='Vehicles', format='none').addTargets([
+      targets.vehicles.countAll.sum.withAlias('total'),
+      targets.vehicles.disconnected.sum.withAlias('disconnected'),
+    ])),
+    byCity: panel.halfRow(panel.showTable(
+      panel.counter(title='Vehicles per city', format='none', legend_sortDesc=true).addTargets([
         targets.vehicles.byCity.avg,
       ]), current=true, sort='current'
-    )), 'city_id', 'v'),
+    )),
+    disconnectedByCity: panel.halfRow(panel.showTable(
+      panel.counter(title='Disconnected Vehicles per city', format='none', legend_sortDesc=true).addTargets([
+        targets.vehicles.disconnectedByCity.avg,
+      ]), current=true, sort='current'
+    )),
   },
   startTrip: {
     success: panel.halfRow(panel.showTable(panel.counter(title='Start trip success').addTargets([
@@ -199,9 +214,10 @@ local panels = {
 };
 
 local rows = {
-  summary: row.new('All Vehicles').addPanels([panels.vehicles.all]),
-  vehicles: row.new('Vehicles per city').addPanels([
+  summary: row.new('All Vehicles').addPanels([
+    panels.vehicles.all,
     panels.vehicles.byCity,
+    panels.vehicles.disconnectedByCity,
   ]),
   startTrip: row.new('Start Trip').addPanels([panels.startTrip.success, panels.startTrip.err, panels.startTrip.timing]),
   endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),
@@ -253,7 +269,6 @@ local rows = {
 
     .addRows([
       rows.summary,
-      panel.collapseRow(rows.vehicles),
 
       // those coming from API still need to be retrieved from GCP Monitoring
       kpi.rows.startTrip,
