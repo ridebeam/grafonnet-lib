@@ -56,6 +56,10 @@ local cwPanel = cwHelpers.panel;
     groupBys: [],
   },
 
+  timersDefaults:: {
+    percentile: 'p99',
+  },
+
   gcpDefaults:: {
     filters: [],
   },
@@ -74,6 +78,7 @@ local cwPanel = cwHelpers.panel;
     alerts: $.alertDefaults,
     counters: $.counterDefaults,
     gauges: $.gaugesDefaults,
+    timers: $.timersDefaults,
 
     gcpCounters: $.gcpCountersDefaults,
     gcpGauges: $.gcpGaugesDefaults,
@@ -125,7 +130,7 @@ local cwPanel = cwHelpers.panel;
     interval='1m',
     filters=metric.filters,
     withServiceFilters=false,
-  ).p99,
+  )[metric.percentile],
 
   createCustom(metric):: promTarget.target(
     expr=metric.query,
@@ -175,7 +180,7 @@ local cwPanel = cwHelpers.panel;
     else if 'gauge' in alertDefinition then
       $.createGauge(defaults.gauges + alertDefinition.gauge)
     else if 'timer' in alertDefinition then
-      $.createTimer(alertDefinition.timer)
+      $.createTimer(defaults.timers + alertDefinition.timer)
     else if 'custom' in alertDefinition then
       $.createCustom(alertDefinition.custom)
     else if 'cloudwatch' in alertDefinition then

@@ -191,7 +191,7 @@ local alertDefinitions = [
         message: '',  // TODO message
       },
       {
-        title: 'HTTP Endpoint Latency P99',
+        title: 'HTTP Endpoint Latency P95',
         timer: {
           name: 'istio_request_duration_milliseconds',
           filters: target.combineFilters(
@@ -200,6 +200,7 @@ local alertDefinitions = [
               target.equalsFilter('destination_service_namespace', 'production'),
             ),
           ),
+          percentile: 'p95',
         },
         format: 'ms',
         threshold: 10000,
