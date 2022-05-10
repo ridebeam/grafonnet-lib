@@ -35,6 +35,11 @@ local panel = helpers.panel;
         'min(container_spec_cpu_quota{namespace="$env", container="$service"}[$__interval]) / min(container_spec_cpu_period{namespace="$env", container="$service"}[$__interval])',
         legendFormat='limit',
       ),
+      cpuThrottled: libProm.target(
+        'sum(rate(container_cpu_cfs_throttled_seconds_total{namespace="$env", container="$service"})) / sum(rate(container_cpu_cfs_periods_total{namespace="$env", container="$service"}))',
+        legendFormat='throttled',
+        intervalFactor=2,
+      ),
       mem: target.gauges(
         metric='container_memory_usage_bytes',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
@@ -160,6 +165,9 @@ local panel = helpers.panel;
         linewidth: 2,
         color: '#56A64B',
       }),
+      cpuThrottled: panel.timeLinear('CPU Throttled Total', format='percentunit', legend_show=true).addTargets([
+        $.targets.process.cpuThrottled,
+      ]),
       mem: panel.new('Memory Usage Total', format='bytes', legend_show=false).addTarget($.targets.process.mem.sum),
       memEach: panel.new('Memory Usage Each', format='bytes', legend_show=true).addTargets([
         $.targets.process.memEach.max,
@@ -248,6 +256,7 @@ local panel = helpers.panel;
         $.panels.service.mem,
         $.panels.service.cpuEach,
         $.panels.service.memEach,
+        $.panels.service.cpuThrottled,
         $.panels.service.goroutines,
         $.panels.service.log,
       ]
