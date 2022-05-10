@@ -54,6 +54,7 @@ grafana.dashboard.new(
           filters=target.combineFilters(target.equalsFilter('container', '$service'), target.likeFilter('cluster', '$cluster')),
           groupBys=['cluster'],
           withServiceFilters=false,
+          intervalFactor=2,
         )
       ),
       panel.new('Memory Usage', format='bytes', legend_show=true).addTarget(
@@ -62,6 +63,7 @@ grafana.dashboard.new(
           filters=target.combineFilters(target.equalsFilter('container', '$service'), target.likeFilter('cluster', '$cluster')),
           groupBys=['cluster'],
           withServiceFilters=false,
+          intervalFactor=2,
         ).max
       ),
       panel.new('Log Output (aprox entries per minute)', legend_show=true).addTarget(
