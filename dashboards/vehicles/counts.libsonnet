@@ -37,6 +37,17 @@ local targets = {
       groupBys=['city_id'],
       withServiceFilters=false,
     ),
+    issues: target.gauges(
+      'vehicle-connection-issue',
+      filters=filters.city,
+      withServiceFilters=false,
+    ),
+    issuesByCity: target.gauges(
+      'vehicle-connection-issue',
+      filters=filters.city,
+      groupBys=['city_id'],
+      withServiceFilters=false,
+    ),
   },
   startTrip: {
     success: target.counter(
@@ -145,7 +156,18 @@ local panels = {
     all: panel.fullRow(panel.counter(title='Vehicles', format='none').addTargets([
       targets.vehicles.countAll.sum.withAlias('total'),
       targets.vehicles.disconnected.sum.withAlias('disconnected'),
+      targets.vehicles.issues.sum.withAlias('connection issues'),
     ])),
+    operators: panel.fullRow(panel.showTable(
+      panel.counter('operators', format='none').addTargets([
+        target.gauges(
+          metric='vehicle-operator',
+          filters=filters.city,
+          groupBys=['operator'],
+          withServiceFilters=false,
+        ).sum,
+      ]), current=true, sort='current'
+    )),
     byCity: panel.halfRow(panel.showTable(
       panel.counter(title='Vehicles per city', format='none', legend_sortDesc=true).addTargets([
         targets.vehicles.byCity.avg,
@@ -154,6 +176,11 @@ local panels = {
     disconnectedByCity: panel.halfRow(panel.showTable(
       panel.counter(title='Disconnected Vehicles per city', format='none', legend_sortDesc=true).addTargets([
         targets.vehicles.disconnectedByCity.avg,
+      ]), current=true, sort='current'
+    )),
+    issuesByCity: panel.halfRow(panel.showTable(
+      panel.counter(title='Vehicles with connection issues per city', format='none', legend_sortDesc=true).addTargets([
+        targets.vehicles.issuesByCity.avg,
       ]), current=true, sort='current'
     )),
   },
@@ -216,8 +243,10 @@ local panels = {
 local rows = {
   summary: row.new('All Vehicles').addPanels([
     panels.vehicles.all,
+    panels.vehicles.operators,
     panels.vehicles.byCity,
     panels.vehicles.disconnectedByCity,
+    panels.vehicles.issuesByCity,
   ]),
   startTrip: row.new('Start Trip').addPanels([panels.startTrip.success, panels.startTrip.err, panels.startTrip.timing]),
   endTrip: row.new('End Trip').addPanels([panels.endTrip.success, panels.endTrip.err, panels.endTrip.timing]),

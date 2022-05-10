@@ -95,7 +95,7 @@ grafana.dashboard.new(
   row.new('Connection Issue Debugging').addPanels([
     panel.thirdRow(p)
     for p in [
-      panel.counter('per country').addTargets([
+      panel.counter('new TCP connections per country').addTargets([
         target.counter(
           metric='vehicle-connection-established',
           intervalFactor=10,
@@ -103,7 +103,7 @@ grafana.dashboard.new(
           groupBys=['country'],
         ),
       ]),
-      panel.counter('per operator').addTargets([
+      panel.counter('new TCP connections per operator').addTargets([
         target.counter(
           metric='vehicle-connection-established',
           intervalFactor=10,
@@ -226,7 +226,7 @@ grafana.dashboard.new(
       target.gauges(
         metric='vehicle_helmet_lock',
         groupBys=['city_id', 'helmet_lock_type'],
-      ).avg
-    ]) 
-  ])
+      ).avg,
+    ]),
+  ]),
 ])
