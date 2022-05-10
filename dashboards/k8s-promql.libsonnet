@@ -14,6 +14,7 @@ local panel = helpers.panel;
         metric='container_cpu_usage_seconds_total',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         withServiceFilters=false,
+        intervalFactor=2,
       ),
       cpuReserved: libProm.target(
         'sum(container_spec_cpu_shares{namespace="$env", container="$service"}[$__interval]) / 1024',
@@ -24,6 +25,7 @@ local panel = helpers.panel;
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         groupBys=['pod'],
         withServiceFilters=false,
+        intervalFactor=2,
       ),
       cpuReservedEach: libProm.target(
         'min(container_spec_cpu_shares{namespace="$env", container="$service"}[$__interval]) / 1024',
@@ -37,12 +39,14 @@ local panel = helpers.panel;
         metric='container_memory_usage_bytes',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         withServiceFilters=false,
+        intervalFactor=2,
       ),
       memEach: target.gauges(
         metric='container_memory_usage_bytes',
         filters=target.combineFilters(target.equalsFilter('namespace', '$env'), target.equalsFilter('container', '$service')),
         groupBys=['pod'],
         withServiceFilters=false,
+        intervalFactor=2,
       ),
       memLimit: target.gauge(
         metric='container_spec_memory_limit_bytes',

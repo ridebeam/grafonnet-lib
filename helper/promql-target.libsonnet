@@ -96,6 +96,7 @@ local prom = grafana.prometheus;
     alignmentPeriod=null,
     filters='',
     interval='$__interval',
+    intervalFactor=1,
     groupBys=[],
     unit=null,
     valueType=null,
@@ -108,6 +109,7 @@ local prom = grafana.prometheus;
       alias=name,
       filters=filters,
       interval=interval,
+      intervalFactor=intervalFactor,
       groupBys=groupBys,
       includeZero=includeZero,
       withServiceFilters=withServiceFilters,
@@ -121,6 +123,7 @@ local prom = grafana.prometheus;
     alias='',
     filters='',
     interval='$__interval',
+    intervalFactor=1,
     groupBys=[],
     includeZero=false,
     withServiceFilters=true,
@@ -128,7 +131,8 @@ local prom = grafana.prometheus;
     local filterZero = if includeZero then '' else ' > 0';
     $.target(
       '%s(%s%s[%s]) %s%s' % [gaugeFunc.func, $.filterKey(metric), $.targetFilters(filters, withServiceFilters), interval, $.groupBys(groupBys), filterZero],
-      legendFormat=$.alias(alias, groupBys, metric)
+      legendFormat=$.alias(alias, groupBys, metric),
+      intervalFactor=intervalFactor,
     ),
 
   delta(
@@ -173,7 +177,8 @@ local prom = grafana.prometheus;
 
     $.target(
       'sum(%s) %s%s' % [metricsAgg, $.groupBys(groupBys), filterZero],
-      legendFormat=$.alias(alias, groupBys, metric)
+      legendFormat=$.alias(alias, groupBys, metric),
+      intervalFactor=intervalFactor,
     ),
 
   ratio(
@@ -204,7 +209,8 @@ local prom = grafana.prometheus;
 
     $.target(
       '(sum(%s) OR vector(0)) / sum(%s)' % [numMetricsAgg, denomMetricsAgg],
-      legendFormat=$.alias(alias, [], metric)
+      legendFormat=$.alias(alias, [], metric),
+      intervalFactor=intervalFactor,
     ),
 
   target(expr, legendFormat='', intervalFactor=1)::
