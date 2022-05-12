@@ -111,6 +111,34 @@ local alertDefinitions = [
           Seeing gen3 IoT disconnection count exceeds threshold
         |||,
       },
+
+
+      {
+        title: 'ecu lock unlock delay',
+        timer: {
+          name: 'unlock-via-power-control-duration',
+          filters: globalFilter,
+        },
+        format: 's',
+        threshold: 5,
+        message: |||
+          Seeing gen3 IoT ecu lock unlock timing exceeds threshold
+        |||,
+      },
+
+
+      {
+        title: 'helmet lock delay',
+        timer: {
+          name: 'helmet-lock-timing',
+          filters: globalFilter,
+        },
+        format: 's',
+        threshold: 5,
+        message: |||
+          Seeing gen3 IoT helmet lock timing exceeds threshold
+        |||,
+      },
     ],
   },
 ];

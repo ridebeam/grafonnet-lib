@@ -65,48 +65,83 @@ local targets = {
       metric='adapter-incoming-panic',
       filters=target.combineFilters(filters.manufacturer, filters.firmware),
     ),
+  },
+  systemDelay: {
+    ecuLockUnlockDelay: target.timing(
+      metric='unlock-via-power-control-duration',
+      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+    ),
+    batteryLockDelay: target.timing(
+      metric='unlock-battery-hatch-timing',
+      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+    ),
+    helmetLockDelay: target.timing(
+      metric='helmet-lock-timing',
+      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+    ),
   }
 };
 
 local panels = {
-  lockUnlockError: panel.counter('Lock Unlock Error').addTargets([
-    targets.systemError.ecuLockUnlockError,
-    targets.systemError.batteryHatchUnlockError,
-    targets.systemError.helmetUnlockError,
-  ]),
-  invalidData: panel.counter('Invalid Data').addTargets([
-    targets.systemError.invalidLocation,
-    targets.systemError.invalidWheelSpeed,
-  ]),
-  errorCodes: panel.counter('Error Codes').addTargets([
-    targets.systemError.errorReport,
-    targets.systemError.clearError,
-  ]),
-  alarm: panel.counter('Alarms').addTargets([
-    targets.systemError.alarmReport,
-  ]),
-  disconnection: panel.counter('Disconnection').addTargets([
-    targets.systemError.disconnection,
-  ]),
-  firmware: panel.counter('Firmware Errors').addTargets([
-    targets.systemError.flashFirmwareError,
-  ]),
-  messageError: panel.counter('Message Errors').addTargets([
-    targets.systemError.messageError,
-  ]),
+  systemError: {
+    lockUnlockError: panel.counter('Lock Unlock Error').addTargets([
+      targets.systemError.ecuLockUnlockError,
+      targets.systemError.batteryHatchUnlockError,
+      targets.systemError.helmetUnlockError,
+    ]),
+    invalidData: panel.counter('Invalid Data').addTargets([
+      targets.systemError.invalidLocation,
+      targets.systemError.invalidWheelSpeed,
+    ]),
+    errorCodes: panel.counter('Error Codes').addTargets([
+      targets.systemError.errorReport,
+      targets.systemError.clearError,
+    ]),
+    alarm: panel.counter('Alarms').addTargets([
+      targets.systemError.alarmReport,
+    ]),
+    disconnection: panel.counter('Disconnection').addTargets([
+      targets.systemError.disconnection,
+    ]),
+    firmware: panel.counter('Firmware Errors').addTargets([
+      targets.systemError.flashFirmwareError,
+    ]),
+    messageError: panel.counter('Message Errors').addTargets([
+      targets.systemError.messageError,
+    ]),
+  },
+  systemDelay: {
+    ecuLockUnlockDelay: panel.timing('ECU Lock Delay').addTargets([
+      targets.systemDelay.ecuLockUnlockDelay,
+    ]),
+    batteryLockDelay: panel.timing('Battery Lock Delay').addTargets([
+      targets.systemDelay.batteryLockDelay,
+    ]),
+    helmetLockDelay: panel.timing('Helmet Lock Delay').addTargets([
+      targets.systemDelay.helmetLockDelay,
+    ]),
+  },
 };
 
 local rows = {
   systemError: row.new('System Errors').addPanels([
     panel.halfRow(p)
     for p in [
-      panels.lockUnlockError,
-      panels.invalidData,
-      panels.errorCodes,
-      panels.alarm,
-      panels.disconnection,
-      panels.firmware,
-      panels.messageError,
+      panels.systemError.lockUnlockError,
+      panels.systemError.invalidData,
+      panels.systemError.errorCodes,
+      panels.systemError.alarm,
+      panels.systemError.disconnection,
+      panels.systemError.firmware,
+      panels.systemError.messageError,
+    ]
+  ]),
+  systemDelay: row.new('System Delays').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.systemDelay.ecuLockUnlockDelay,
+      panels.systemDelay.batteryLockDelay,
+      panels.systemDelay.helmetLockDelay,
     ]
   ]),
 };
