@@ -229,4 +229,12 @@ grafana.dashboard.new(
       ).avg,
     ]),
   ]),
+  panel.collapseRow(row.new('Reconnection issue vehicles')).addPanels([
+    panel.counter('number of vehicles by city').addTargets([
+      target.gauges(
+        metric='vehicle_connection_issue',
+        groupBys=['city_id'],
+      ).avg
+    ]) 
+  ]),
 ])
