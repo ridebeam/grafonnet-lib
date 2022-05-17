@@ -16,6 +16,14 @@ local filterIotServer = target.combineFilters(
 local filterGen3IoT = target.equalsFilter('manufacturer', 'omnigen3');
 local globalFilter = target.combineFilters(filterIotServer, filterGen3IoT);
 
+
+local alertDefaults = {
+  format: 'short',
+  channels: alerts.notifications.productionAlerts,
+  thresholdType: 'gt',
+  evaluateFor: '5m',
+};
+
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
   {
@@ -30,7 +38,6 @@ local alertDefinitions = [
             target.equalsFilter('state', 'ecuLock'),
           ),
         },
-        format: 's',
         threshold: 10,
         message: |||
           Seeing gen3 IoT ecuLock error
@@ -46,7 +53,6 @@ local alertDefinitions = [
             target.equalsFilter('state', 'batteryLock'),
           ),
         },
-        format: 's',
         threshold: 10,
         message: |||
           Seeing gen3 IoT battery unlock error
@@ -63,7 +69,6 @@ local alertDefinitions = [
             target.equalsFilter('state', 'helmetLock'),
           ),
         },
-        format: 's',
         threshold: 10,
         message: |||
           Seeing gen3 IoT helmet lock error
@@ -77,7 +82,6 @@ local alertDefinitions = [
           name: 'error-report',
           filters: globalFilter,
         },
-        format: 's',
         threshold: 100,
         message: |||
           Seeing high volume of iot error codes
@@ -91,7 +95,6 @@ local alertDefinitions = [
           name: 'alarm-report',
           filters: globalFilter,
         },
-        format: 's',
         threshold: 100,
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
@@ -105,7 +108,6 @@ local alertDefinitions = [
           name: 'disconnection',
           filters: globalFilter,
         },
-        format: 's',
         threshold: 100,
         message: |||
           Seeing gen3 IoT disconnection count exceeds threshold
