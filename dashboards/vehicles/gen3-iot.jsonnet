@@ -15,6 +15,8 @@ local filters = {
   firmware: target.likeFilter('firmware', '$firmware'),
 };
 
+local beamAPIFilter = target.likeFilter('service', 'api|messaging');
+
 local targets = {
   systemError: {
     ecuLockUnlockError: target.counter(
@@ -67,17 +69,64 @@ local targets = {
     ),
   },
   systemDelay: {
-    ecuLockUnlockDelay: target.timing(
+    ecuLockUnlockDelay: target.timers(
       metric='unlock-via-power-control-duration',
       filters=target.combineFilters(filters.manufacturer, filters.firmware)
     ),
-    batteryLockDelay: target.timing(
+    batteryLockDelay: target.timers(
       metric='unlock-battery-hatch-timing',
       filters=target.combineFilters(filters.manufacturer, filters.firmware)
     ),
-    helmetLockDelay: target.timing(
+    helmetLockDelay: target.timers(
       metric='helmet-lock-timing',
       filters=target.combineFilters(filters.manufacturer, filters.firmware)
+    ),
+  },
+  businessVolume: {
+    startTrip: target.counter(
+      metric='start-trip',
+      withServiceFilters=false,
+      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    startTripHelmetUnlocked: target.counter(
+      metric='trip-helmet-unlock',
+      withServiceFilters=false,
+      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderEndTripLocked: target.counter(
+      metric='rider-end-trip-lock-success',
+      withServiceFilters=false,
+      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    adminEndTripLocked: target.counter(
+      metric='admin-end-trip-lock-success',
+      withServiceFilters=false,
+      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderTripReview1: target.counter(
+      metric='rider-trip-review',
+      withServiceFilters=false,
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderTripReview2: target.counter(
+      metric='rider-trip-review',
+      withServiceFilters=false,
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderTripReview3: target.counter(
+      metric='rider-trip-review',
+      withServiceFilters=false,
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderTripReview4: target.counter(
+      metric='rider-trip-review',
+      withServiceFilters=false,
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), target.combineFilters(filters.manufacturer, filters.firmware))
+    ),
+    riderTripReview5: target.counter(
+      metric='rider-trip-review',
+      withServiceFilters=false,
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), target.combineFilters(filters.manufacturer, filters.firmware))
     ),
   }
 };
@@ -111,14 +160,35 @@ local panels = {
     ]),
   },
   systemDelay: {
-    ecuLockUnlockDelay: panel.timing('ECU Lock Delay').addTargets([
+    ecuLockUnlockDelay: panel.timeLinear('ECU Lock Delay').addTargets([
       targets.systemDelay.ecuLockUnlockDelay,
     ]),
-    batteryLockDelay: panel.timing('Battery Lock Delay').addTargets([
+    batteryLockDelay: panel.timeLinear('Battery Lock Delay').addTargets([
       targets.systemDelay.batteryLockDelay,
     ]),
-    helmetLockDelay: panel.timing('Helmet Lock Delay').addTargets([
+    helmetLockDelay: panel.timeLinear('Helmet Lock Delay').addTargets([
       targets.systemDelay.helmetLockDelay,
+    ]),
+  },
+  businessVolume: {
+    startTrip: panel.counter('start trip unlock success count').addTargets([
+      targets.businessVolume.startTrip,
+    ]),
+    startTripHelmetUnlocked: panel.counter('start trip helmet unlocked count').addTargets([
+      targets.businessVolume.startTripHelmetUnlocked,
+    ]),
+    riderEndTripLocked: panel.counter('end trip locked by rider').addTargets([
+      targets.businessVolume.riderEndTripLocked,
+    ]),
+    adminEndTripLocked: panel.counter('end trip locked by admin or system').addTargets([
+      targets.businessVolume.adminEndTripLocked,
+    ]),
+    tripReview: panel.counter('trip review rating').addTargets([
+      targets.businessVolume.riderTripReview1,
+      targets.businessVolume.riderTripReview2,
+      targets.businessVolume.riderTripReview3,
+      targets.businessVolume.riderTripReview4,
+      targets.businessVolume.riderTripReview5,
     ]),
   },
 };
@@ -142,6 +212,16 @@ local rows = {
       panels.systemDelay.ecuLockUnlockDelay,
       panels.systemDelay.batteryLockDelay,
       panels.systemDelay.helmetLockDelay,
+    ]
+  ]),
+  businessVolume: row.new('Business Volume').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.businessVolume.startTrip,
+      panels.businessVolume.startTripHelmetUnlocked,
+      panels.businessVolume.riderEndTripLocked,
+      panels.businessVolume.adminEndTripLocked,
+      panels.businessVolume.tripReview,
     ]
   ]),
 };
@@ -198,4 +278,6 @@ grafana.dashboard.new(
 
 .addRows([
   rows.systemError,
+  rows.systemDelay,
+  rows.businessVolume,
 ])
