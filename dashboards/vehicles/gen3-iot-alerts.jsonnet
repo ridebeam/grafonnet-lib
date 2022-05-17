@@ -13,7 +13,7 @@ local filterIotServer = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
   target.equalsFilter('service', 'iot-server'),
 );
-local filterGen3IoT = target.equalsFilter('firmware', 'omnigen3');
+local filterGen3IoT = target.equalsFilter('manufacturer', 'omnigen3');
 local globalFilter = target.combineFilters(filterIotServer, filterGen3IoT);
 
 // one entry per row, with a list of panels for each alert (counter/timing)
