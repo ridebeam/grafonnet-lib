@@ -128,7 +128,21 @@ local targets = {
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), target.combineFilters(filters.manufacturer, filters.firmware))
     ),
-  }
+  },
+  businessLatency: {
+      vehicleUnlockLatency: target.timers(
+        metric='start-trip-timing',
+        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      ),
+      batteryHatchUnlockLatency: target.timers(
+        metric='battery-hatch-open-latency',
+        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      ),
+      helmetUnlockLatency: target.timers(
+        metric='helmet-unlock-latency',
+        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      ),
+    },
 };
 
 local panels = {
@@ -191,6 +205,17 @@ local panels = {
       targets.businessVolume.riderTripReview5,
     ]),
   },
+  businessLatency: {
+      vehicleUnlockLatency: panel.timeLinear('Vehicle Unlock Latency').addTargets([
+        targets.businessLatency.vehicleUnlockLatency,
+      ]),
+      batteryHatchUnlockLatency: panel.timeLinear('Battery Hatch Unlock Latency').addTargets([
+        targets.businessLatency.batteryHatchUnlockLatency,
+      ]),
+      helmetUnlockLatency: panel.timeLinear('Helmet Unlock Latency').addTargets([
+        targets.businessLatency.helmetUnlockLatency,
+      ]),
+    },
 };
 
 local rows = {
@@ -224,6 +249,14 @@ local rows = {
       panels.businessVolume.tripReview,
     ]
   ]),
+  businessLatency: row.new('Business Latency').addPanels([
+      panel.halfRow(p)
+      for p in [
+        panels.businessLatency.vehicleUnlockLatency,
+        panels.businessLatency.batteryHatchUnlockLatency,
+        panels.businessLatency.helmetUnlockLatency,
+      ]
+    ]),
 };
 
 // Make sure uid matches the name of the file
@@ -280,4 +313,5 @@ grafana.dashboard.new(
   rows.systemError,
   rows.systemDelay,
   rows.businessVolume,
+  rows.businessLatency,
 ])
