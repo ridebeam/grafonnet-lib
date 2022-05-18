@@ -114,6 +114,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         threshold: 5,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT disconnection count exceeds threshold
         |||,
@@ -128,6 +129,7 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 15,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT ecu lock unlock timing exceeds threshold
         |||,
@@ -142,6 +144,7 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 15,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT helmet lock timing exceeds threshold
         |||,
