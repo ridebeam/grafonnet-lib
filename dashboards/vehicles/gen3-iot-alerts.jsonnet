@@ -38,7 +38,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'ecuLock'),
           ),
         },
-        threshold: 10,
+        threshold: 3,
         message: |||
           Seeing gen3 IoT ecuLock error
         |||,
@@ -53,7 +53,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'batteryLock'),
           ),
         },
-        threshold: 10,
+        threshold: 1,
         message: |||
           Seeing gen3 IoT battery unlock error
         |||,
@@ -69,7 +69,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'helmetLock'),
           ),
         },
-        threshold: 10,
+        threshold: 3,
         message: |||
           Seeing gen3 IoT helmet lock error
         |||,
@@ -82,7 +82,7 @@ local alertDefinitions = [
           name: 'error-report',
           filters: globalFilter,
         },
-        threshold: 100,
+        threshold: 3,
         message: |||
           Seeing high volume of iot error codes
         |||,
@@ -95,7 +95,7 @@ local alertDefinitions = [
           name: 'alarm-report',
           filters: globalFilter,
         },
-        threshold: 100,
+        threshold: 3,
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
         |||,
@@ -108,7 +108,7 @@ local alertDefinitions = [
           name: 'disconnection',
           filters: globalFilter,
         },
-        threshold: 100,
+        threshold: 5,
         message: |||
           Seeing gen3 IoT disconnection count exceeds threshold
         |||,
