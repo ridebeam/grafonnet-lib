@@ -122,7 +122,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         format: 's',
-        threshold: 5,
+        threshold: 15,
         message: |||
           Seeing gen3 IoT ecu lock unlock timing exceeds threshold
         |||,
@@ -136,7 +136,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         format: 's',
-        threshold: 5,
+        threshold: 15,
         message: |||
           Seeing gen3 IoT helmet lock timing exceeds threshold
         |||,
