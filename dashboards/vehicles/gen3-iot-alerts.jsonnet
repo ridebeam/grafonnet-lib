@@ -39,6 +39,7 @@ local alertDefinitions = [
           ),
         },
         threshold: 3,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT ecuLock error
         |||,
@@ -54,6 +55,7 @@ local alertDefinitions = [
           ),
         },
         threshold: 1,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT battery unlock error
         |||,
@@ -70,6 +72,7 @@ local alertDefinitions = [
           ),
         },
         threshold: 3,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT helmet lock error
         |||,
@@ -83,6 +86,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         threshold: 3,
+        noDataState: 'ok',
         message: |||
           Seeing high volume of iot error codes
         |||,
@@ -96,6 +100,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         threshold: 3,
+        noDataState: 'ok',
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
         |||,
