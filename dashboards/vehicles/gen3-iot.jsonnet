@@ -208,13 +208,13 @@ local panels = {
     ]),
   },
   volumeTraffic: {
-    vehicleCount: panel.timing('Vehicle Count').addTargets([
+    vehicleCount: panel.counter('Vehicle Count').addTargets([
       targets.volumeTraffic.countAll,
     ]),
-    messagesReceived: panel.timing('Messages Received').addTargets([
+    messagesReceived: panel.counter('Messages Received').addTargets([
       targets.volumeTraffic.received,
     ]),
-    messagesSent: panel.timing('Messages Sent').addTargets([
+    messagesSent: panel.counter('Messages Sent').addTargets([
       targets.volumeTraffic.send,
     ]),
   },
@@ -354,6 +354,7 @@ grafana.dashboard.new(
 .addRows([
   rows.systemError,
   rows.systemDelay,
+  rows.volumeTraffic,
   rows.businessVolume,
   rows.businessLatency,
 ])
