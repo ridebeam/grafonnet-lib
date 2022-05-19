@@ -166,6 +166,6 @@ grafana.dashboard.new(
 )
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
-    channels: [alerts.slack],
+    channels: [alerts.slackWarn],
   },
 }))
