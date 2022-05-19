@@ -82,6 +82,29 @@ local targets = {
       filters=target.combineFilters(filters.manufacturer, filters.firmware)
     ),
   },
+  volumeTraffic: {
+    countAll: target.gauges(
+      'vehicle-all',
+      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      withServiceFilters=false,
+    ),
+    received: target.counter(
+      metric='adapter-incoming',
+      filters=target.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
+      groupBys=['cmd'],
+    ),
+    send: target.counter(
+      metric='device-outgoing',
+      filters=target.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
+      groupBys=['cmd_outgoing'],
+    ),
+  },
   businessVolume: {
     startTrip: target.counter(
       metric='start-trip',
@@ -184,6 +207,17 @@ local panels = {
       targets.systemDelay.helmetLockDelay,
     ]),
   },
+  volumeTraffic: {
+    vehicleCount: panel.timing('Vehicle Count').addTargets([
+      targets.volumeTraffic.countAll,
+    ]),
+    messagesReceived: panel.timing('Messages Received').addTargets([
+      targets.volumeTraffic.received,
+    ]),
+    messagesSent: panel.timing('Messages Sent').addTargets([
+      targets.volumeTraffic.send,
+    ]),
+  },
   businessVolume: {
     startTrip: panel.counter('start trip unlock success count').addTargets([
       targets.businessVolume.startTrip,
@@ -237,6 +271,14 @@ local rows = {
       panels.systemDelay.ecuLockUnlockDelay,
       panels.systemDelay.batteryLockDelay,
       panels.systemDelay.helmetLockDelay,
+    ]
+  ]),
+  volumeTraffic: row.new('Volume Traffic').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.volumeTraffic.vehicleCount,
+      panels.volumeTraffic.messagesReceived,
+      panels.volumeTraffic.messagesSent,
     ]
   ]),
   businessVolume: row.new('Business Volume').addPanels([

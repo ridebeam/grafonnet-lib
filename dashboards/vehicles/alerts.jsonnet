@@ -22,6 +22,8 @@ local filterVehicleGateway = target.combineFilters(
   target.equalsFilter('service', 'vehicle-gateway'),
 );
 
+local filterGen3IoT = target.equalsFilter('manufacturer', 'omnigen3');
+
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
   {
