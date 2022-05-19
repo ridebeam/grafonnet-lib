@@ -11,6 +11,7 @@ local kpi = import './kpi.libsonnet';
 
 local filters = {
   city: target.combineFilters(target.envFilter, target.likeFilter('city_id', '$city_id')),
+  manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
 };
 
 local targets = {
@@ -293,6 +294,16 @@ local rows = {
         valuelabels=cities,
         includeAll=true,
         current='All',
+      )
+    )
+
+    .addTemplate(
+      template.custom(
+        name='manufacturer',
+        query='omni,okai,omnigen3',
+        allValues='.*',
+        current='All',
+        includeAll=true,
       )
     )
 

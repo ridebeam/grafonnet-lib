@@ -149,6 +149,39 @@ local alertDefinitions = [
           Seeing gen3 IoT helmet lock timing exceeds threshold
         |||,
       },
+
+      
+    ],
+  },
+
+  {
+    row: 'Volume Alerts',
+    alerts: [
+      {
+        title: 'Total Connected Vehicles',
+        counter: {
+          name: 'vehicle-all',
+          filters: target.combineFilters(
+            globalFilter,
+            filterGen3IoT,
+          ),
+        },
+        threshold: 1000,
+        message: |||
+          Total connected gen3 vehicles exceeds threshold
+        |||,
+      },
+      {
+        title: 'Total Messages Received',
+        counter: {
+          name: 'adapter-incoming',
+          filters: filterGen3IoT,
+        },
+        threshold: 10000,
+        message: |||
+          Total gen3 iot messages received exceeds threshold
+        |||,
+      },
     ],
   },
 ];
