@@ -160,11 +160,8 @@ local alertDefinitions = [
       {
         title: 'Total Connected Vehicles',
         counter: {
-          name: 'vehicle-all',
-          filters: target.combineFilters(
-            globalFilter,
-            filterGen3IoT,
-          ),
+          name: 'vehicle-operator',
+          filters: globalFilter,
         },
         threshold: 1000,
         message: |||
