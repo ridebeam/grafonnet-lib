@@ -84,7 +84,7 @@ local targets = {
   },
   volumeTraffic: {
     countAll: target.gauges(
-      'vehicle-operator',
+      'vehicle-connected-count',
       filters=target.combineFilters(filters.manufacturer, filters.firmware),
       withServiceFilters=false,
     ),

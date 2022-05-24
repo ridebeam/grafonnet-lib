@@ -13,6 +13,10 @@ local filterIotServer = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
   target.equalsFilter('service', 'iot-server'),
 );
+local filterVehicleWatchdog = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'vehicle-watchdog'),
+);
 local filterGen3IoT = target.equalsFilter('manufacturer', 'omnigen3');
 local globalFilter = target.combineFilters(filterIotServer, filterGen3IoT);
 
@@ -160,8 +164,8 @@ local alertDefinitions = [
       {
         title: 'Total Connected Vehicles',
         counter: {
-          name: 'vehicle-operator',
-          filters: globalFilter,
+          name: 'vehicle-connected-count',
+          filters: target.combineFilters(filterVehicleWatchdog, filterGen3IoT),
         },
         threshold: 1000,
         message: |||
