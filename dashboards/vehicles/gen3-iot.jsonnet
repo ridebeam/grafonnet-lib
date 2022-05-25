@@ -208,8 +208,8 @@ local panels = {
     ]),
   },
   volumeTraffic: {
-    vehicleCount: panel.counter('Vehicle Count').addTargets([
-      targets.volumeTraffic.countAll,
+    vehicleCount: panel.counter(title='Vehicle Count', format='none').addTargets([
+      targets.volumeTraffic.countAll.sum.withAlias('total'),
     ]),
     messagesReceived: panel.counter('Messages Received').addTargets([
       targets.volumeTraffic.received,
