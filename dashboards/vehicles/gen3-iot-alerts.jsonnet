@@ -163,11 +163,12 @@ local alertDefinitions = [
     alerts: [
       {
         title: 'Total Connected Vehicles',
-        counter: {
+        gauge: {
           name: 'vehicle-connected-count',
           filters: target.combineFilters(filterVehicleWatchdog, filterGen3IoT),
         },
         threshold: 1000,
+        thresholdType: 'lt',
         message: |||
           Total connected gen3 vehicles exceeds threshold
         |||,
