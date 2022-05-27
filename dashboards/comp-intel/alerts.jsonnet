@@ -56,6 +56,42 @@ local alertDefinitions = [
       },
     ],
   },
+  {
+    row: 'Proxy Rate Limit Hit',
+    alerts: [
+      {
+        title: 'Rate Limit Hit',
+        custom: {
+          name: 'Rate Number',
+          query: |||
+            sum(delta(compintel_rate_limit_count{namespace="%(env)s", service="%(service)s"}[1m])) by (proxy)
+          ||| % { env: env, service: service },
+          alias: '{{Error Number}}',
+        },
+        threshold: 2000,
+        evaluateFor: '60m',
+        message: 'Some proxy is occurring high on limit rate',
+      },
+    ],
+  },
+  {
+    row: 'Proxy Error 403',
+    alerts: [
+      {
+        title: 'Error 403',
+        custom: {
+          name: 'Error 403',
+          query: |||
+            sum(delta(compintel_scrape_error_403{namespace="%(env)s", service="%(service)s"}[1m])) by (proxy)
+          ||| % { env: env, service: service },
+          alias: '{{Error Number}}',
+        },
+        threshold: 2000,
+        evaluateFor: '60m',
+        message: 'Some proxy is occurring high on error 403 ',
+      },
+    ],
+  },
 
 ];
 
