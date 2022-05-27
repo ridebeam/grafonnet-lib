@@ -57,6 +57,25 @@ local alertDefinitions = [
     ],
   },
   {
+    row: 'Vehicle Scraping',
+    alerts: [
+      {
+        title: 'Vehicle Scraped (Vehicles)',
+        custom: {
+          name: 'Vehicle Scraped Number',
+          query: |||
+            sum(delta(compintel_scrape_vehicles_sum{namespace="%(env)s", service="%(service)s"}[1m])) by (competitor)
+          ||| % { env: env, service: service },
+          alias: '{{Vehicle Number}}',
+        },
+        threshold: 5,
+        thresholdType: 'lt',
+        evaluateFor: '60m',
+        message: 'Some Report Scraped none scooter',
+      },
+    ],
+  },
+  {
     row: 'Proxy Rate Limit Hit',
     alerts: [
       {
@@ -64,11 +83,11 @@ local alertDefinitions = [
         custom: {
           name: 'Rate Number',
           query: |||
-            sum(delta(compintel_rate_limit_count{namespace="%(env)s", service="%(service)s"}[1m])) by (proxy)
+            sum(delta(compintel_rate_limit_count{namespace="%(env)s"}[1m])) by (proxy)
           ||| % { env: env, service: service },
           alias: '{{Error Number}}',
         },
-        threshold: 2000,
+        threshold: 800,
         evaluateFor: '60m',
         message: 'Some proxy is occurring high on limit rate',
       },
@@ -82,11 +101,11 @@ local alertDefinitions = [
         custom: {
           name: 'Error 403',
           query: |||
-            sum(delta(compintel_scrape_error_403{namespace="%(env)s", service="%(service)s"}[1m])) by (proxy)
+            sum(delta(compintel_scrape_error_403{namespace="%(env)s"}[1m])) by (proxy)
           ||| % { env: env, service: service },
           alias: '{{Error Number}}',
         },
-        threshold: 2000,
+        threshold: 100,
         evaluateFor: '60m',
         message: 'Some proxy is occurring high on error 403 ',
       },
