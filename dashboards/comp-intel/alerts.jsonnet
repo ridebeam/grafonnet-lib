@@ -57,25 +57,6 @@ local alertDefinitions = [
     ],
   },
   {
-    row: 'Vehicle Scraping',
-    alerts: [
-      {
-        title: 'Vehicle Scraped (Vehicles)',
-        custom: {
-          name: 'Vehicle Scraped Number',
-          query: |||
-            sum(delta(compintel_scrape_vehicles_sum{namespace="%(env)s", service="%(service)s"}[1m])) by (competitor)
-          ||| % { env: env, service: service },
-          alias: '{{Vehicle Number}}',
-        },
-        threshold: 5,
-        thresholdType: 'lt',
-        evaluateFor: '60m',
-        message: 'Some Report Scraped none scooter',
-      },
-    ],
-  },
-  {
     row: 'Proxy Rate Limit Hit',
     alerts: [
       {
