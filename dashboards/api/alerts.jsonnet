@@ -155,7 +155,7 @@ local alertDefinitions = [
             metric='istio_requests_total',
             filters=target.combineFilters(
               target.equalsFilter('reporter', 'source'), target.combineFilters(
-                target.equalsFilter('destination_service_name', 'api-http'),
+                target.likeFilter('destination_service_name', 'api.*'),
                 target.equalsFilter('destination_service_namespace', 'production'),
               ),
             ),
@@ -176,7 +176,7 @@ local alertDefinitions = [
             metric='istio_requests_total',
             filters=target.combineFilters(
               target.equalsFilter('reporter', 'source'), target.combineFilters(
-                target.equalsFilter('destination_service_name', 'api-http'),
+                target.likeFilter('destination_service_name', 'api.*'),
                 target.equalsFilter('destination_service_namespace', 'production'),
               ),
             ),
@@ -196,7 +196,7 @@ local alertDefinitions = [
           name: 'istio_request_duration_milliseconds',
           filters: target.combineFilters(
             target.equalsFilter('reporter', 'source'), target.combineFilters(
-              target.equalsFilter('destination_service_name', 'api-http'),
+              target.likeFilter('destination_service_name', 'api.*'),
               target.equalsFilter('destination_service_namespace', 'production'),
             ),
           ),
