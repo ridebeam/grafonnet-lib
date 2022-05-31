@@ -32,7 +32,7 @@ generate_grafana() {
   local INPUT=$1
   local GRAFANA_BASE_URL=$2
   local API_TOKEN=$3
-  for D in $(find $1 -maxdepth 1 -type d); do
+  for D in $(find $1 -mindepth 1 -maxdepth 1 -type d); do
     folderUID=$(basename "$D")
 
     # make sure folders exist, before uploading dashboards
