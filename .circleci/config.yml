@@ -26,7 +26,7 @@ jobs:
             curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
             tar -xzf tool.tar.gz
             ./jsonnet --version
-      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" ${GRAFANA_STAGING_BASE_URL} ${GRAFANA_STAGING_API_TOKEN}
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" "http://grafana-staging.core.ridebeam.cloud" ${GRAFANA_STAGING_API_TOKEN}
 
   fetch-and-publish-core:
     docker:
@@ -40,7 +40,7 @@ jobs:
             curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
             tar -xzf tool.tar.gz
             ./jsonnet --version
-      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" ${GRAFANA_CORE_BASE_URL} ${GRAFANA_CORE_API_TOKEN}
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" "https://grafana.core.ridebeam.cloud" ${GRAFANA_CORE_API_TOKEN}
 
   fetch-and-publish-devops:
     docker:
@@ -54,7 +54,7 @@ jobs:
             curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
             tar -xzf tool.tar.gz
             ./jsonnet --version
-      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "devops" ${GRAFANA_DEVOPS_BASE_URL} ${GRAFANA_API_TOKEN}
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "devops" "https://grafana.devops.ridebeam.cloud" ${GRAFANA_API_TOKEN}
 
 workflows:
   version: 2
