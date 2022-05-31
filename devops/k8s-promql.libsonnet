@@ -122,6 +122,70 @@ local panel = helpers.panel;
         groupBys=['kafka_source_topic'],
       ),
     },
+    kafkaTopicPerPod: {
+      consume: target.counter(
+        metric='kafka-consume',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      duration: target.timers(
+        metric='kafka-consume-duration',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      lag: target.timers(
+        metric='kafka-consume-lag',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      produce: target.counter(
+        metric='kafka-produce',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      errors: target.counter(
+        metric='kafka-produce-error',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      repartition: target.counter(
+        metric='kafka-consume-repartition',
+        groupBys=['pod_name'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+    },
+    kafkaTopicPerPartition: {
+      consume: target.counter(
+        metric='kafka-consume',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      duration: target.timers(
+        metric='kafka-consume-duration',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      lag: target.timers(
+        metric='kafka-consume-lag',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      produce: target.counter(
+        metric='kafka-produce',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      errors: target.counter(
+        metric='kafka-produce-error',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+      repartition: target.counter(
+        metric='kafka-consume-repartition',
+        groupBys=['kafka_source_partition'],
+        filters=target.equalsFilter('kafka_source_topic', '$kafka_source_topic'),
+      ),
+    },
     postgres: {
       connections: {
         open: target.gauges('go.sql/db/connections/open'),
@@ -237,6 +301,24 @@ local panel = helpers.panel;
       errors: panel.counter('Producer Errors').addTarget($.targets.kafka.errors),
       repartition: panel.counter('Repartitioned Messages').addTarget($.targets.kafka.repartition),
     },
+    kafkaTopicPerPod: {
+      consume: panel.counter('Consumed ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.consume),
+      lagP99: panel.timeLog2('Consumer Lag P99 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.lag.p99),
+      lagP50: panel.timeLog2('Consumer Lag P50 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.lag.p50),
+      durationP99: panel.timeLinear('Consuming Duration P99 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.duration.p99),
+      produce: panel.counter('Produced ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.produce),
+      errors: panel.counter('Producer Errors ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.errors),
+      repartition: panel.counter('Repartitioned Messages ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPod.repartition),
+    },
+    kafkaTopicPerPartition: {
+      consume: panel.counter('Consumed ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.consume),
+      lagP99: panel.timeLog2('Consumer Lag P99 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.lag.p99),
+      lagP50: panel.timeLog2('Consumer Lag P50 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.lag.p50),
+      durationP99: panel.timeLinear('Consuming Duration P99 ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.duration.p99),
+      produce: panel.counter('Produced ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.produce),
+      errors: panel.counter('Producer Errors ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.errors),
+      repartition: panel.counter('Repartitioned Messages ${kafka_source_topic}').addTarget($.targets.kafkaTopicPerPartition.repartition),
+    },
     postgres: {
       connections: panel.new('Connections').addTargets([
         $.targets.postgres.connections.open.sum.withAlias('open'),
@@ -292,6 +374,30 @@ local panel = helpers.panel;
         $.panels.kafka.durationP99,
         $.panels.kafka.errors,
         $.panels.kafka.repartition,
+      ]
+    ]),
+    kafkaTopicPerPod: row.new('Kafka per pod ${kafka_source_topic}', repeat='kafka_source_topic').addPanels([
+      panel.halfRow(p)
+      for p in [
+        $.panels.kafkaTopicPerPod.consume,
+        $.panels.kafkaTopicPerPod.produce,
+        $.panels.kafkaTopicPerPod.lagP99,
+        $.panels.kafkaTopicPerPod.lagP50,
+        $.panels.kafkaTopicPerPod.durationP99,
+        $.panels.kafkaTopicPerPod.errors,
+        $.panels.kafkaTopicPerPod.repartition,
+      ]
+    ]),
+    kafkaTopicPerPartition: row.new('Kafka per partition ${kafka_source_topic}', repeat='kafka_source_topic').addPanels([
+      panel.halfRow(p)
+      for p in [
+        $.panels.kafkaTopicPerPartition.consume,
+        $.panels.kafkaTopicPerPartition.produce,
+        $.panels.kafkaTopicPerPartition.lagP99,
+        $.panels.kafkaTopicPerPartition.lagP50,
+        $.panels.kafkaTopicPerPartition.durationP99,
+        $.panels.kafkaTopicPerPartition.errors,
+        $.panels.kafkaTopicPerPartition.repartition,
       ]
     ]),
     postgres: row.new('Postgres').addPanels([

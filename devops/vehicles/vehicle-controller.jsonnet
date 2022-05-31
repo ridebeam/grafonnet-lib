@@ -59,22 +59,6 @@ local targets = {
     brokenHelmetLock: target.counter(
       metric='helmet-lock-scan-failure',
     ),
-    asyncKafkaLag: target.timers(
-      metric='kafka_lag_async',
-      groupBys=['kafka_source_topic'],
-    ),
-    asyncKafkaLatency: target.timers(
-      metric='vehicle_state_latency',
-      groupBys=['kafka_source_topic'],
-    ),
-    asyncChannelLatency: target.timers(
-      metric='vehicle_state_channel_buffer_latency',
-      groupBys=['kafka_source_topic'],
-    ),
-    asyncChannelBuffer: target.gauges(
-      'vehicle_state_channel_buffer',
-      groupBys=['kafka_source_topic'],
-    ),
   },
   vehicles: {
     disconnects: target.counter(
@@ -135,25 +119,6 @@ local panels = {
     changeErrors: panel.counter('Errors').addTargets([
       targets.state.changeErrors,
     ]),
-    asyncMsgLag99: panel.timeLog2('Async Consumer Lag P99').addTargets([
-      targets.state.asyncKafkaLag.p99,
-    ]),
-    asyncMsgLag95: panel.timeLog2('Async Consumer Lag P95').addTargets([
-      targets.state.asyncKafkaLag.p95,
-    ]),
-    asyncMsgLatency95: panel.timeLinear('Async Msg Latency p95').addTargets([
-      targets.state.asyncKafkaLatency.p95,
-    ]),
-    asyncMsgLatency99: panel.timeLinear('Async Msg Latency p99').addTargets([
-      targets.state.asyncKafkaLatency.p99,
-    ]),
-    asyncChannelLatency99: panel.timeLinear('Async Channel Latency p99').addTargets([
-      targets.state.asyncChannelLatency.p99,
-    ]),
-    channelBufferFull: panel.new('Channel Buffer').addTargets([
-      targets.state.asyncChannelBuffer.avg,
-      targets.state.asyncChannelBuffer.max,
-    ]),
   },
   vehicles: {
     disconnects: panel.counter('Disconnects').addTargets([
@@ -195,12 +160,6 @@ local rows = {
       panels.state.changeTimeP95,
       panels.state.changeTimeP99,
       panels.state.changeErrors,
-      panels.state.asyncMsgLag95,
-      panels.state.asyncMsgLag99,
-      panels.state.asyncMsgLatency95,
-      panels.state.asyncMsgLatency99,
-      panels.state.asyncChannelLatency99,
-      panels.state.channelBufferFull,
     ]
   ]),
   vehicles: row.new('Vehicles').addPanels([
@@ -231,7 +190,7 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='env',
-    query='dev,staging,production',
+    query='dev,stable,staging,production',
     current='production',
   )
 )
@@ -245,9 +204,20 @@ grafana.dashboard.new(
   )
 )
 
+.addTemplate(
+  template.custom(
+    name='kafka_source_topic',
+    query='vehicle-state',
+    current='vehicle-state',
+    hide='variable',
+  )
+)
+
 .addRows([
   k8s.rows.service,
   k8s.rows.kafka,
+  panel.collapseRow(k8s.rows.kafkaTopicPerPod),
+  panel.collapseRow(k8s.rows.kafkaTopicPerPartition),
   panel.collapseRow(k8s.rows.postgres),
   rows.georegion,
   rows.state,
