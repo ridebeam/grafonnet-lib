@@ -7,6 +7,9 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
+local gcpLogsBase = 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fpart-of%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29';
+local gcpLogsSuffix = '?project=﻿${__field.labels.project_id}';
+
 {
   targets: {
     process: {
@@ -251,22 +254,22 @@ local panel = helpers.panel;
           dataLinks: [
             {
               title: 'Logs Explorer for ${service}',
-              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29?project=﻿${__field.labels.project_id}',
+              url: gcpLogsBase + gcpLogsSuffix,
               targetBlank: true,
             },
             {
               title: 'Logs Explorer for ${__series.name}',
-              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29﻿%0Aseverity%3D﻿${__series.name}?project=﻿${__field.labels.project_id}',
+              url: gcpLogsBase + '%0Aseverity%3D﻿${__series.name}' + gcpLogsSuffix,
               targetBlank: true,
             },
             {
               title: 'Logs Explorer for ${service} for current time range',
-              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29;timeRange=${__from:date}%2F${__to:date}﻿?project=﻿${__field.labels.project_id}',
+              url: gcpLogsBase + ';timeRange=${__from:date}%2F${__to:date}﻿' + gcpLogsSuffix,
               targetBlank: true,
             },
             {
               title: 'Logs Explorer for ${__series.name} for current time range',
-              url: 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29%0Aseverity%3D﻿${__series.name};timeRange=${__from:date}%2F${__to:date}﻿?project=﻿${__field.labels.project_id}',
+              url: gcpLogsBase + '%0Aseverity%3D﻿${__series.name};timeRange=${__from:date}%2F${__to:date}﻿' + gcpLogsSuffix,
               targetBlank: true,
             },
           ],
