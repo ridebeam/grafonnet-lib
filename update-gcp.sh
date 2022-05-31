@@ -36,7 +36,7 @@ generate_grafana() {
     folderUID=$(basename "$D")
 
     # make sure folders exist, before uploading dashboards
-    F=${D}folder.jsonnet
+    F=${D}/folder.jsonnet
     echo " ------ "
     echo "preparing folder $D (UID: $folderUID)"
 
@@ -61,7 +61,7 @@ generate_grafana() {
 
     # now we can upload dashboards
     for F in "${D}"/*.jsonnet; do
-      if [[ $F != "${D}folder.jsonnet" ]]; then
+      if [[ $F != "${D}/folder.jsonnet" ]]; then
         generate_dashboard "$F" "$folderID" "$basename" "$folderUID" "$GRAFANA_BASE_URL" "$API_TOKEN"
       fi
     done
