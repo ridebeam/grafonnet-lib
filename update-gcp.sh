@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-API_TOKEN=$1
+INPUT=$1
+GRAFANA_BASE_URL=$2
+API_TOKEN=$3
 JSONNET_PATH=grafonnet-lib
-GRAFANA_BASE_URL=https://grafana.devops.ridebeam.cloud
-FILTER=${2:-'dashboards/*/'}
 
 generate_dashboard() {
+  local GRAFANA_BASE_URL=$5
+  local API_TOKEN=$6
   echo "generating dashboard '$1'"
 
   filename=$(basename $1)
@@ -26,37 +28,44 @@ generate_dashboard() {
   echo ""
 }
 
-for D in $FILTER; do
-  folderUID=$(basename "$D")
+generate_grafana() {
+  local INPUT=$1
+  local GRAFANA_BASE_URL=$2
+  local API_TOKEN=$3
+  for D in $(find $1 -maxdepth 1 -type d); do
+    folderUID=$(basename "$D")
 
-  # make sure folders exist, before uploading dashboards
-  F=${D}folder.jsonnet
-  echo " ------ "
-  echo "preparing folder $D (UID: $folderUID)"
+    # make sure folders exist, before uploading dashboards
+    F=${D}folder.jsonnet
+    echo " ------ "
+    echo "preparing folder $D (UID: $folderUID)"
 
-  tmpFolder=$(mktemp /tmp/gen-dashboard-folder.XXXXXX)
-  jsonnet "$F" | jq ".uid=\"$folderUID\"" > "${tmpFolder}"
+    tmpFolder=$(mktemp /tmp/gen-dashboard-folder.XXXXXX)
+    jsonnet "$F" | jq ".uid=\"$folderUID\"" > "${tmpFolder}"
 
-  # PUT only allows to update, so we create and update, to ensure changes apply
-  curl -s \
-    -H "Authorization: Bearer $API_TOKEN" \
-    -H 'Content-Type: application/json' \
-    --data @"${tmpFolder}" \
-    "$GRAFANA_BASE_URL/api/folders"
-  echo ""
+    # PUT only allows to update, so we create and update, to ensure changes apply
+    curl -s \
+      -H "Authorization: Bearer $API_TOKEN" \
+      -H 'Content-Type: application/json' \
+      --data @"${tmpFolder}" \
+      "$GRAFANA_BASE_URL/api/folders"
+    echo ""
 
-  folderID=$(curl -s --fail -X PUT \
-    -H "Authorization: Bearer $API_TOKEN" \
-    -H 'Content-Type: application/json' \
-    --data @"${tmpFolder}" \
-    "$GRAFANA_BASE_URL/api/folders/$folderUID" |
-    jq '.id')
-  echo ""
+    folderID=$(curl -s --fail -X PUT \
+      -H "Authorization: Bearer $API_TOKEN" \
+      -H 'Content-Type: application/json' \
+      --data @"${tmpFolder}" \
+      "$GRAFANA_BASE_URL/api/folders/$folderUID" |
+      jq '.id')
+    echo ""
 
-  # now we can upload dashboards
-  for F in "${D}"*.jsonnet; do
-    if [[ $F != "${D}folder.jsonnet" ]]; then
-      generate_dashboard "$F" "$folderID" "$basename" "$folderUID"
-    fi
+    # now we can upload dashboards
+    for F in "${D}"/*.jsonnet; do
+      if [[ $F != "${D}folder.jsonnet" ]]; then
+        generate_dashboard "$F" "$folderID" "$basename" "$folderUID" "$GRAFANA_BASE_URL" "$API_TOKEN"
+      fi
+    done
   done
-done
+}
+
+generate_grafana $INPUT $GRAFANA_BASE_URL $API_TOKEN

@@ -14,7 +14,7 @@ jobs:
             ./jsonnet --version
       - run: PATH=$PATH:$(pwd) .circleci/build-all.sh
 
-  fetch-and-publish:
+  fetch-and-publish-staging:
     docker:
       - image: cimg/base:2020.01
     steps:
@@ -26,7 +26,35 @@ jobs:
             curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
             tar -xzf tool.tar.gz
             ./jsonnet --version
-      - run: PATH=$PATH:$(pwd) ./update-gcp.sh ${GRAFANA_API_TOKEN}
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" ${GRAFANA_STAGING_BASE_URL} ${GRAFANA_STAGING_API_TOKEN}
+
+  fetch-and-publish-core:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: git clone https://github.com/ridebeam/grafonnet-lib
+      - run:
+          name: download jsonnet
+          command: |
+            curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
+            tar -xzf tool.tar.gz
+            ./jsonnet --version
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" ${GRAFANA_CORE_BASE_URL} ${GRAFANA_CORE_API_TOKEN}
+
+  fetch-and-publish-devops:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: git clone https://github.com/ridebeam/grafonnet-lib
+      - run:
+          name: download jsonnet
+          command: |
+            curl -L https://github.com/google/go-jsonnet/releases/download/v0.17.0/go-jsonnet_0.17.0_Linux_x86_64.tar.gz --output tool.tar.gz
+            tar -xzf tool.tar.gz
+            ./jsonnet --version
+      - run: PATH=$PATH:$(pwd) ./update-gcp.sh "devops" ${GRAFANA_DEVOPS_BASE_URL} ${GRAFANA_API_TOKEN}
 
 workflows:
   version: 2
@@ -36,7 +64,15 @@ workflows:
         filters:
           branches:
             ignore: master
-    - fetch-and-publish:
+    - fetch-and-publish-staging:
+        filters:
+          branches:
+            only: master
+    - fetch-and-publish-core:
+        filters:
+          branches:
+            only: master
+    - fetch-and-publish-devops:
         filters:
           branches:
             only: master
