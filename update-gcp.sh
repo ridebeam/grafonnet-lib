@@ -20,7 +20,7 @@ generate_dashboard() {
 
   tmpUpdateDashboard=$(mktemp /tmp/gen-dashboard-update.XXXXXX)
   jq "{dashboard: ., folderId: ${2:-0}, overwrite: true }" "$tmpJson" >"$tmpUpdateDashboard"
-  curl --fail \
+  curl --fail -k \
     -H "Authorization: Bearer $API_TOKEN" \
     -H 'Content-Type: application/json' \
     --data @"${tmpUpdateDashboard}" \
@@ -44,14 +44,14 @@ generate_grafana() {
     jsonnet "$F" | jq ".uid=\"$folderUID\"" > "${tmpFolder}"
 
     # PUT only allows to update, so we create and update, to ensure changes apply
-    curl -s \
+    curl -s -k \
       -H "Authorization: Bearer $API_TOKEN" \
       -H 'Content-Type: application/json' \
       --data @"${tmpFolder}" \
       "$GRAFANA_BASE_URL/api/folders"
     echo ""
 
-    folderID=$(curl -s --fail -X PUT \
+    folderID=$(curl -s --fail -k -X PUT \
       -H "Authorization: Bearer $API_TOKEN" \
       -H 'Content-Type: application/json' \
       --data @"${tmpFolder}" \
