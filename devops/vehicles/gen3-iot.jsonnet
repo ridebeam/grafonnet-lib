@@ -351,7 +351,7 @@ grafana.dashboard.new(
   template.new(
     name='vehicle_model',
     datasource=null,
-    query='label_values(rider_end_trip_lock_success, vehicle_model)',
+    query='label_values(adapter_incoming, vehicle_model)',
     allValues='.*',
     current='All',
     includeAll=true,
