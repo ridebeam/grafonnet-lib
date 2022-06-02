@@ -13,95 +13,91 @@ local panel = helpers.panel;
 local filters = {
   manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
+  model: target.likeFilter('vehicle_model', '$vehicle_model'),
 };
 
+local commonFilters = target.combineFilters(filters.model,target.combineFilters(filters.manufacturer, filters.firmware));
 local beamAPIFilter = target.likeFilter('service', 'api|messaging');
 
 local targets = {
   systemError: {
     ecuLockUnlockError: target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'ecuLock'), target.combineFilters(filters.manufacturer, filters.firmware)),
+      filters=target.combineFilters(target.equalsFilter('state', 'ecuLock'), commonFilters),
     ),
     batteryHatchUnlockError:  target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'batteryLock'), target.combineFilters(filters.manufacturer, filters.firmware)),
+      filters=target.combineFilters(target.equalsFilter('state', 'batteryLock'), commonFilters),
     ),
     helmetUnlockError:  target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'helmetLock'), target.combineFilters(filters.manufacturer, filters.firmware)),
+      filters=target.combineFilters(target.equalsFilter('state', 'helmetLock'), commonFilters),
     ),
     invalidLocation:  target.counter(
       metric='invalid-location',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     invalidBatteryPercentage:  target.counter(
       metric='invalid-battery-percentage',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     invalidWheelSpeed:  target.counter(
       metric='invalid-wheel-speed',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     errorReport:  target.counter(
       metric='error-report',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     clearError:  target.counter(
       metric='clear-error',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     alarmReport:  target.counter(
       metric='alarm-report',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     disconnection: target.counter(
       metric='disconnection',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     flashFirmwareError:  target.counter(
       metric='flash-firmware-error',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
     messageError:  target.counter(
       metric='adapter-incoming-panic',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware),
+      filters=commonFilters,
     ),
   },
   systemDelay: {
     ecuLockUnlockDelay: target.timers(
       metric='unlock-via-power-control-duration',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      filters=commonFilters,
     ),
     batteryLockDelay: target.timers(
       metric='unlock-battery-hatch-timing',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      filters=commonFilters,
     ),
     helmetLockDelay: target.timers(
       metric='helmet-lock-timing',
-      filters=target.combineFilters(filters.manufacturer, filters.firmware)
+      filters=commonFilters,
     ),
   },
   volumeTraffic: {
     countAll: target.gauges(
       'vehicle-connected-count',
-      filters=filters.manufacturer,
+      filters=target.combineFilters(filters.model,filters.manufacturer),
       withServiceFilters=false,
     ),
     received: target.counter(
       metric='adapter-incoming',
-      filters=target.combineFilters(
-        filters.firmware,
-        filters.manufacturer,
-      ),
+      filters=commonFilters,
       groupBys=['cmd'],
     ),
     send: target.counter(
       metric='device-outgoing',
-      filters=target.combineFilters(
-        filters.firmware,
-        filters.manufacturer,
-      ),
+      filters=commonFilters,
       groupBys=['cmd_outgoing'],
     ),
   },
@@ -109,61 +105,61 @@ local targets = {
     startTrip: target.counter(
       metric='start-trip',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
     ),
     startTripHelmetUnlocked: target.counter(
       metric='trip-helmet-unlock',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
     ),
     riderEndTripLocked: target.counter(
       metric='rider-end-trip-lock-success',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
     ),
     adminEndTripLocked: target.counter(
       metric='admin-end-trip-lock-success',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
     ),
     riderTripReview1: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), commonFilters)
     ),
     riderTripReview2: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), commonFilters)
     ),
     riderTripReview3: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), commonFilters)
     ),
     riderTripReview4: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), commonFilters)
     ),
     riderTripReview5: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), target.combineFilters(filters.manufacturer, filters.firmware))
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), commonFilters)
     ),
   },
   businessLatency: {
       vehicleUnlockLatency: target.timers(
         metric='start-trip-timing',
-        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+        filters=commonFilters
       ),
       batteryHatchUnlockLatency: target.timers(
         metric='battery-hatch-open-latency',
-        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+        filters=commonFilters
       ),
       helmetUnlockLatency: target.timers(
         metric='helmet-unlock-latency',
-        filters=target.combineFilters(filters.manufacturer, filters.firmware)
+        filters=commonFilters
       ),
     },
 };
@@ -348,6 +344,17 @@ grafana.dashboard.new(
     includeAll=true,
     refresh=1,
     sort=1,
+  )
+)
+
+.addTemplate(
+  template.new(
+    name='vehicle_model',
+    datasource=null,
+    query='label_values(rider_end_trip_lock_success, vehicle_model)',
+    allValues='.*',
+    current='All',
+    includeAll=true,
   )
 )
 
