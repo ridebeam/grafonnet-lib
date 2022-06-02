@@ -40,9 +40,11 @@ local targets = {
     instant: true,
   },
   comp_total_job: {
-    query: target.delta(
-      metric='compintel_done_job',
+    query: target.gauge(
+      metric='compintel_total_jobs_sum',
+      includeZero=true,
       groupBys=['type'],
+      gaugeFunc=target.gaugeFuncs.sum,
     ),
   } + {
     format: 'unit',
