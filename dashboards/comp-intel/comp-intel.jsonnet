@@ -41,7 +41,7 @@ local targets = {
   },
   comp_total_job: {
     query: target.delta(
-      metric='compintel_done_job',
+      metric='compintel_total_jobs_sum',
       groupBys=['type'],
     ),
   } + {
