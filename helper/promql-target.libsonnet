@@ -6,7 +6,7 @@ local prom = grafana.prometheus;
   then std.map($.filterKey, names)
   else $.filterKey(names),
 
-  filterKey(name):: $.replaceInvalidChars(std.asciiLower(name), '0123456789abcdefghijklmnopqrstuvwxyz', '_'),
+  filterKey(name):: $.replaceInvalidChars(name, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', '_'),
 
   replaceInvalidChars(str, valid, repl)::
     local validChars = std.set(std.stringChars(valid));
