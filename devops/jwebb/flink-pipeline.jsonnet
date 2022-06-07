@@ -19,6 +19,12 @@ local targets = {
     jobmanagerDowntime: target.counter(
       metric='flink_jobmanager_job_downtime'
     ),
+    checkpointsSucceeded: target.counter(
+      metric='flink_jobmanager_job_numberOfCompletedCheckpoints'
+    ),
+    checkpointsFailed: target.counter(
+      metric='flink_jobmanager_job_numberOfFailedCheckpoints'
+    ),
   },
 };
 
@@ -30,6 +36,12 @@ local panels = {
     jobmanagerDowntime: panel.counter('Job Manager Downtime').addTargets([
       targets.serviceUptime.jobmanagerDowntime,
     ]),
+    checkpointsSucceeded: panel.counter('Checkpoint success').addTargets([
+      targets.serviceUptime.checkpointsSucceeded,
+    ]),
+    checkpointsFailed: panel.counter('Checkpoint failure').addTargets([
+      targets.serviceUptime.checkpointsFailed,
+    ]),
   },
 };
 
@@ -39,6 +51,8 @@ local rows = {
     for p in [
       panels.serviceUptime.jobmanagerUptime,
       panels.serviceUptime.jobmanagerDowntime,
+      panels.serviceUptime.checkpointsSucceeded,
+      panels.serviceUptime.checkpointsFailed,
     ]
   ]),
 };
@@ -65,8 +79,8 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='service',
-    query='flink-example-jobmanager',
-    current='flink-example-jobmanager',
+    query='flink-jwebb-clickhouse-jobmanager',
+    current='flink-jwebb-clickhouse-jobmanager',
     hide='variable',
   )
 )

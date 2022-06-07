@@ -19,7 +19,7 @@ local l = gcpTarget.label;
 // we need to use non-templetized service filters for alerts
 local serviceFilter = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
-  target.equalsFilter('service', 'flink-example-jobmanager'),
+  target.equalsFilter('service', 'flink-jwebb-clickhouse-jobmanager'),
 );
 
 
@@ -37,7 +37,18 @@ local alertDefinitions = [
         message: 'Flink Job is down',
       },
     ],
-  }
+  },
+  {
+      row: 'Flink Checkpoints',
+      alerts: [
+        {
+          title: 'Flink checkpoint failure > 0',
+          counter: { name: 'flink_jobmanager_job_numberOfFailedCheckpoints' },
+          threshold: 0,
+          message: 'Flink Checkpoint has failed',
+        },
+      ],
+    }
 ];
 
 // Make sure uid matches the name of the file
