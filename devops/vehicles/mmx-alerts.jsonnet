@@ -167,10 +167,10 @@ local alertDefinitions = [
           name: 'vehicle-connected-count',
           filters: target.combineFilters(filterVehicleWatchdog, filterMMX),
         },
-        threshold: 1000,
+        threshold: 10,
         thresholdType: 'lt',
         message: |||
-          Total connected MMX vehicles exceeds threshold
+          Total connected MMX vehicles drops below threshold
         |||,
       },
       {
@@ -179,7 +179,7 @@ local alertDefinitions = [
           name: 'adapter-incoming',
           filters: filterMMX,
         },
-        threshold: 10000,
+        threshold: 20,
         message: |||
           Total MMX messages received exceeds threshold
         |||,

@@ -167,10 +167,10 @@ local alertDefinitions = [
           name: 'vehicle-connected-count',
           filters: target.combineFilters(filterVehicleWatchdog, filterGen3IoT),
         },
-        threshold: 1000,
+        threshold: 400,
         thresholdType: 'lt',
         message: |||
-          Total connected gen3 vehicles exceeds threshold
+          Total connected gen3 vehicles drops below threshold
         |||,
       },
       {
@@ -179,7 +179,7 @@ local alertDefinitions = [
           name: 'adapter-incoming',
           filters: filterGen3IoT,
         },
-        threshold: 10000,
+        threshold: 2000,
         message: |||
           Total gen3 iot messages received exceeds threshold
         |||,
