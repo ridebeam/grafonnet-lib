@@ -150,16 +150,19 @@ local targets = {
   },
   businessLatency: {
       vehicleUnlockLatency: target.timers(
+        withServiceFilters=false,
         metric='start-trip-timing',
-        filters=commonFilters
+        filters=target.combineFilters(beamAPIFilter,commonFilters)
       ),
       batteryHatchUnlockLatency: target.timers(
+        withServiceFilters=false,
         metric='battery-hatch-open-latency',
-        filters=commonFilters
+        filters=target.combineFilters(beamAPIFilter,commonFilters)
       ),
       helmetUnlockLatency: target.timers(
+        withServiceFilters=false,
         metric='helmet-unlock-latency',
-        filters=commonFilters
+        filters=target.combineFilters(beamAPIFilter,commonFilters)
       ),
     },
 };
@@ -237,13 +240,19 @@ local panels = {
   },
   businessLatency: {
       vehicleUnlockLatency: panel.timeLinear('Vehicle Unlock Latency').addTargets([
-        targets.businessLatency.vehicleUnlockLatency,
+        targets.businessLatency.vehicleUnlockLatency.p99,
+        targets.businessLatency.vehicleUnlockLatency.p95,
+        targets.businessLatency.vehicleUnlockLatency.p50,
       ]),
       batteryHatchUnlockLatency: panel.timeLinear('Battery Hatch Unlock Latency').addTargets([
-        targets.businessLatency.batteryHatchUnlockLatency,
+        targets.businessLatency.batteryHatchUnlockLatency.p99,
+        targets.businessLatency.batteryHatchUnlockLatency.p95,
+        targets.businessLatency.batteryHatchUnlockLatency.p50,
       ]),
       helmetUnlockLatency: panel.timeLinear('Helmet Unlock Latency').addTargets([
-        targets.businessLatency.helmetUnlockLatency,
+        targets.businessLatency.helmetUnlockLatency.p99,
+        targets.businessLatency.helmetUnlockLatency.p95,
+        targets.businessLatency.helmetUnlockLatency.p50,
       ]),
     },
 };
