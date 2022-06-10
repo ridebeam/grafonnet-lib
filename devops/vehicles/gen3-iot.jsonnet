@@ -11,7 +11,7 @@ local target = helpers.target;
 local panel = helpers.panel;
 
 local filters = {
-  manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
+  manufacturer: target.equalsFilter('manufacturer', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
   model: target.likeFilter('vehicle_model', '$vehicle_model'),
 };
@@ -208,7 +208,7 @@ local panels = {
   },
   volumeTraffic: {
     vehicleCount: panel.counter(title='Vehicle Count', format='none').addTargets([
-      targets.volumeTraffic.countAll.sum.withAlias('total'),
+      targets.volumeTraffic.countAll.max.withAlias('total'),
     ]),
     messagesReceived: panel.counter('Messages Received').addTargets([
       targets.volumeTraffic.received,
