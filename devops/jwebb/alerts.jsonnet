@@ -48,7 +48,7 @@ local alertDefinitions = [
           message: 'Flink Checkpoint has failed',
         },
       ],
-    }
+  }
 ];
 
 // Make sure uid matches the name of the file

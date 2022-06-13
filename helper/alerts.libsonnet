@@ -28,6 +28,8 @@ local cwPanel = cwHelpers.panel;
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
 
+  coreSlackData: { uid: 'QVVrMvj7z' },
+
   notifications: {
     productionAlerts: [$.slack, $.opsgenie],
     productionWarnings: [$.slackWarn],
