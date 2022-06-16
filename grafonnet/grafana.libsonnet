@@ -29,4 +29,5 @@
   statPanel:: import 'stat_panel.libsonnet',
   googleCloudMonitoring:: import 'google_cloud_monitoring.libsonnet',
   clickhouse:: import 'clickhouse.libsonnet',
+  timeSeriesPanel:: import 'timeseries_panel.libsonnet',
 }
