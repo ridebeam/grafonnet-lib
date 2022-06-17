@@ -3,606 +3,167 @@ local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
-local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+local clickhouse = import '../../helper/clickhouse.libsonnet';
+local sql = import './sql.jsonnet';
 
-local helpers = prom.init();
+local helpers = clickhouse.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-
 local targets = {
-  serviceUptime: {
-    jobmanagerUptime: target.counter(
-      metric='flink_jobmanager_job_uptime'
-    ),
-    jobmanagerDowntime: target.counter(
-      metric='flink_jobmanager_job_downtime'
-    ),
-    checkpointsSucceeded: target.counter(
-      metric='flink_jobmanager_job_numberOfCompletedCheckpoints'
-    ),
-    checkpointsFailed: target.counter(
-      metric='flink_jobmanager_job_numberOfFailedCheckpoints'
-    ),
+  allTripsStart: target.target(
+    database='live_business',
+    query= sql.allTripsSQL,
+    table='trips_start_count',
+  ),
+  tripsStartBy: target.target(
+    database='live_business',
+    query= sql.tripsByCitySQL,
+    table='trips_start_count'
+  ),
+  allTripsEnd: target.target(
+    database='live_business',
+    query= sql.allTripsSQL,
+    table='trips_end_count',
+  ),
+  tripsEndBy: target.target(
+    database='live_business',
+    query= sql.tripsByCitySQL,
+    table='trips_end_count'
+  ),
+};
+
+local alertConditions = {
+  allTripsStart: {
+    evaluator: {
+      "params": [
+        40
+      ],
+      "type": "lt"
+    },
+    operator: {
+      "type": "and"
+    },
+    query: {
+      "params": [
+        "A",
+        "5m",
+        "now"
+      ]
+    },
+    reducer: {
+      "params": [],
+      "type": "avg"
+    },
+    type: "query",
   },
+  tripsStartBy: {
+      evaluator: {
+        "params": [
+          10
+        ],
+        "type": "lt"
+      },
+      operator: {
+        "type": "and"
+      },
+      query: {
+        "params": [
+          "A",
+          "5m",
+          "now"
+        ]
+      },
+      reducer: {
+        "params": [],
+        "type": "avg"
+      },
+      type: "query",
+  },
+  allTripsEnd: {
+    evaluator: {
+      "params": [
+        40
+      ],
+      "type": "lt"
+    },
+    operator: {
+      "type": "and"
+    },
+    query: {
+      "params": [
+        "A",
+        "5m",
+        "now"
+      ]
+    },
+    reducer: {
+      "params": [],
+      "type": "avg"
+    },
+    type: "query",
+  },
+  tripsEndBy: {
+      evaluator: {
+        "params": [
+          10
+        ],
+        "type": "lt"
+      },
+      operator: {
+        "type": "and"
+      },
+      query: {
+        "params": [
+          "A",
+          "5m",
+          "now"
+        ]
+      },
+      reducer: {
+        "params": [],
+        "type": "avg"
+      },
+      type: "query",
+  },  
 };
 
 local panels = {
-  allTripsStart: {
-       "alert": {
-               "alertRuleTags": {},
-               "conditions": [
-                 {
-                   "evaluator": {
-                     "params": [
-                       40
-                     ],
-                     "type": "lt"
-                   },
-                   "operator": {
-                     "type": "and"
-                   },
-                   "query": {
-                     "params": [
-                       "A",
-                       "5m",
-                       "now"
-                     ]
-                   },
-                   "reducer": {
-                     "params": [],
-                     "type": "avg"
-                   },
-                   "type": "query"
-                 }
-               ],
-               "executionErrorState": "alerting",
-               "for": "5m",
-               "frequency": "1m",
-               "handler": 1,
-               "message": "Trips start are low globally (<40)",
-               "name": "Number of trips start globally alert",
-               "noDataState": "no_data",
-               "notifications": [
-                 {
-                   "uid": "QVVrMvj7z"
-                 }
-               ]
-             },
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 7,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "id": 2,
-      "interval": null,
-      "maxDataPoints": null,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.2.3",
-      "targets": [
-        {
-          "database": "live_business",
-          "dateColDataType": "",
-          "dateLoading": false,
-          "dateTimeColDataType": "time_bucket",
-          "dateTimeType": "DATETIME",
-          "datetimeLoading": false,
-          "extrapolate": true,
-          "format": "time_series",
-          "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
-          "interval": "",
-          "intervalFactor": 1,
-          "query": "SELECT $timeSeries AS t, sum(count) as count FROM $table WHERE $timeFilter GROUP BY t ORDER BY t ASC ",
-          "refId": "A",
-          "round": "0s",
-          "skip_comments": true,
-          "table": "trips_start_count",
-          "tableLoading": false
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": "5m",
-      "title": "Number of trips start globally",
-      "type": "timeseries"
-    },
-  tripsStartBy: {
-         "alert": {
-                 "alertRuleTags": {},
-                 "conditions": [
-                   {
-                     "evaluator": {
-                       "params": [
-                         10
-                       ],
-                       "type": "lt"
-                     },
-                     "operator": {
-                       "type": "and"
-                     },
-                     "query": {
-                       "params": [
-                         "A",
-                         "5m",
-                         "now"
-                       ]
-                     },
-                     "reducer": {
-                       "params": [],
-                       "type": "avg"
-                     },
-                     "type": "query"
-                   }
-                 ],
-                 "executionErrorState": "alerting",
-                 "for": "1h",
-                 "frequency": "1m",
-                 "handler": 1,
-                 "name": "Number of trips start by city ID alert",
-                 "noDataState": "no_data",
-                 "notifications": [
-                   {
-                     "uid": "QVVrMvj7z"
-                   }
-                 ]
-               },
-         "datasource": null,
-         "fieldConfig": {
-           "defaults": {
-             "color": {
-               "mode": "palette-classic"
-             },
-             "custom": {
-               "axisLabel": "",
-               "axisPlacement": "auto",
-               "barAlignment": 0,
-               "drawStyle": "line",
-               "fillOpacity": 7,
-               "gradientMode": "opacity",
-               "hideFrom": {
-                 "legend": false,
-                 "tooltip": false,
-                 "viz": false
-               },
-               "lineInterpolation": "smooth",
-               "lineStyle": {
-                 "fill": "solid"
-               },
-               "lineWidth": 1,
-               "pointSize": 1,
-               "scaleDistribution": {
-                 "type": "linear"
-               },
-               "showPoints": "auto",
-               "spanNulls": false,
-               "stacking": {
-                 "group": "A",
-                 "mode": "none"
-               },
-               "thresholdsStyle": {
-                 "mode": "off"
-               }
-             },
-             "mappings": [],
-             "thresholds": {
-               "mode": "absolute",
-               "steps": [
-                 {
-                   "color": "green",
-                   "value": null
-                 },
-                 {
-                   "color": "red",
-                   "value": 80
-                 }
-               ]
-             }
-           },
-           "overrides": []
-         },
-         "gridPos": {
-           "h": 9,
-           "w": 12,
-           "x": 0,
-           "y": 9
-         },
-         "id": 2,
-         "interval": null,
-         "maxDataPoints": null,
-         "options": {
-           "legend": {
-             "calcs": [
-               "lastNotNull"
-             ],
-             "displayMode": "list",
-             "placement": "bottom"
-           },
-           "tooltip": {
-             "mode": "single"
-           }
-         },
-         "pluginVersion": "8.2.3",
-         "targets": [
-           {
-             "database": "live_business",
-             "dateColDataType": "",
-             "dateLoading": false,
-             "dateTimeColDataType": "time_bucket",
-             "dateTimeType": "DATETIME",
-             "datetimeLoading": false,
-             "extrapolate": true,
-             "format": "time_series",
-             "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
-             "interval": "",
-             "intervalFactor": 1,
-             "query": "SELECT $timeSeries AS t, sum(count) as c, city_id FROM $table  WHERE $timeFilter  GROUP BY t, city_id ORDER BY t ASC ",
-             "refId": "A",
-             "round": "0s",
-             "skip_comments": true,
-             "table": "trips_start_count",
-             "tableLoading": false
-           }
-         ],
-         "thresholds": [],
-         "timeFrom": null,
-         "timeShift": "5m",
-         "title": "Number of trips start by city ID",
-         "type": "timeseries"
-       },
-  allTripsEnd: {
-        "alert": {
-                "alertRuleTags": {},
-                "conditions": [
-                  {
-                    "evaluator": {
-                      "params": [
-                        40
-                      ],
-                      "type": "lt"
-                    },
-                    "operator": {
-                      "type": "and"
-                    },
-                    "query": {
-                      "params": [
-                        "A",
-                        "5m",
-                        "now"
-                      ]
-                    },
-                    "reducer": {
-                      "params": [],
-                      "type": "avg"
-                    },
-                    "type": "query"
-                  }
-                ],
-                "executionErrorState": "alerting",
-                "for": "5m",
-                "frequency": "1m",
-                "handler": 1,
-                "message": "Trips end are low globally (<40)",
-                "name": "Number of trips end globally alert",
-                "noDataState": "no_data",
-                "notifications": [
-                  {
-                    "uid": "QVVrMvj7z"
-                  }
-                ]
-              },
-        "datasource": null,
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 7,
-              "gradientMode": "opacity",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "lineInterpolation": "smooth",
-              "lineStyle": {
-                "fill": "solid"
-              },
-              "lineWidth": 1,
-              "pointSize": 1,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 7,
-          "w": 24,
-          "x": 0,
-          "y": 1
-        },
-        "id": 2,
-        "interval": null,
-        "maxDataPoints": null,
-        "options": {
-          "legend": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        },
-        "pluginVersion": "8.2.3",
-        "targets": [
-          {
-            "database": "live_business",
-            "dateColDataType": "",
-            "dateLoading": false,
-            "dateTimeColDataType": "time_bucket",
-            "dateTimeType": "DATETIME",
-            "datetimeLoading": false,
-            "extrapolate": true,
-            "format": "time_series",
-            "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
-            "interval": "",
-            "intervalFactor": 1,
-            "query": "SELECT $timeSeries AS t, sum(count) as count FROM $table  WHERE $timeFilter  GROUP BY t ORDER BY t ASC ",
-            "refId": "A",
-            "round": "0s",
-            "skip_comments": true,
-            "table": "trips_end_count",
-            "tableLoading": false
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": "5m",
-        "title": "Number of trips end globally",
-        "type": "timeseries"
-      },
-    tripsEndBy: {
-            "alert": {
-                    "alertRuleTags": {},
-                    "conditions": [
-                      {
-                        "evaluator": {
-                          "params": [
-                            10
-                          ],
-                          "type": "lt"
-                        },
-                        "operator": {
-                          "type": "and"
-                        },
-                        "query": {
-                          "params": [
-                            "A",
-                            "5m",
-                            "now"
-                          ]
-                        },
-                        "reducer": {
-                          "params": [],
-                          "type": "avg"
-                        },
-                        "type": "query"
-                      }
-                    ],
-                    "executionErrorState": "alerting",
-                    "for": "1h",
-                    "frequency": "1m",
-                    "handler": 1,
-                    "name": "Number of trips end by city ID alert",
-                    "noDataState": "no_data",
-                    "notifications": [
-                      {
-                        "uid": "QVVrMvj7z"
-                      }
-                    ]
-                  },
-           "datasource": null,
-           "fieldConfig": {
-             "defaults": {
-               "color": {
-                 "mode": "palette-classic"
-               },
-               "custom": {
-                 "axisLabel": "",
-                 "axisPlacement": "auto",
-                 "barAlignment": 0,
-                 "drawStyle": "line",
-                 "fillOpacity": 7,
-                 "gradientMode": "opacity",
-                 "hideFrom": {
-                   "legend": false,
-                   "tooltip": false,
-                   "viz": false
-                 },
-                 "lineInterpolation": "smooth",
-                 "lineStyle": {
-                   "fill": "solid"
-                 },
-                 "lineWidth": 1,
-                 "pointSize": 1,
-                 "scaleDistribution": {
-                   "type": "linear"
-                 },
-                 "showPoints": "auto",
-                 "spanNulls": false,
-                 "stacking": {
-                   "group": "A",
-                   "mode": "none"
-                 },
-                 "thresholdsStyle": {
-                   "mode": "off"
-                 }
-               },
-               "mappings": [],
-               "thresholds": {
-                 "mode": "absolute",
-                 "steps": [
-                   {
-                     "color": "green",
-                     "value": null
-                   },
-                   {
-                     "color": "red",
-                     "value": 80
-                   }
-                 ]
-               }
-             },
-             "overrides": []
-           },
-           "gridPos": {
-             "h": 9,
-             "w": 12,
-             "x": 0,
-             "y": 9
-           },
-           "id": 2,
-           "interval": null,
-           "maxDataPoints": null,
-           "options": {
-             "legend": {
-               "calcs": [
-                 "lastNotNull"
-               ],
-               "displayMode": "list",
-               "placement": "bottom"
-             },
-             "tooltip": {
-               "mode": "single"
-             }
-           },
-           "pluginVersion": "8.2.3",
-           "targets": [
-             {
-               "database": "live_business",
-               "dateColDataType": "",
-               "dateLoading": false,
-               "dateTimeColDataType": "time_bucket",
-               "dateTimeType": "DATETIME",
-               "datetimeLoading": false,
-               "extrapolate": true,
-               "format": "time_series",
-               "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
-               "interval": "",
-               "intervalFactor": 1,
-               "query": "SELECT $timeSeries AS t, sum(count) as c, city_id FROM $table  WHERE $timeFilter  GROUP BY t, city_id ORDER BY t ASC ",
-               "refId": "A",
-               "round": "0s",
-               "skip_comments": true,
-               "table": "trips_end_count",
-               "tableLoading": false
-             }
-           ],
-           "thresholds": [],
-           "timeFrom": null,
-           "timeShift": "5m",
-           "title": "Number of trips end by city ID",
-           "type": "timeseries"
-         }
+  allTripsStart: panel.new(title='Number of trips start globally', time_shift='5m')
+    .addTargets([targets.allTripsStart])
+    .addAlert(
+      name='Number of trips start globally alert',
+      message='Trips start are low globally (<40)',
+      notifications=[{"uid": "QVVrMvj7z"}],
+    )
+    .addConditions([alertConditions.allTripsStart]),
+
+  tripsStartBy: panel.new(title='Number of trips start by city ID', time_shift='5m')
+    .addTargets([targets.tripsStartBy])
+    .addAlert(
+      name='Number of trips start by city ID alert',
+      notifications=[{"uid": "QVVrMvj7z"}],
+      forDuration='1h',
+    )
+    .addConditions([alertConditions.tripsStartBy]),
+  
+  allTripsEnd: panel.new(title='Number of trips end globally', time_shift='5m')
+    .addTargets([targets.allTripsEnd])
+    .addAlert(
+      name='Number of trips end globally alert',
+      message='Trips end are low globally (<40)',
+      notifications=[{"uid": "QVVrMvj7z"}],
+    )
+    .addConditions([alertConditions.allTripsEnd]),
+
+  tripsEndBy: panel.new(title='Number of trips end by city ID', time_shift='5m')
+    .addTargets([targets.tripsEndBy])
+    .addAlert(
+      name='Number of trips end by city ID alert',
+      notifications=[{"uid": "QVVrMvj7z"}],
+      forDuration='1h',
+    )
+    .addConditions([alertConditions.tripsEndBy]),
 };
 
 local rows = {
