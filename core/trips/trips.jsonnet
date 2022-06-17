@@ -4,7 +4,7 @@ local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
-local sql = import './sql.jsonnet';
+local sql = import './sql.libsonnet';
 
 local helpers = clickhouse.init();
 local target = helpers.target;
@@ -16,9 +16,14 @@ local targets = {
     query= sql.allTripsSQL,
     table='trips_start_count',
   ),
-  tripsStartBy: target.target(
+  tripsStartByCity: target.target(
     database='live_business',
     query= sql.tripsByCitySQL,
+    table='trips_start_count'
+  ),
+  tripsStartByIOTVersion: target.target(
+    database='live_business',
+    query= sql.tripsByIOTVersionSQL,
     table='trips_start_count'
   ),
   allTripsEnd: target.target(
@@ -26,10 +31,15 @@ local targets = {
     query= sql.allTripsSQL,
     table='trips_end_count',
   ),
-  tripsEndBy: target.target(
+  tripsEndByCity: target.target(
     database='live_business',
     query= sql.tripsByCitySQL,
     table='trips_end_count'
+  ),
+  tripsEndByIOTVersion: target.target(
+    database='live_business',
+    query= sql.tripsByIOTVersionSQL,
+    table='trips_end_count',
   ),
 };
 
@@ -57,7 +67,7 @@ local alertConditions = {
     },
     type: "query",
   },
-  tripsStartBy: {
+  tripsStartByCity: {
       evaluator: {
         "params": [
           10
@@ -80,6 +90,29 @@ local alertConditions = {
       },
       type: "query",
   },
+  tripsStartByIOTVersion: {
+      evaluator: {
+        "params": [
+          10
+        ],
+        "type": "lt"
+      },
+      operator: {
+        "type": "and"
+      },
+      query: {
+        "params": [
+          "A",
+          "5m",
+          "now"
+        ]
+      },
+      reducer: {
+        "params": [],
+        "type": "avg"
+      },
+      type: "query",
+  },  
   allTripsEnd: {
     evaluator: {
       "params": [
@@ -103,7 +136,7 @@ local alertConditions = {
     },
     type: "query",
   },
-  tripsEndBy: {
+  tripsEndByCity: {
       evaluator: {
         "params": [
           10
@@ -125,7 +158,30 @@ local alertConditions = {
         "type": "avg"
       },
       type: "query",
-  },  
+  },
+  tripsEndByIOTVersion: {
+      evaluator: {
+        "params": [
+          10
+        ],
+        "type": "lt"
+      },
+      operator: {
+        "type": "and"
+      },
+      query: {
+        "params": [
+          "A",
+          "5m",
+          "now"
+        ]
+      },
+      reducer: {
+        "params": [],
+        "type": "avg"
+      },
+      type: "query",
+  },      
 };
 
 local panels = {
@@ -138,14 +194,23 @@ local panels = {
     )
     .addConditions([alertConditions.allTripsStart]),
 
-  tripsStartBy: panel.new(title='Number of trips start by city ID', time_shift='5m')
-    .addTargets([targets.tripsStartBy])
+  tripsStartByCity: panel.new(title='Number of trips start by city ID', time_shift='5m')
+    .addTargets([targets.tripsStartByCity])
     .addAlert(
       name='Number of trips start by city ID alert',
       notifications=[{"uid": "QVVrMvj7z"}],
       forDuration='1h',
     )
-    .addConditions([alertConditions.tripsStartBy]),
+    .addConditions([alertConditions.tripsStartByCity]),
+
+  tripsStartByIOTVersion: panel.new(title='Number of trips start by IOT version', time_shift='5m')
+    .addTargets([targets.tripsStartByIOTVersion])
+    .addAlert(
+      name='Number of trips start by IOT version alert',
+      notifications=[{"uid": "QVVrMvj7z"}],
+      forDuration='1h',
+    )
+    .addConditions([alertConditions.tripsStartByIOTVersion]),    
   
   allTripsEnd: panel.new(title='Number of trips end globally', time_shift='5m')
     .addTargets([targets.allTripsEnd])
@@ -156,14 +221,23 @@ local panels = {
     )
     .addConditions([alertConditions.allTripsEnd]),
 
-  tripsEndBy: panel.new(title='Number of trips end by city ID', time_shift='5m')
-    .addTargets([targets.tripsEndBy])
+  tripsEndByCity: panel.new(title='Number of trips end by city ID', time_shift='5m')
+    .addTargets([targets.tripsEndByCity])
     .addAlert(
       name='Number of trips end by city ID alert',
       notifications=[{"uid": "QVVrMvj7z"}],
       forDuration='1h',
     )
-    .addConditions([alertConditions.tripsEndBy]),
+    .addConditions([alertConditions.tripsEndByCity]),
+
+  tripsEndByIOTVersion: panel.new(title='Number of trips end by IOT version', time_shift='5m')
+    .addTargets([targets.tripsEndByIOTVersion])
+    .addAlert(
+      name='Number of trips end by IOT version alert',
+      notifications=[{"uid": "QVVrMvj7z"}],
+      forDuration='1h',
+    )
+    .addConditions([alertConditions.tripsEndByIOTVersion]),
 };
 
 local rows = {
@@ -171,9 +245,11 @@ local rows = {
     panel.fullRow(p)
     for p in [
       panels.allTripsStart,
-      panels.tripsStartBy,
+      panels.tripsStartByCity,
+      panels.tripsStartByIOTVersion,
       panels.allTripsEnd,
-      panels.tripsEndBy,
+      panels.tripsEndByCity,
+      panels.tripsEndByIOTVersion,
     ]
   ]),
 };
