@@ -52,3 +52,30 @@ sh update.sh
 For the vehicles counts we need to get the mapping of cityId -> cityName for the dashboard.
 1. Get mapping from Redash: https://redash.ridebeam.com/queries/10465
 2. Sort the mapping with `jq`: `jq 'to_entries | sort_by(.value) | from_entries' prod-cities.json`
+
+## Active city mapping
+Get current active cities by 
+1. Use this query to get initial json:
+```
+with trip as (
+  select distinct t.city_id as city_id
+  from `ridebeam-data-adhoc.liveescooter.trips` t
+  where date(t.created_at) >= date(2022,1,1)
+), city as (
+  select id, name, parent_region_id
+  from `ridebeam-data-adhoc.liveescooter.georegions` g
+  where g.type='City'
+  and g.enabled=true
+  and g.deleted=false
+  and g.id in (select city_id from trip)
+), data as (
+  select city.id, city.name, country.name as country
+  from city
+  join `ridebeam-data-adhoc.liveescooter.georegions` country on country.id=city.parent_region_id
+)
+select to_json_string(r)
+from (select array(select as struct * from data) as result) r
+```
+
+2. extract city name mapping: `jq '.result | to_entries | sort_by(.value.id) | map({(.value.id|tostring):.value.name}) | add' prod-cityId-cityName.json`
+3. extract country name mapping: `jq '.result | to_entries | sort_by(.value.id) | map({(.value.id|tostring):.value.country}) | add' prod-cityId-countryName.json`
