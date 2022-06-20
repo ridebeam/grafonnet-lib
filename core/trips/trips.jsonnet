@@ -13,32 +13,32 @@ local panel = helpers.panel;
 local targets = {
   allTripsStart: target.target(
     database='live_business',
-    query= sql.allTripsSQL,
+    query=sql.allTripsSQL,
     table='trips_start_count',
   ),
   tripsStartByCity: target.target(
     database='live_business',
-    query= sql.tripsByCitySQL,
+    query=sql.tripsByCitySQL,
     table='trips_start_count'
   ),
   tripsStartByIOTVersion: target.target(
     database='live_business',
-    query= sql.tripsByIOTVersionSQL,
+    query=sql.tripsByIOTVersionSQL,
     table='trips_start_count'
   ),
   allTripsEnd: target.target(
     database='live_business',
-    query= sql.allTripsSQL,
+    query=sql.allTripsSQL,
     table='trips_end_count',
   ),
   tripsEndByCity: target.target(
     database='live_business',
-    query= sql.tripsByCitySQL,
+    query=sql.tripsByCitySQL,
     table='trips_end_count'
   ),
   tripsEndByIOTVersion: target.target(
     database='live_business',
-    query= sql.tripsByIOTVersionSQL,
+    query=sql.tripsByIOTVersionSQL,
     table='trips_end_count',
   ),
 };
@@ -46,141 +46,141 @@ local targets = {
 local alertConditions = {
   allTripsStart: {
     evaluator: {
-      "params": [
+      params: [
         40
       ],
-      "type": "lt"
+      type: 'lt'
     },
     operator: {
-      "type": "and"
+      type: 'and'
     },
     query: {
-      "params": [
-        "A",
-        "5m",
-        "now"
+      params: [
+        'A',
+        '5m',
+        'now'
       ]
     },
     reducer: {
-      "params": [],
-      "type": "avg"
+      params: [],
+      type: 'avg'
     },
-    type: "query",
+    type: 'query',
   },
   tripsStartByCity: {
       evaluator: {
-        "params": [
+        params: [
           10
         ],
-        "type": "lt"
+        type: 'lt'
       },
       operator: {
-        "type": "and"
+        type: 'and'
       },
       query: {
-        "params": [
-          "A",
-          "5m",
-          "now"
+        params: [
+          'A',
+          '5m',
+          'now'
         ]
       },
       reducer: {
-        "params": [],
-        "type": "avg"
+        params: [],
+        type: 'avg'
       },
-      type: "query",
+      type: 'query',
   },
   tripsStartByIOTVersion: {
       evaluator: {
-        "params": [
+        params: [
           10
         ],
-        "type": "lt"
+        type: 'lt'
       },
       operator: {
-        "type": "and"
+        type: 'and'
       },
       query: {
-        "params": [
-          "A",
-          "5m",
-          "now"
+        params: [
+          'A',
+          '5m',
+          'now'
         ]
       },
       reducer: {
-        "params": [],
-        "type": "avg"
+        params: [],
+        type: 'avg'
       },
-      type: "query",
+      type: 'query',
   },  
   allTripsEnd: {
     evaluator: {
-      "params": [
+      params: [
         40
       ],
-      "type": "lt"
+      type: 'lt'
     },
     operator: {
-      "type": "and"
+      type: 'and'
     },
     query: {
-      "params": [
-        "A",
-        "5m",
-        "now"
+      params: [
+        'A',
+        '5m',
+        'now'
       ]
     },
     reducer: {
-      "params": [],
-      "type": "avg"
+      params: [],
+      type: 'avg'
     },
-    type: "query",
+    type: 'query',
   },
   tripsEndByCity: {
       evaluator: {
-        "params": [
+        params: [
           10
         ],
-        "type": "lt"
+        type: 'lt'
       },
       operator: {
-        "type": "and"
+        type: 'and'
       },
       query: {
-        "params": [
-          "A",
-          "5m",
-          "now"
+        params: [
+          'A',
+          '5m',
+          'now'
         ]
       },
       reducer: {
-        "params": [],
-        "type": "avg"
+        params: [],
+        type: 'avg'
       },
-      type: "query",
+      type: 'query',
   },
   tripsEndByIOTVersion: {
       evaluator: {
-        "params": [
+        params: [
           10
         ],
-        "type": "lt"
+        type: 'lt'
       },
       operator: {
-        "type": "and"
+        type: 'and'
       },
       query: {
-        "params": [
-          "A",
-          "5m",
-          "now"
+        params: [
+          'A',
+          '5m',
+          'now'
         ]
       },
       reducer: {
-        "params": [],
-        "type": "avg"
+        params: [],
+        type: 'avg'
       },
-      type: "query",
+      type: 'query',
   },      
 };
 
@@ -190,7 +190,7 @@ local panels = {
     .addAlert(
       name='Number of trips start globally alert',
       message='Trips start are low globally (<40)',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z' }],
     )
     .addConditions([alertConditions.allTripsStart]),
 
@@ -198,7 +198,7 @@ local panels = {
     .addTargets([targets.tripsStartByCity])
     .addAlert(
       name='Number of trips start by city ID alert',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z' }],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsStartByCity]),
@@ -207,7 +207,7 @@ local panels = {
     .addTargets([targets.tripsStartByIOTVersion])
     .addAlert(
       name='Number of trips start by IOT version alert',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z'}],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsStartByIOTVersion]),    
@@ -217,7 +217,7 @@ local panels = {
     .addAlert(
       name='Number of trips end globally alert',
       message='Trips end are low globally (<40)',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z'}],
     )
     .addConditions([alertConditions.allTripsEnd]),
 
@@ -225,7 +225,7 @@ local panels = {
     .addTargets([targets.tripsEndByCity])
     .addAlert(
       name='Number of trips end by city ID alert',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z' }],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsEndByCity]),
@@ -234,7 +234,7 @@ local panels = {
     .addTargets([targets.tripsEndByIOTVersion])
     .addAlert(
       name='Number of trips end by IOT version alert',
-      notifications=[{"uid": "QVVrMvj7z"}],
+      notifications=[{ uid: 'QVVrMvj7z' }],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsEndByIOTVersion]),
