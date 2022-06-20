@@ -9,6 +9,9 @@
    * @param query The SQL query
    * @param format (default `'time_series'`)
    */
+
+  dataSourceUID: '_Az-rRXnz',
+  
   target(
     database,
     table,
@@ -16,6 +19,10 @@
     format='time_series',
   ):: {
     database: database,
+    datasource: {
+      type: 'vertamedia-clickhouse-datasource',
+      uid: $.dataSourceUID,
+    },
     dateLoading: false,
     dateTimeColDataType: 'time_bucket',
     datetimeLoading: false,
