@@ -10,10 +10,9 @@
    * @param format (default `'time_series'`)
    */
 
-  dataSourceUID: '_Az-rRXnz',
-  
   target(
     database,
+    datasourceUID,
     table,
     query,
     format='time_series',
@@ -21,7 +20,7 @@
     database: database,
     datasource: {
       type: 'vertamedia-clickhouse-datasource',
-      uid: $.dataSourceUID,
+      uid: datasourceUID,
     },
     dateLoading: false,
     dateTimeColDataType: 'time_bucket',
