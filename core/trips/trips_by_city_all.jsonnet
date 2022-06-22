@@ -19,6 +19,7 @@ local cityPanel(cityId, cityName) =
     .addTargets([
       target.target(
         database='live_business',
+        datasourceUID=clickhouse.dataSourceUIDProd,        
         query="SELECT $timeSeries AS t, sum(count) as c FROM $table  WHERE $timeFilter and city_id='"+cityId+"' GROUP BY t ORDER BY t ASC",
         table='trips_start_count',
       )

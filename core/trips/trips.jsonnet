@@ -13,31 +13,37 @@ local panel = helpers.panel;
 local targets = {
   allTripsStart: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.allTripsSQL,
     table='trips_start_count',
   ),
   tripsStartByCity: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.tripsByCitySQL,
     table='trips_start_count'
   ),
   tripsStartByIOTVersion: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.tripsByIOTVersionSQL,
     table='trips_start_count'
   ),
   allTripsEnd: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.allTripsSQL,
     table='trips_end_count',
   ),
   tripsEndByCity: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.tripsByCitySQL,
     table='trips_end_count'
   ),
   tripsEndByIOTVersion: target.target(
     database='live_business',
+    datasourceUID=clickhouse.dataSourceUIDProd,    
     query=sql.tripsByIOTVersionSQL,
     table='trips_end_count',
   ),
