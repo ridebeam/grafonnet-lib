@@ -68,7 +68,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'Helmet Lock',
+  'JWebb Helmet Lock',
   uid='jwebb_helmet_lock',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
