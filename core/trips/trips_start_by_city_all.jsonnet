@@ -34,8 +34,8 @@ local panels(countryName) = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'Trips By City All',
-  uid='jwebb_trips_by_city_all',
+  'Trips Start By City All',
+  uid='jwebb_trips_start_by_city_all',
   refresh='5m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
