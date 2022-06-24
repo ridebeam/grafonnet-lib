@@ -14,38 +14,38 @@ local targets = {
   allTripsStart: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.allTripsSQL,
-    table='trips_start_count',
+    query=sql.allTripsStartSQL,
+    table='trips_count_5m_mv',
   ),
   tripsStartByCity: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsByCitySQL,
-    table='trips_start_count'
+    query=sql.tripsStartByCitySQL,
+    table='trips_count_5m_mv'
   ),
   tripsStartByIOTVersion: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsByIOTVersionSQL,
-    table='trips_start_count'
+    query=sql.tripsStartByIOTVersionSQL,
+    table='trips_count_5m_mv'
   ),
   allTripsEnd: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.allTripsSQL,
-    table='trips_end_count',
+    query=sql.allTripsEndSQL,
+    table='trips_count_5m_mv',
   ),
   tripsEndByCity: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsByCitySQL,
-    table='trips_end_count'
+    query=sql.tripsEndByCitySQL,
+    table='trips_count_5m_mv'
   ),
   tripsEndByIOTVersion: target.target(
     database='live_business',
     datasourceUID=clickhouse.dataSourceUIDProd,    
-    query=sql.tripsByIOTVersionSQL,
-    table='trips_end_count',
+    query=sql.tripsEndByIOTVersionSQL,
+    table='trips_count_5m_mv',
   ),
 };
 

@@ -20,8 +20,8 @@ local cityPanel(cityId, cityName) =
       target.target(
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
-        query="SELECT $timeSeries as t, max(trip_start_count), max(lowerbound_2Z_today), max(median_wow) FROM $table WHERE $timeFilter AND d.city_id='"+cityId+"' GROUP BY t ORDER BY t",
-        table='trips_start_count_wow_30m_by_city',
+        query="SELECT $timeSeries as t, sum(count), max(lowerbound_2Z_today), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        table='trips_wow_final_30m_v',
       )
     ]);
 

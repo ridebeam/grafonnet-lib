@@ -20,8 +20,8 @@ local cityPanel(cityId, cityName) =
       target.target(
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
-        query="SELECT $timeSeries AS t, sum(count) as c FROM $table  WHERE $timeFilter and city_id='"+cityId+"' GROUP BY t ORDER BY t ASC",
-        table='trips_start_count',
+        query="SELECT $timeSeries AS t, countMerge(count) as c FROM $table WHERE $timeFilter and event_name = 'TRIP_START_SUCCESS' and city_id='"+cityId+"' GROUP BY t ORDER BY t ASC",
+        table='trips_count_5m_mv',
       )
     ]);
 
