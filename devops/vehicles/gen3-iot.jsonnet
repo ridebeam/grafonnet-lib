@@ -197,13 +197,19 @@ local panels = {
   },
   systemDelay: {
     ecuLockUnlockDelay: panel.timeLinear('ECU Lock Delay').addTargets([
-      targets.systemDelay.ecuLockUnlockDelay,
+      targets.systemDelay.ecuLockUnlockDelay.p99,
+      targets.systemDelay.ecuLockUnlockDelay.p95,
+      targets.systemDelay.ecuLockUnlockDelay.p50,
     ]),
     batteryLockDelay: panel.timeLinear('Battery Lock Delay').addTargets([
-      targets.systemDelay.batteryLockDelay,
+      targets.systemDelay.batteryLockDelay.p99,
+      targets.systemDelay.batteryLockDelay.p95,
+      targets.systemDelay.batteryLockDelay.p50,
     ]),
     helmetLockDelay: panel.timeLinear('Helmet Lock Delay').addTargets([
-      targets.systemDelay.helmetLockDelay,
+      targets.systemDelay.helmetLockDelay.p99,
+      targets.systemDelay.helmetLockDelay.p95,
+      targets.systemDelay.helmetLockDelay.p50,
     ]),
   },
   volumeTraffic: {
