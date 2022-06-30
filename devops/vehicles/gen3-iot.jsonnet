@@ -11,7 +11,7 @@ local target = helpers.target;
 local panel = helpers.panel;
 
 local filters = {
-  manufacturer: target.equalsFilter('manufacturer', '$manufacturer'),
+  manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
   model: target.likeFilter('vehicle_model', '$vehicle_model'),
 };

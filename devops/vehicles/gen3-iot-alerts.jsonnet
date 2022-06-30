@@ -17,7 +17,7 @@ local filterVehicleWatchdog = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
   target.equalsFilter('service', 'vehicle-watchdog'),
 );
-local filterGen3IoT = target.equalsFilter('manufacturer', 'omnigen3');
+local filterGen3IoT = target.likeFilter('manufacturer', 'omnigen3');
 local globalFilter = target.combineFilters(filterIotServer, filterGen3IoT);
 
 
