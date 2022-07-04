@@ -14,16 +14,54 @@ local cityIdcountryName = import '../../data/prod-cityId-countryName.json';
 local cityIds = std.objectFields(cityIdCityName);
 local countryNames = std.set(std.objectValues(cityIdcountryName));
 
+local alertConditions = {
+  trips_start_by_city_threshold: {
+    type: 'query',
+    query: {
+      params: [
+        'B',
+        '5m',
+        'now'
+      ]
+    },
+    reducer: {
+      type: 'diff',
+      params: []
+    },
+    evaluator: {
+      type: 'gt',
+      params: [
+        0
+      ]
+    },
+    operator: {
+      type: 'and'
+    }
+  }   
+};
+
 local cityPanel(cityId, cityName) =
   panel.new(title='Number of trips start at ' + cityName, time_shift='5m')
     .addTargets([
       target.target(
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
-        query="SELECT $timeSeries as t, sum(count), max(lowerbound_2Z_today), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
-        table='trips_wow_final_30m_v',
-      )
-    ]);
+        query="SELECT $timeSeries as t, countMerge(count), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        table='final_30',
+      ),
+      target.target(
+        database='live_business',
+        datasourceUID=clickhouse.dataSourceUIDProd,        
+        query="SELECT $timeSeries as t, max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        table='final_30',
+      ),
+    ])
+    .addAlert(
+      name='Number of trips start at ' + cityName + 'below threshold',
+      notifications=[{ uid: 'QVVrMvj7z' }],
+      forDuration='5m',
+    )
+    .addConditions([alertConditions.trips_start_by_city_threshold]);
 
 local panels(countryName) = {
   panels: [
