@@ -58,8 +58,8 @@ local cityPanel(cityId, cityName) =
     ])
     .addAlert(
       name='Number of trips start at ' + cityName + 'below threshold',
-      notifications=[{ uid: 'QVVrMvj7z' }],
       forDuration='5m',
+      frequency='30m',
     )
     .addConditions([alertConditions.trips_start_by_city_threshold]);
 
