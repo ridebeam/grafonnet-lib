@@ -25,11 +25,11 @@ local alertConditions = {
       ]
     },
     reducer: {
-      type: 'diff',
+      type: 'avg',
       params: []
     },
     evaluator: {
-      type: 'gt',
+      type: 'lt',
       params: [
         0
       ]
@@ -52,14 +52,14 @@ local cityPanel(cityId, cityName) =
       target.target(
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
-        query="SELECT $timeSeries as t, max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        query="SELECT $timeSeries as t, countMerge(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
         table='final_30',
       ),
     ])
     .addAlert(
-      name='Number of trips end at ' + cityName + 'below threshold',
+      name='Number of trips end at ' + cityName + ' is below threshold',
       forDuration='5m',
-      frequency='30m',
+      frequency='5m',
     )
     .addConditions([alertConditions.trips_end_by_city_threshold]);
 
