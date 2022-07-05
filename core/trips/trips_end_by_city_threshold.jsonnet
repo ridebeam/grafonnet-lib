@@ -20,7 +20,7 @@ local alertConditions = {
     query: {
       params: [
         'B',
-        '5m',
+        '30m',
         'now'
       ]
     },
@@ -58,7 +58,7 @@ local cityPanel(cityId, cityName) =
     ])
     .addAlert(
       name='Number of trips end at ' + cityName + ' is below threshold',
-      forDuration='5m',
+      forDuration='1m',
       frequency='5m',
       notifications=[{ uid: 'QVVrMvj7z' }],
     )
