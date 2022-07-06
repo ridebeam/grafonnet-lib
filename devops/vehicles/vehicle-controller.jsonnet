@@ -48,6 +48,8 @@ local targets = {
       metric='state-changed-latency',
       groupBys=['state_name'],
     ),
+    vehicleRepoFlushes: target.timers('vehicle-repository-flush-duration'),
+    lookupSettingResolveDuration: target.timers('lookup-settings-resolve'),
     changes: target.counter(
       metric='state-changed',
       groupBys=['state_name'],
@@ -117,6 +119,14 @@ local panels = {
       targets.state.flushAmount.avg,
       targets.state.flushAmount.max,
     ]),
+    vehicleRepoFlushes: panel.timeLinear('Vehicle Repo Flush duration').addTargets([
+      targets.state.vehicleRepoFlushes.p50,
+      targets.state.vehicleRepoFlushes.p99,
+    ]),
+    lookupSettingResolveDuration: panel.timeLinear('lookup setting resolve duration').addTargets([
+       targets.state.lookupSettingResolveDuration.p50,
+       targets.state.lookupSettingResolveDuration.p99,
+     ]),
     changeTimeP50: panel.timeLog2('Latency p50').addTargets([
       targets.state.changeTime.p50,
     ]),
@@ -185,6 +195,8 @@ local rows = {
       panels.state.processingTime,
       panels.state.flushes,
       panels.state.flushAmount,
+      panels.state.vehicleRepoFlushes,
+      panels.state.lookupSettingResolveDuration,
     ]
   ] + [
     panel.halfRow(p)
