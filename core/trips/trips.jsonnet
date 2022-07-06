@@ -4,6 +4,7 @@ local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
+local alertsHelper = import '../../helper/alerts.libsonnet';
 local sql = import './sql.libsonnet';
 
 local helpers = clickhouse.init();
@@ -196,7 +197,7 @@ local panels = {
     .addAlert(
       name='Number of trips start globally alert',
       message='Trips start are low globally (<40)',
-      notifications=[{ uid: 'QVVrMvj7z' }],
+      notifications=[alertsHelper.slackBusinessMonitoring],
     )
     .addConditions([alertConditions.allTripsStart]),
 
@@ -204,7 +205,7 @@ local panels = {
     .addTargets([targets.tripsStartByCity])
     .addAlert(
       name='Number of trips start by city ID alert',
-      notifications=[{ uid: 'QVVrMvj7z' }],
+      notifications=[alertsHelper.slackBusinessMonitoring],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsStartByCity]),
@@ -213,7 +214,7 @@ local panels = {
     .addTargets([targets.tripsStartByIOTVersion])
     .addAlert(
       name='Number of trips start by IOT version alert',
-      notifications=[{ uid: 'QVVrMvj7z'}],
+      notifications=[alertsHelper.slackBusinessMonitoring],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsStartByIOTVersion]),    
@@ -223,7 +224,7 @@ local panels = {
     .addAlert(
       name='Number of trips end globally alert',
       message='Trips end are low globally (<40)',
-      notifications=[{ uid: 'QVVrMvj7z'}],
+      notifications=[alertsHelper.slackBusinessMonitoring],
     )
     .addConditions([alertConditions.allTripsEnd]),
 
@@ -231,7 +232,7 @@ local panels = {
     .addTargets([targets.tripsEndByCity])
     .addAlert(
       name='Number of trips end by city ID alert',
-      notifications=[{ uid: 'QVVrMvj7z' }],
+      notifications=[alertsHelper.slackBusinessMonitoring],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsEndByCity]),
@@ -240,7 +241,7 @@ local panels = {
     .addTargets([targets.tripsEndByIOTVersion])
     .addAlert(
       name='Number of trips end by IOT version alert',
-      notifications=[{ uid: 'QVVrMvj7z' }],
+      notifications=[alertsHelper.slackBusinessMonitoring],
       forDuration='1h',
     )
     .addConditions([alertConditions.tripsEndByIOTVersion]),

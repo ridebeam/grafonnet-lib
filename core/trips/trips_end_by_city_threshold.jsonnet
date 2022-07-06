@@ -4,6 +4,7 @@ local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
+local alertsHelper = import '../../helper/alerts.libsonnet';
 
 local helpers = clickhouse.init();
 local target = helpers.target;
@@ -60,7 +61,7 @@ local cityPanel(cityId, cityName) =
       name='Number of trips end at ' + cityName + ' is below threshold',
       forDuration='1m',
       frequency='5m',
-      notifications=[{ uid: 'QVVrMvj7z' }],
+      notifications=[alertsHelper.slackBusinessMonitoring],
     )
     .addConditions([alertConditions.trips_end_by_city_threshold]);
 
