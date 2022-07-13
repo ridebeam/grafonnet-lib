@@ -48,12 +48,14 @@ local cityPanel(cityId, cityName) =
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
         query="SELECT $timeSeries as t, countMerge(count), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        formattedQuery="SELECT $timeSeries as t, countMerge(count), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
         table='final_30',
       ),
       target.target(
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
         query="SELECT $timeSeries as t, countMerge(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
+        formattedQuery="SELECT $timeSeries as t, countMerge(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id='"+cityId+"' GROUP BY t ORDER BY t",
         table='final_30',
       ),
     ])
@@ -62,6 +64,7 @@ local cityPanel(cityId, cityName) =
       forDuration='1m',
       frequency='5m',
       notifications=[alertsHelper.slackBusinessMonitoring],
+      executionErrorState='keep_state',
     )
     .addConditions([alertConditions.trips_end_by_city_threshold]);
 

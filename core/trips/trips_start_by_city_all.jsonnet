@@ -21,6 +21,7 @@ local cityPanel(cityId, cityName) =
         database='live_business',
         datasourceUID=clickhouse.dataSourceUIDProd,        
         query="SELECT $timeSeries AS t, countMerge(count) as c FROM $table WHERE $timeFilter and event_name = 'TRIP_START_SUCCESS' and city_id='"+cityId+"' GROUP BY t ORDER BY t ASC",
+        formattedQuery="SELECT $timeSeries AS t, countMerge(count) as c FROM $table WHERE $timeFilter and event_name = 'TRIP_START_SUCCESS' and city_id='"+cityId+"' GROUP BY t ORDER BY t ASC",
         table='trips_count_5m_mv',
       )
     ]);
