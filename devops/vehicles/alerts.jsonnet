@@ -61,6 +61,18 @@ local alertDefinitions = [
           TODO
         |||,
       },
+      {
+        title: 'invalid-mileage',
+        counter: {
+          name: 'invalid-mileage-value',
+            filters: filterIotServer
+          },
+        threshold: 2,
+        thresholdType: 'gt',
+        message: |||
+          Vehicles with invalid mileage rising more than expected
+        |||,
+      },
     ],
   },
   {
