@@ -15,6 +15,7 @@
     datasourceUID,
     table,
     query,
+    formattedQuery,
     format='time_series',
   ):: {
     database: database,
@@ -35,5 +36,6 @@
     intervalFactor: 1,
     dateTimeType: 'DATETIME',
     query: query,
+    formattedQuery: formattedQuery,
   },
 }
