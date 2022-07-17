@@ -12,6 +12,29 @@ local panel = helpers.panel;
 
 
 local alertConditions = {
+  trips_by_city_threshold: {
+    type: 'query',
+    query: {
+      params: [
+        'A',
+        '30m',
+        'now',
+      ],
+    },
+    reducer: {
+      type: 'avg',
+      params: [],
+    },
+    evaluator: {
+      type: 'lt',
+      params: [
+        0,
+      ],
+    },
+    operator: {
+      type: 'and',
+    },
+  },
   trips_peskin_ratio: {
     type: 'query',
     query: {
@@ -38,6 +61,24 @@ local alertConditions = {
 };
 
 local panels = {
+  trips_start_threshold: panel.new(title='Trips start -1 stddev', time_shift='5m')
+                         .addTargets([
+    target.target(
+      database='jwebb',
+      datasourceUID=clickhouse.dataSourceUIDProd,
+      query="SELECT $timeSeries as t, toString(city_id) as city_id, max(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, toString(city_id) as city_id, max(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
+      table='trips_start_wow_final_v',
+    ),
+  ])
+                         .addAlert(
+    name='Trips start below threshold 1 stddev',
+    forDuration='1m',
+    frequency='5m',
+    notifications=[alertsHelper.slackBusinessMonitoring],
+    executionErrorState='keep_state',
+  )
+                         .addConditions([alertConditions.trips_by_city_threshold]),
   trips_peskin_ratio: panel.new(title="Trips' Peskin Ratio")
                       .addTargets([
     target.target(
@@ -61,6 +102,9 @@ local panels = {
 };
 
 local rows = {
+  trips_start_with_threshold: row.new('Trips start with threshold').addPanels([
+    panel.fullRow(panels.trips_start_threshold),
+  ]),
   trips_peskin_ratio: row.new('Trips Peskin Ratio').addPanels([
     panel.fullRow(panels.trips_peskin_ratio),
   ]),
@@ -77,5 +121,6 @@ grafana.dashboard.new(
 )
 
 .addRows([
+  rows.trips_start_with_threshold,
   rows.trips_peskin_ratio,
 ])
