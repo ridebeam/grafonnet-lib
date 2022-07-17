@@ -66,8 +66,8 @@ local panels = {
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, toString(city_id) as city_id, max(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
-      formattedQuery="SELECT $timeSeries as t, toString(city_id) as city_id, max(count) - max(threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
+      query="SELECT $timeSeries as t, toString(city_id) as city_id, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, toString(city_id) as city_id, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
       table='trips_start_wow_final_v',
     ),
   ])
