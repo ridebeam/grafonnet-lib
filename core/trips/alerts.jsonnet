@@ -51,7 +51,7 @@ local alertConditions = {
     evaluator: {
       type: 'gt',
       params: [
-        0.1,
+        0.05,
       ],
     },
     operator: {
