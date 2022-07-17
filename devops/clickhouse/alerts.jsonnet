@@ -42,12 +42,12 @@ local alertDefinitions = [
         message: 'no processes are running',
       },
       {
-        title: 'Processes blocked > 0',
+        title: 'Processes blocked > 15',
         gauge: {
           name: 'ClickHouseAsyncMetrics_OSProcessesBlocked',
           func: target.gaugeFuncs.max.func,
         },
-        threshold: 0,
+        threshold: 15,
         reducerType: 'max',
         evaluateFor: '30m',
         evaluateEvery: '1m',
