@@ -74,9 +74,8 @@ local panels = {
                          .addAlert(
     name='Trips start below threshold 1 stddev',
     forDuration='1m',
-    frequency='5m',
+    frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
-    executionErrorState='keep_state',
   )
                          .addConditions([alertConditions.trips_by_city_threshold]),
   trips_peskin_ratio: panel.new(title="Trips' Peskin Ratio")
@@ -93,10 +92,8 @@ local panels = {
     name='Trips peskin ratio  alert',
     message='Peskin ratio  is above 0.1, number of failed trips are greater than 10% of successful trips in the last 30 minutes.',
     forDuration='1m',
-    frequency='5m',
+    frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
-    executionErrorState='keep_state',
-    noDataState='keep_state',
   )
                       .addConditions([alertConditions.trips_peskin_ratio]),
 };
