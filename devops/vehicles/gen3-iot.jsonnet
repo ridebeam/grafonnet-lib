@@ -342,7 +342,7 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='manufacturer',
-    query='omni,okai,omnigen3',
+    query='omni,okai,omnigen3,omniat',
     allValues='.*',
     current='All',
     includeAll=true,
