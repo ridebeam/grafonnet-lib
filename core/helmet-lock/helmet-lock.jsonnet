@@ -12,7 +12,7 @@ local panel = helpers.panel;
 
 local targets = {
   tasksCount: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.tasksCountSQL,
     formattedQuery=sql.tasksCountSQL,
