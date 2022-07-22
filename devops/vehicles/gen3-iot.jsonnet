@@ -13,11 +13,13 @@ local panel = helpers.panel;
 
 local filters = {
   manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
+  manufacture: target.likeFilter('manufacture', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
   model: target.likeFilter('vehicle_model', '$vehicle_model'),
 };
 
 local commonFilters = target.combineFilters(filters.model, target.combineFilters(filters.manufacturer, filters.firmware));
+local commonAPIFilters = target.combineFilters(filters.model, target.combineFilters(filters.manufacture, filters.firmware));
 local beamAPIFilter = target.likeFilter('service', 'api|messaging');
 
 local targets = {
@@ -121,64 +123,64 @@ local targets = {
     startTrip: target.counter(
       metric='start-trip',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     startTripHelmetUnlocked: target.counter(
       metric='trip-helmet-unlock',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     riderEndTripLocked: target.counter(
       metric='rider-end-trip-lock-success',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     adminEndTripLocked: target.counter(
       metric='admin-end-trip-lock-success',
       withServiceFilters=false,
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     riderTripReview1: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), commonFilters)
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), commonAPIFilters)
     ),
     riderTripReview2: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), commonFilters)
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), commonAPIFilters)
     ),
     riderTripReview3: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), commonFilters)
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), commonAPIFilters)
     ),
     riderTripReview4: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), commonFilters)
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), commonAPIFilters)
     ),
     riderTripReview5: target.counter(
       metric='rider-trip-review',
       withServiceFilters=false,
-      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), commonFilters)
+      filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), commonAPIFilters)
     ),
   },
   businessLatency: {
     vehicleUnlockLatency: target.timers(
       withServiceFilters=false,
       metric='start-trip-timing',
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     batteryHatchUnlockLatency: target.timers(
       withServiceFilters=false,
       metric='battery-hatch-open-latency',
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     helmetUnlockLatency: target.timers(
       withServiceFilters=false,
       metric='helmet-unlock-latency',
-      filters=target.combineFilters(beamAPIFilter, commonFilters)
+      filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
   },
 };
