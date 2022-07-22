@@ -65,6 +65,58 @@ local alertDefinitions = [
         |||,
       },
 
+      {
+        title: 'battery unlock command error',
+        counter: {
+          name: 'a200-unlock-battery-failure',
+          filters: globalFilter,
+        },
+        threshold: 2,
+        noDataState: 'ok',
+        message: |||
+          battery unlock rto command error
+        |||,
+      },
+
+      {
+        title: 'a200 illegal disassembly alarm',
+        counter: {
+          name: 'a200-illegal-disassembly-alarm',
+          filters: globalFilter,
+        },
+        threshold: 2,
+        noDataState: 'ok',
+        message: |||
+          a200 illegal disassembly alarm
+        |||,
+      },
+
+      {
+        title: 'a200 unlock command failure',
+        counter: {
+          name: 'a200-unlock-failure',
+          filters: globalFilter,
+        },
+        threshold: 2,
+        noDataState: 'ok',
+        message: |||
+          a200 unlock command failure
+        |||,
+      },
+
+
+      {
+        title: 'a200 lock command failure',
+        counter: {
+          name: 'a200-lock-failure',
+          filters: globalFilter,
+        },
+        threshold: 2,
+        noDataState: 'ok',
+        message: |||
+          a200 lock command failure
+        |||,
+      },
 
       {
         title: 'helmet lock unlock error',
@@ -123,22 +175,6 @@ local alertDefinitions = [
           Seeing Omni AT disconnection count exceeds threshold
         |||,
       },
-
-
-      {
-        title: 'ecu lock unlock delay',
-        timer: {
-          name: 'unlock-via-power-control-duration',
-          filters: globalFilter,
-        },
-        format: 's',
-        threshold: 15,
-        noDataState: 'ok',
-        message: |||
-          Seeing Omni AT IoT ecu lock unlock timing exceeds threshold
-        |||,
-      },
-
 
       {
         title: 'helmet lock delay',

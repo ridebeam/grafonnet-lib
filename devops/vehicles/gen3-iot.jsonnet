@@ -1,3 +1,4 @@
+// TODO: rename this file to vehicle deployment monitoring
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local graphPanel = grafana.graphPanel;
 local cloudwatch = grafana.cloudwatch;
@@ -16,63 +17,78 @@ local filters = {
   model: target.likeFilter('vehicle_model', '$vehicle_model'),
 };
 
-local commonFilters = target.combineFilters(filters.model,target.combineFilters(filters.manufacturer, filters.firmware));
+local commonFilters = target.combineFilters(filters.model, target.combineFilters(filters.manufacturer, filters.firmware));
 local beamAPIFilter = target.likeFilter('service', 'api|messaging');
 
 local targets = {
   systemError: {
+    // lock unlock errors
     ecuLockUnlockError: target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'ecuLock'), commonFilters),
+      filters=target.combineFilters(target.equalsFilter('state_name', 'ecuLock'), commonFilters),
     ),
-    batteryHatchUnlockError:  target.counter(
+    batteryHatchUnlockError: target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'batteryLock'), commonFilters),
+      filters=target.combineFilters(target.equalsFilter('state_name', 'batteryLock'), commonFilters),
     ),
-    helmetUnlockError:  target.counter(
+    helmetUnlockError: target.counter(
       metric='action-error',
-      filters=target.combineFilters(target.equalsFilter('state', 'helmetLock'), commonFilters),
+      filters=target.combineFilters(target.equalsFilter('state_name', 'helmetLock'), commonFilters),
     ),
-    invalidLocation:  target.counter(
+    // invalid data
+    invalidLocation: target.counter(
       metric='invalid-location',
       filters=commonFilters,
     ),
-    invalidBatteryPercentage:  target.counter(
+    invalidBatteryPercentage: target.counter(
       metric='invalid-battery-percentage',
       filters=commonFilters,
     ),
-    invalidWheelSpeed:  target.counter(
+    invalidWheelSpeed: target.counter(
       metric='invalid-wheel-speed',
       filters=commonFilters,
     ),
-    errorReport:  target.counter(
+    invalidMileage: target.counter(
+      metric='invalid-mileage-value',
+      filters=commonFilters,
+    ),
+    // error codes
+    errorReport: target.counter(
       metric='error-report',
       filters=commonFilters,
     ),
-    clearError:  target.counter(
+    clearError: target.counter(
       metric='clear-error',
       filters=commonFilters,
     ),
-    alarmReport:  target.counter(
+    // alarms
+    alarmReport: target.counter(
       metric='alarm-report',
       filters=commonFilters,
     ),
+    // disconnection
     disconnection: target.counter(
       metric='disconnection',
       filters=commonFilters,
     ),
-    flashFirmwareError:  target.counter(
+    // firmware errors
+    flashFirmwareError: target.counter(
       metric='flash-firmware-error',
       filters=commonFilters,
     ),
-    messageError:  target.counter(
-      metric='adapter-incoming-panic',
+    // message parsing errors
+    messageError: target.counter(
+      metric='adapter-incoming-error',
       filters=commonFilters,
     ),
   },
   systemDelay: {
     ecuLockUnlockDelay: target.timers(
       metric='unlock-via-power-control-duration',
+      filters=commonFilters,
+    ),
+    ecuLockUnlockLatency: target.timers(
+      metric='ecu-unlock-timing',
       filters=commonFilters,
     ),
     batteryLockDelay: target.timers(
@@ -87,7 +103,7 @@ local targets = {
   volumeTraffic: {
     countAll: target.gauges(
       'vehicle-connected-count',
-      filters=target.combineFilters(filters.model,filters.manufacturer),
+      filters=target.combineFilters(filters.model, filters.manufacturer),
       withServiceFilters=false,
     ),
     received: target.counter(
@@ -149,22 +165,22 @@ local targets = {
     ),
   },
   businessLatency: {
-      vehicleUnlockLatency: target.timers(
-        withServiceFilters=false,
-        metric='start-trip-timing',
-        filters=target.combineFilters(beamAPIFilter,commonFilters)
-      ),
-      batteryHatchUnlockLatency: target.timers(
-        withServiceFilters=false,
-        metric='battery-hatch-open-latency',
-        filters=target.combineFilters(beamAPIFilter,commonFilters)
-      ),
-      helmetUnlockLatency: target.timers(
-        withServiceFilters=false,
-        metric='helmet-unlock-latency',
-        filters=target.combineFilters(beamAPIFilter,commonFilters)
-      ),
-    },
+    vehicleUnlockLatency: target.timers(
+      withServiceFilters=false,
+      metric='start-trip-timing',
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
+    ),
+    batteryHatchUnlockLatency: target.timers(
+      withServiceFilters=false,
+      metric='battery-hatch-open-latency',
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
+    ),
+    helmetUnlockLatency: target.timers(
+      withServiceFilters=false,
+      metric='helmet-unlock-latency',
+      filters=target.combineFilters(beamAPIFilter, commonFilters)
+    ),
+  },
 };
 
 local panels = {
@@ -177,6 +193,8 @@ local panels = {
     invalidData: panel.counter('Invalid Data').addTargets([
       targets.systemError.invalidLocation,
       targets.systemError.invalidWheelSpeed,
+      targets.systemError.invalidBatteryPercentage,
+      targets.systemError.invalidMileage,
     ]),
     errorCodes: panel.counter('Error Codes').addTargets([
       targets.systemError.errorReport,
@@ -200,6 +218,11 @@ local panels = {
       targets.systemDelay.ecuLockUnlockDelay.p99,
       targets.systemDelay.ecuLockUnlockDelay.p95,
       targets.systemDelay.ecuLockUnlockDelay.p50,
+    ]),
+    ecuLockUnlockLatency: panel.timeLinear('ECU Lock / Unlock Latency').addTargets([
+      targets.systemDelay.ecuLockUnlockLatency.p99,
+      targets.systemDelay.ecuLockUnlockLatency.p95,
+      targets.systemDelay.ecuLockUnlockLatency.p50,
     ]),
     batteryLockDelay: panel.timeLinear('Battery Lock Delay').addTargets([
       targets.systemDelay.batteryLockDelay.p99,
@@ -245,22 +268,22 @@ local panels = {
     ]),
   },
   businessLatency: {
-      vehicleUnlockLatency: panel.timeLinear('Vehicle Unlock Latency').addTargets([
-        targets.businessLatency.vehicleUnlockLatency.p99,
-        targets.businessLatency.vehicleUnlockLatency.p95,
-        targets.businessLatency.vehicleUnlockLatency.p50,
-      ]),
-      batteryHatchUnlockLatency: panel.timeLinear('Battery Hatch Unlock Latency').addTargets([
-        targets.businessLatency.batteryHatchUnlockLatency.p99,
-        targets.businessLatency.batteryHatchUnlockLatency.p95,
-        targets.businessLatency.batteryHatchUnlockLatency.p50,
-      ]),
-      helmetUnlockLatency: panel.timeLinear('Helmet Unlock Latency').addTargets([
-        targets.businessLatency.helmetUnlockLatency.p99,
-        targets.businessLatency.helmetUnlockLatency.p95,
-        targets.businessLatency.helmetUnlockLatency.p50,
-      ]),
-    },
+    vehicleUnlockLatency: panel.timeLinear('Vehicle Unlock Latency').addTargets([
+      targets.businessLatency.vehicleUnlockLatency.p99,
+      targets.businessLatency.vehicleUnlockLatency.p95,
+      targets.businessLatency.vehicleUnlockLatency.p50,
+    ]),
+    batteryHatchUnlockLatency: panel.timeLinear('Battery Hatch Unlock Latency').addTargets([
+      targets.businessLatency.batteryHatchUnlockLatency.p99,
+      targets.businessLatency.batteryHatchUnlockLatency.p95,
+      targets.businessLatency.batteryHatchUnlockLatency.p50,
+    ]),
+    helmetUnlockLatency: panel.timeLinear('Helmet Unlock Latency').addTargets([
+      targets.businessLatency.helmetUnlockLatency.p99,
+      targets.businessLatency.helmetUnlockLatency.p95,
+      targets.businessLatency.helmetUnlockLatency.p50,
+    ]),
+  },
 };
 
 local rows = {
@@ -280,6 +303,7 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.systemDelay.ecuLockUnlockDelay,
+      panels.systemDelay.ecuLockUnlockLatency,
       panels.systemDelay.batteryLockDelay,
       panels.systemDelay.helmetLockDelay,
     ]
@@ -303,13 +327,13 @@ local rows = {
     ]
   ]),
   businessLatency: row.new('Business Latency').addPanels([
-      panel.halfRow(p)
-      for p in [
-        panels.businessLatency.vehicleUnlockLatency,
-        panels.businessLatency.batteryHatchUnlockLatency,
-        panels.businessLatency.helmetUnlockLatency,
-      ]
-    ]),
+    panel.halfRow(p)
+    for p in [
+      panels.businessLatency.vehicleUnlockLatency,
+      panels.businessLatency.batteryHatchUnlockLatency,
+      panels.businessLatency.helmetUnlockLatency,
+    ]
+  ]),
 };
 
 // Make sure uid matches the name of the file
