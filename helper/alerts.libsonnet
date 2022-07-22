@@ -18,6 +18,9 @@ local cwPanel = cwHelpers.panel;
   // configure webhook here: https://api.slack.com/apps/A02M0AZ8KEZ
   // https://api.slack.com/apps/A02M0AZ8KEZ/incoming-webhooks?success=1
   // find app on existing channel, and select `Add this app to a channel ...`
+
+  // go to https://grafana.devops.ridebeam.cloud/api/alert-notifications/lookup
+  // to get the uid of your notification channel
   slack: { uid: 'tcneVhOnz' },
   slackWarn: { uid: 'z_hJjK57z' },
   slackTest: { uid: '5th60Gc7z' },
@@ -27,6 +30,7 @@ local cwPanel = cwHelpers.panel;
   slackCompIntel: { uid: 'YoazTlw7z' },
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
+  opsgenieVehicles: { uid: '9NE5WPjnz' },
 
   coreSlackData: { uid: 'QVVrMvj7z' },
   slackBusinessMonitoring: { uid: 'iFPymc6nz' },
@@ -35,7 +39,8 @@ local cwPanel = cwHelpers.panel;
     productionAlerts: [$.slack, $.opsgenie],
     productionWarnings: [$.slackWarn],
     test: [$.slackTest],
-    opsGRAlerts: [$.slack, $.opsgenieOpsGR],
+    opsGRAlerts: [$.slackWarn, $.opsgenieOpsGR],
+    vehiclesAlerts: [$.slack, $.opsgenieVehicles],
   },
 
   alertDefaults:: {

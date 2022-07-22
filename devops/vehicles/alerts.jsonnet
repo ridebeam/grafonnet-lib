@@ -61,18 +61,6 @@ local alertDefinitions = [
           TODO
         |||,
       },
-      {
-        title: 'invalid-mileage',
-        counter: {
-          name: 'invalid-mileage-value',
-            filters: filterIotServer
-          },
-        threshold: 2,
-        thresholdType: 'gt',
-        message: |||
-          Vehicles with invalid mileage rising more than expected
-        |||,
-      },
     ],
   },
   {
@@ -154,22 +142,22 @@ local alertDefinitions = [
 
 local warningAlerts = [
   {
-      row: 'warnings',
-      alerts: [
-        {
-          title: 'invalid-mileage',
-          counter: {
-            name: 'invalid-mileage-value',
-              filters: filterIotServer
-            },
-          threshold: 2,
-          thresholdType: 'gt',
-          message: |||
-            Vehicles with invalid mileage rising more than expected
-          |||,
+    row: 'warnings',
+    alerts: [
+      {
+        title: 'invalid-mileage',
+        counter: {
+          name: 'invalid-mileage-value',
+          filters: filterIotServer,
         },
-      ],
-    }
+        threshold: 2,
+        thresholdType: 'gt',
+        message: |||
+          Vehicles with invalid mileage rising more than expected
+        |||,
+      },
+    ],
+  },
 ];
 
 // Make sure uid matches the name of the file
@@ -183,9 +171,17 @@ grafana.dashboard.new(
   tags=['generated'],
   editable=true,
 )
-.addRows(alerts.createRows(alertDefinitions))
-.addRows(alerts.createRows(warningAlerts, alerts.defaults {
-  alerts+: {
-    channels: alerts.notifications.productionWarnings,
-  }})
+.addRows(
+  alerts.createRows(alertDefinitions, alerts.defaults {
+    alerts+: {
+      channels: alerts.notifications.vehiclesAlerts,
+    },
+  })
+)
+.addRows(
+  alerts.createRows(warningAlerts, alerts.defaults {
+    alerts+: {
+      channels: alerts.notifications.productionWarnings,
+    },
+  })
 )
