@@ -73,7 +73,7 @@ local panels = {
   ])
                         .addAlert(
     name='Trips start below threshold 1 stddev of TODAY',
-    forDuration='1m',
+    forDuration='5m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoringWarning],
   )
@@ -91,7 +91,7 @@ local panels = {
   ])
                         .addAlert(
     name='Trips start below threshold 1 stddev of TODAY',
-    forDuration='1m',
+    forDuration='5m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
   )
@@ -109,7 +109,7 @@ local panels = {
   ])
                       .addAlert(
     name='Trips start below threshold 2 stddev of WOW',
-    forDuration='1m',
+    forDuration='5m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoringWarning],
   )
@@ -127,7 +127,7 @@ local panels = {
   ])
                       .addAlert(
     name='Trips start below threshold 2 stddev of WOW',
-    forDuration='1m',
+    forDuration='5m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
   )
@@ -139,15 +139,15 @@ local panels = {
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, toString(city_id) as city, sum(case when status_type = 'failed_rides' then count else 0 end) / sum(case when status_type = 'successful_rides' then count else 0 end) as peskin_ratio FROM $table WHERE $timeFilter GROUP BY city, t ORDER BY t",
+      query="SELECT $timeSeries as t, city_name, sum(case when status_type = 'failed_rides' then count else 0 end) / sum(case when status_type = 'successful_rides' then count else 0 end) as peskin_ratio FROM $table WHERE $timeFilter GROUP BY city_name, t ORDER BY t",
       table='trips_peskin_ratio_30m_v',
-      formattedQuery="SELECT $timeSeries as t, toString(city_id) as city, sum(case when status_type = 'failed_rides' then count else 0 end) / sum(case when status_type = 'successful_rides' then count else 0 end) as peskin_ratio FROM $table WHERE $timeFilter GROUP BY city, t ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, city_name, sum(case when status_type = 'failed_rides' then count else 0 end) / sum(case when status_type = 'successful_rides' then count else 0 end) as peskin_ratio FROM $table WHERE $timeFilter GROUP BY city_name, t ORDER BY t",
     ),
   ])
                       .addAlert(
     name='Trips peskin ratio  alert',
     message='Peskin ratio  is above 0.1, number of failed trips are greater than 10% of successful trips in the last 30 minutes.',
-    forDuration='1m',
+    forDuration='5m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
   )
