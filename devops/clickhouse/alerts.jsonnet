@@ -53,6 +53,19 @@ local alertDefinitions = [
         evaluateEvery: '1m',
         message: 'processes are blocked',
       },
+      {
+        title: 'Insert Query < 1',
+        gauge: {
+          name: 'ClickHouseProfileEvents_InsertQuery',
+          func: target.gaugeFuncs.max.func,
+        },
+        threshold: 1,
+        thresholdType: 'lt',
+        reducerType: 'max',
+        evaluateFor: '30m',
+        evaluateEvery: '1m',
+        message: 'no insert query on clickhouse',
+      },
     ],
   },
   {
