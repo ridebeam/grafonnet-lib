@@ -61,23 +61,79 @@ local alertConditions = {
 };
 
 local panels = {
-  trips_start_threshold: panel.new(title='Trips start -1 stddev', time_shift='5m')
-                         .addTargets([
+  trips_start_1Z_today: panel.new(title='Trips start -1 stddev of TODAY')
+                        .addTargets([
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, toString(city_id) as city_id, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
-      formattedQuery="SELECT $timeSeries as t, toString(city_id) as city_id, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t",
+      query="SELECT $timeSeries as t, city_name, max(count - lowerbound_1Z_today) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, city_name, max(count - lowerbound_1Z_today) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
       table='trips_start_wow_final_v',
     ),
   ])
-                         .addAlert(
-    name='Trips start below threshold 1 stddev',
+                        .addAlert(
+    name='Trips start below threshold 1 stddev of TODAY',
+    forDuration='1m',
+    frequency='1m',
+    notifications=[alertsHelper.slackBusinessMonitoringWarning],
+  )
+                        .addConditions([alertConditions.trips_by_city_threshold]),
+
+  trips_start_2Z_today: panel.new(title='Trips start -2 stddev of TODAY')
+                        .addTargets([
+    target.target(
+      database='jwebb',
+      datasourceUID=clickhouse.dataSourceUIDProd,
+      query="SELECT $timeSeries as t, city_name, max(count - lowerbound_2Z_today) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, city_name, max(count - lowerbound_2Z_today) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      table='trips_start_wow_final_v',
+    ),
+  ])
+                        .addAlert(
+    name='Trips start below threshold 1 stddev of TODAY',
     forDuration='1m',
     frequency='1m',
     notifications=[alertsHelper.slackBusinessMonitoring],
   )
-                         .addConditions([alertConditions.trips_by_city_threshold]),
+                        .addConditions([alertConditions.trips_by_city_threshold]),
+
+  trips_start_1Z_wow: panel.new(title='Trips start -1 stddev of WOW')
+                      .addTargets([
+    target.target(
+      database='jwebb',
+      datasourceUID=clickhouse.dataSourceUIDProd,
+      query="SELECT $timeSeries as t, city_name, max(count - lowerbound_1Z_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, city_name, max(count - lowerbound_1Z_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      table='trips_start_wow_final_v',
+    ),
+  ])
+                      .addAlert(
+    name='Trips start below threshold 2 stddev of WOW',
+    forDuration='1m',
+    frequency='1m',
+    notifications=[alertsHelper.slackBusinessMonitoringWarning],
+  )
+                      .addConditions([alertConditions.trips_by_city_threshold]),
+
+  trips_start_2Z_wow: panel.new(title='Trips start -2 stddev of WOW')
+                      .addTargets([
+    target.target(
+      database='jwebb',
+      datasourceUID=clickhouse.dataSourceUIDProd,
+      query="SELECT $timeSeries as t, city_name, max(count - lowerbound_2Z_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      formattedQuery="SELECT $timeSeries as t, city_name, max(count - lowerbound_2Z_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_name ORDER BY t",
+      table='trips_start_wow_final_v',
+    ),
+  ])
+                      .addAlert(
+    name='Trips start below threshold 2 stddev of WOW',
+    forDuration='1m',
+    frequency='1m',
+    notifications=[alertsHelper.slackBusinessMonitoring],
+  )
+                      .addConditions([alertConditions.trips_by_city_threshold]),
+
+
   trips_peskin_ratio: panel.new(title="Trips' Peskin Ratio")
                       .addTargets([
     target.target(
@@ -100,7 +156,13 @@ local panels = {
 
 local rows = {
   trips_start_with_threshold: row.new('Trips start with threshold').addPanels([
-    panel.fullRow(panels.trips_start_threshold),
+    panel.halfRow(p)
+    for p in [
+      panels.trips_start_1Z_today,
+      panels.trips_start_2Z_today,
+      panels.trips_start_1Z_wow,
+      panels.trips_start_1Z_wow,
+    ]
   ]),
   trips_peskin_ratio: row.new('Trips Peskin Ratio').addPanels([
     panel.fullRow(panels.trips_peskin_ratio),
