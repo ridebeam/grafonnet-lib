@@ -161,7 +161,7 @@ local rows = {
       panels.trips_start_1Z_today,
       panels.trips_start_2Z_today,
       panels.trips_start_1Z_wow,
-      panels.trips_start_1Z_wow,
+      panels.trips_start_2Z_wow,
     ]
   ]),
   trips_peskin_ratio: row.new('Trips Peskin Ratio').addPanels([
