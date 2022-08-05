@@ -204,6 +204,7 @@ local alertDefinitions = [
         },
         format: 'ms',
         threshold: 10000,
+        queryTimeStart: '2m',
         evaluateFor: '10m',
         // TODO message
         message: |||
@@ -221,6 +222,8 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 60,
+        queryTimeStart: '2m',
+        evaluateFor: '10m',
         // TODO message
         message: |||
           TODO
