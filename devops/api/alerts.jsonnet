@@ -204,6 +204,7 @@ local alertDefinitions = [
         },
         format: 'ms',
         threshold: 10000,
+        evaluateFor: '10m',
         // TODO message
         message: |||
           TODO
