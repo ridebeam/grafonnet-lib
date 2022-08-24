@@ -15,7 +15,6 @@ local targets = {
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
     query=sql.tasksCountSQL,
-    formattedQuery=sql.tasksCountSQL,
     table='helmet_lock_tasks_count_v',
   ),
 };
