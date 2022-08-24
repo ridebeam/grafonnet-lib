@@ -5,6 +5,7 @@ local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
 local alertsHelper = import '../../helper/alerts.libsonnet';
+local sql = import './sql/trips_by_city.libsonnet';
 
 local helpers = clickhouse.init();
 local target = helpers.target;
@@ -70,13 +71,13 @@ local panels = {
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, max(count), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id = $city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_start_threshold_a,
       table='trips_start_wow_final_v',
     ),
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' AND city_id = $city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_start_threshold_b,
       table='trips_start_wow_final_v',
     ),
   ])
@@ -93,13 +94,13 @@ local panels = {
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, max(count), max(median_wow) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id = $city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_end_threshold_a,
       table='trips_end_wow_final_v',
     ),
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, max(count - threshold_1Z) FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' AND city_id = $city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_end_threshold_b,
       table='trips_end_wow_final_v',
     ),
   ])
@@ -116,13 +117,13 @@ local panels = {
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, sum(case when status_type = 'failed_rides' then count else 0 end) as failed_rides, sum(case when status_type = 'successful_rides' then count else 0 end) as successful_rides FROM $table WHERE $timeFilter AND city_id=$city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_peskin_ratio_a,
       table='trips_peskin_ratio_30m_v',
     ),
     target.target(
       database='jwebb',
       datasourceUID=clickhouse.dataSourceUIDProd,
-      query="SELECT $timeSeries as t, sum(case when status_type = 'failed_rides' then count else 0 end) / sum(case when status_type = 'successful_rides' then count else 0 end) as peskin_ratio FROM $table WHERE $timeFilter AND city_id=$city_id GROUP BY t, city_id ORDER BY t",
+      query=sql.trips_peskin_ratio_b,
       table='trips_peskin_ratio_30m_v',
     ),
   ])
