@@ -16,21 +16,10 @@ local alertDefs = [
     row: 'Success Rate',
     alerts: [
       {
-        title: '[UNET] Register Vehicles Success Percentage',
-        custom: {
-          name: 'register-vehicles-success-pct',
-          query: 'sum(register_vehicles_success{namespace="production"})/sum(register_vehicles_attempt{namespace="production"}) * 100',
-          alias: 'success registered vehicles',
-        },
-        threshold: 95,
-        thresholdType: 'lt',
-        message: 'Success ratio of registering vehicles is less than 95%',
-      },
-      {
         title: '[UNET] Add Trip',
         custom: {
           name: 'add-trip-success-rate',
-          query: 'sum(unet-add-ride-success{namespace="production"})/sum(unet-add-ride-attempt{namespace="production"}) * 100',
+          query: 'sum(rate(unet-add-ride-success{namespace="production"})[1m])/sum(rate(unet-add-ride-attempt{namespace="production"})[1m]) * 100',
           alias: 'success added trips',
         },
         threshold: 70,
@@ -41,7 +30,7 @@ local alertDefs = [
         title: '[UNET] Add Location',
         custom: {
           name: 'add-location-success-rate',
-          query: 'sum(unet-add-location-success{namespace="production"})/sum(unet-add-location-attempt{namespace="production"}) * 100',
+          query: 'sum(rate(unet-add-location-success{namespace="production"})[1m])/sum(rate(unet-add-location-attempt{namespace="production"})[1m]) * 100',
           alias: 'success added location',
         },
         threshold: 70,
