@@ -264,7 +264,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'Trips',
+  'Trips Monitoring',
   uid='jwebb_trips',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
