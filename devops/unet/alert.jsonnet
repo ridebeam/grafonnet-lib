@@ -19,7 +19,7 @@ local alertDefs = [
         title: '[UNET] Add Trip',
         custom: {
           name: 'add-trip-success-rate',
-          query: 'sum(rate(unet-add-ride-success{namespace="production"})[1m])/sum(rate(unet-add-ride-attempt{namespace="production"})[1m]) * 100',
+          query: 'sum(rate(unet_add_ride_success{namespace="production"})[1m])/sum(rate(unet_add_ride_attempt{namespace="production"})[1m]) * 100',
           alias: 'success added trips',
         },
         threshold: 70,
@@ -30,7 +30,7 @@ local alertDefs = [
         title: '[UNET] Add Location',
         custom: {
           name: 'add-location-success-rate',
-          query: 'sum(rate(unet-add-location-success{namespace="production"})[1m])/sum(rate(unet-add-location-attempt{namespace="production"})[1m]) * 100',
+          query: 'sum(rate(unet_add_location_success{namespace="production"})[1m])/sum(rate(unet_add_location_attempt{namespace="production"})[1m]) * 100',
           alias: 'success added location',
         },
         threshold: 70,
