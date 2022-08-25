@@ -5,7 +5,6 @@ local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
 local alertsHelper = import '../../helper/alerts.libsonnet';
-local sql = import './sql.libsonnet';
 
 local helpers = clickhouse.init();
 local target = helpers.target;
@@ -13,40 +12,40 @@ local panel = helpers.panel;
 
 local targets = {
   allTripsStart: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.allTripsStartSQL,
-    table='trips_count_5m_mv',
+    query="SELECT $timeSeries AS t, count() as count FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t ORDER BY t ASC ",
+    table='trips_count_5m_v',
   ),
   tripsStartByCity: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsStartByCitySQL,
-    table='trips_count_5m_mv'
+    query="SELECT $timeSeries AS t, count() as count FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' GROUP BY t ORDER BY t ASC ",
+    table='trips_count_5m_v'
   ),
   tripsStartByIOTVersion: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsStartByIOTVersionSQL,
-    table='trips_count_5m_mv'
+    query= "SELECT $timeSeries AS t, count() as c, city_id FROM $table WHERE $timeFilter AND event_name = 'TRIP_START_SUCCESS' GROUP BY t, city_id ORDER BY t ASC",
+    table='trips_count_5m_v'
   ),
   allTripsEnd: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.allTripsEndSQL,
-    table='trips_count_5m_mv',
+    query="SELECT $timeSeries AS t, count() as c, city_id FROM $table WHERE $timeFilter AND event_name = 'TRIP_END_SUCCESS' GROUP BY t, city_id ORDER BY t ASC",
+    table='trips_count_5m_v',
   ),
   tripsEndByCity: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tripsEndByCitySQL,
-    table='trips_count_5m_mv'
+    query="SELECT $timeSeries AS t, count() as c, iot_version FROM $table WHERE $timeFilter and event_name = 'TRIP_START_SUCCESS' GROUP BY t, iot_version ORDER BY t ASC",
+    table='trips_count_5m_v'
   ),
   tripsEndByIOTVersion: target.target(
-    database='live_business',
+    database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,    
-    query=sql.tripsEndByIOTVersionSQL,
-    table='trips_count_5m_mv',
+    query="SELECT $timeSeries AS t, count() as c, iot_version FROM $table WHERE $timeFilter and event_name = 'TRIP_END_SUCCESS' GROUP BY t, iot_version ORDER BY t ASC",
+    table='trips_count_5m_v',
   ),
 };
 

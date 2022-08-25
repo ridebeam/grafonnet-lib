@@ -4,7 +4,6 @@ local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
-local sql = import './sql.libsonnet';
 
 local helpers = clickhouse.init();
 local target = helpers.target;
@@ -14,7 +13,7 @@ local targets = {
   tasksCount: target.target(
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=sql.tasksCountSQL,
+    query="SELECT $timeSeries as t, max(count) FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
     table='helmet_lock_tasks_count_v',
   ),
 };
