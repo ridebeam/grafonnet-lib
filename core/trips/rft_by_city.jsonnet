@@ -19,7 +19,7 @@ local targets = {
   rftByCity: target.target(
         database='jwebb',
         datasourceUID=clickhouse.dataSourceUIDProd,
-        query='SELECT $timeSeries as t, max(count) FROM $table WHERE $timeFilter AND city_id = $city_id GROUP BY t, city_id ORDER BY t',
+        query='SELECT $timeSeries as t, max(count) FROM $table WHERE $timeFilter GROUP BY t, city_id ORDER BY t',
         table='rft_count_30m_v',
     ),
 };
