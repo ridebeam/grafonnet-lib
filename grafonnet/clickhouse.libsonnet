@@ -36,5 +36,6 @@
     dateTimeType: 'DATETIME',
     query: query,
     formattedQuery: query,
+    rawQuery: false,
   },
 }
