@@ -35,5 +35,6 @@
     intervalFactor: 1,
     dateTimeType: 'DATETIME',
     query: query,
+    formattedQuery: query,
   },
 }
