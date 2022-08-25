@@ -53,7 +53,7 @@ local alertConditions = {
   allTripsStart: {
     evaluator: {
       params: [
-        40
+        10
       ],
       type: 'lt'
     },
@@ -122,7 +122,7 @@ local alertConditions = {
   allTripsEnd: {
     evaluator: {
       params: [
-        40
+        10
       ],
       type: 'lt'
     },
@@ -195,7 +195,7 @@ local panels = {
     .addTargets([targets.allTripsStart])
     .addAlert(
       name='Number of trips start globally alert',
-      message='Trips start are low globally (<40)',
+      message='Trips start are low globally (<10)',
       notifications=[alertsHelper.slackBusinessMonitoring],
     )
     .addConditions([alertConditions.allTripsStart]),
@@ -222,7 +222,7 @@ local panels = {
     .addTargets([targets.allTripsEnd])
     .addAlert(
       name='Number of trips end globally alert',
-      message='Trips end are low globally (<40)',
+      message='Trips end are low globally (<10)',
       notifications=[alertsHelper.slackBusinessMonitoring],
     )
     .addConditions([alertConditions.allTripsEnd]),
