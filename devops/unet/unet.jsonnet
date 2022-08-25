@@ -54,9 +54,11 @@ local targets = {
   unetApi: {
     count: target.counter(
       metric='unet-api-request',
+      groupBys=['unet_api_path'],
     ),
     latency: target.timers(
       metric='unet-api-request-latency',
+      groupBys=['unet_api_path'],
     ),
   },
 };
