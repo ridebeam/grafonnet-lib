@@ -159,6 +159,7 @@ grafana.dashboard.new(
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
   tags=['generated'],
+  editable=true,
 )
 
 .addRows([
