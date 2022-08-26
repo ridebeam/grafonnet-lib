@@ -40,6 +40,17 @@ local targets = {
       metric='unet-add-location-timing',
     ),
   },
+  addStatus: {
+    attempt: target.counter(
+      metric='unet-vehicle-status-update-attempt',
+    ),
+    success: target.counter(
+      metric='unet-vehicle-status-update-success',
+    ),
+    timing: target.timers(
+      metric='unet-vehicle-status-update-timing',
+    ),
+  },
   errors: {
     getUserInfo: target.counter(
       metric='unet-get-user-info-error',
@@ -49,6 +60,9 @@ local targets = {
     ),
     addRideDbError: target.timers(
       metric='unet-failed-to-save-ride',
+    ),
+    addStatusError: target.counter(
+      metric='unet-vehicle-status-update-error'
     ),
   },
   unetApi: {
@@ -87,12 +101,22 @@ local panels = {
       targets.addLocation.timing.p95,
       targets.addLocation.timing.p50,
     ]),
+    addStatusCounts: panel.counter('Add Status Counts').addTargets([
+      targets.addStatus.attempt,
+      targets.addStatus.success,
+    ]),
+    addStatusLatency: panel.timeLinear('Add Status Latency').addTargets([
+      targets.addStatus.timing.p99,
+      targets.addStatus.timing.p95,
+      targets.addStatus.timing.p50,
+    ]),
   },
   errors: {
-    general: panel.counter('Get').addTargets([
+    general: panel.counter('Errors').addTargets([
       targets.errors.addRideApiError,
       targets.errors.addRideDbError,
       targets.errors.getUserInfo,
+      targets.errors.addStatusError,
     ]),
   },
   unetApi: {
@@ -161,6 +185,7 @@ grafana.dashboard.new(
   k8s.rows.service,
   rows.service,
   rows.unetApi,
+  rows.errors,
   panel.collapseRow(k8s.rows.grpc),
   panel.collapseRow(k8s.rows.postgres),
   panel.collapseRow(k8s.rows.kafka),

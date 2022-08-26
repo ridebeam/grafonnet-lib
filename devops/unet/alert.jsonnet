@@ -37,6 +37,17 @@ local alertDefs = [
         thresholdType: 'lt',
         message: 'Success ratio of adding location is less than 70%',
       },
+      {
+        title: '[UNET] Add Status',
+        custom: {
+          name: 'add-status-success-rate',
+          query: 'sum(rate(unet-vehicle-status-update-success{namespace="production"})[1m])/sum(rate(unet-vehicle-status-update-attempt{namespace="production"})[1m]) * 100',
+          alias: 'success added location',
+        },
+        threshold: 70,
+        thresholdType: 'lt',
+        message: 'Success ratio of adding status of vehicle is less than 70%',
+      },
     ],
   },
   {
