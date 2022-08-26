@@ -140,6 +140,8 @@ local rows = {
       panels.service.addRideLatency,
       panels.service.addLocationCounts,
       panels.service.addLocationLatency,
+      panels.service.addStatusCounts,
+      panels.service.addStatusLatency,
     ]
   ]),
   unetApi: row.new('Unet API').addPanels([
