@@ -12,8 +12,11 @@ local gcmon = grafana.googleCloudMonitoring;
     label(name):: 'metric.label.%s' % [name],
 
     equalsFilter(metric, value):: [metric, '=', value],
+    notEqualFilter(metric, value):: [metric, '!=', value],
     likeFilter(metric, value):: [metric, '=~', value],
+    notLikeFilter(metric, value):: [metric, '!~', value],
     combineFilters(a, b):: if std.length(a) > 0 && std.length(b) > 0 then a + ['AND'] + b else a + b,
+    combineFilterArray(arrayOfFilters):: std.join(['AND'], arrayOfFilters),
 
     envFilter: self.equalsFilter('resource.label.namespace_name', '$env'),
     serviceFilter: self.equalsFilter('resource.label.container_name', '$service'),

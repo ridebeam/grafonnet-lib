@@ -14,8 +14,11 @@ local prom = grafana.prometheus;
 
 
   equalsFilter(tag, value):: '%s="%s"' % [$.filterKey(tag), value],
+  notEqualFilter(tag, value):: '%s!="%s"' % [$.filterKey(tag), value],
   likeFilter(tag, value):: '%s=~"%s"' % [$.filterKey(tag), value],
+  notLikeFilter(tag, value):: '%s!~"%s"' % [$.filterKey(tag), value],
   combineFilters(a, b):: if std.length(a) > 0 && std.length(b) > 0 then a + ', ' + b else a + b,
+  combineFilterArray(arrayOfFilter):: std.join(', ', arrayOfFilter),
   targetFilters(filters, sf=true):: '{%s}' % [$.combineFilters(if sf then $.serviceFilters else '', filters)],
 
   envFilter: $.equalsFilter('namespace', '$env'),
