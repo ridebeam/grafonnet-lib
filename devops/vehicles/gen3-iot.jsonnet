@@ -19,7 +19,7 @@ local filters = {
   vehicleStatus: target.likeFilter('vehicle_status', '$vehicle_status')
 };
 
-local commonFilters = target.combineFilterArray([filters.model, filters.manufacturer, filters.firmware]);
+local commonFilters = target.combineFilterArray([filters.model, filters.manufacturer, filters.firmware, filters.vehicleStatus]);
 local commonAPIFilters = target.combineFilterArray([filters.model, filters.manufacture, filters.firmware]);
 local beamAPIFilter = target.likeFilter('service', 'api|messaging');
 
