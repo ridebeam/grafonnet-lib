@@ -26,6 +26,7 @@ local alertDefs = [
         threshold: 20,
         thresholdType: 'gt',
         message: 'Error ratio of adding trips is over 20%',
+        noDataState: 'ok',
       },
       {
         title: '[UNET] Add Location Error Rate',
@@ -38,6 +39,7 @@ local alertDefs = [
         threshold: 20,
         thresholdType: 'gt',
         message: 'Error ratio of adding location is over 20%',
+        noDataState: 'ok',
       },
       {
         title: '[UNET] Add Status Error',
@@ -50,6 +52,7 @@ local alertDefs = [
         threshold: 20,
         thresholdType: 'gt',
         message: 'Error ratio of adding status of vehicle is over 20%',
+        noDataState: 'ok',
       },
     ],
   },
@@ -95,6 +98,7 @@ local alertDefs = [
           alias: 'percentage rate of 5xx errors to rate of total requests',
         },
         threshold: 1,
+        noDataState: 'ok',
         message: 'Too many API requests failing with 5xx. Inspect Unet Overview-Unet Service to identify which api has issue',
       },
       {
@@ -106,6 +110,7 @@ local alertDefs = [
         },
         threshold: 5,
         message: 'Get User Info API failing frequently',
+        noDataState: 'ok',
       },
     ],
   },
