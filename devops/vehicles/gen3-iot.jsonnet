@@ -381,7 +381,7 @@ grafana.dashboard.new(
   template.new(
     name='firmware',
     datasource=null,
-    query='label_values(adapter_incoming, firmware)',
+    query='label_values(adapter_incoming{vehicle_status=~"rider|standy"}, firmware)',
     allValues='.*',
     current='All',
     includeAll=true,
@@ -394,7 +394,7 @@ grafana.dashboard.new(
   template.new(
     name='vehicle_model',
     datasource=null,
-    query='label_values(adapter_incoming, vehicle_model)',
+    query='label_values(adapter_incoming{vehicle_status=~"rider|standy"}, vehicle_model)',
     allValues='.*',
     current='All',
     includeAll=true,
@@ -405,7 +405,7 @@ grafana.dashboard.new(
   template.new(
     name='vehicle_status',
     datasource=null,
-    query='label_values(adapter_incoming, vehicle_status)',
+    query='rider,standy,operations,manual',
     allValues='.*',
     current='All',
     includeAll=true,
