@@ -20,8 +20,8 @@ local alertDefs = [
         custom: {
           name: 'add-trip-success-rate',
           query: 'sum(rate(unet_add_ride_error{namespace="production"})[1m])/sum(rate(unet_add_ride_attempt{namespace="production"})[1m]) * 100',
-          alias: 'success added trips',
-          intervalFactor: 3,
+          alias: 'error add trips',
+          intervalFactor: 2,
         },
         threshold: 20,
         thresholdType: 'gt',
@@ -32,8 +32,8 @@ local alertDefs = [
         custom: {
           name: 'add-location-success-rate',
           query: 'sum(rate(unet_add_location_error{namespace="production"})[1m])/sum(rate(unet_add_location_attempt{namespace="production"})[1m]) * 100',
-          alias: 'success added location',
-          intervalFactor: 3,
+          alias: 'error add location',
+          intervalFactor: 2,
         },
         threshold: 20,
         thresholdType: 'gt',
@@ -44,7 +44,7 @@ local alertDefs = [
         custom: {
           name: 'add-status-error-rate',
           query: 'sum(rate(unet_vehicle_status_update_error{namespace="production"})[1m])/sum(rate(unet_vehicle_status_update_attempt{namespace="production"})[1m]) * 100',
-          alias: 'success added location',
+          alias: 'error add status',
           intervalFactor: 2,
         },
         threshold: 20,
@@ -101,7 +101,7 @@ local alertDefs = [
         title: '[UNET] Beam API Get User Error',
         custom: {
           name: 'beam-api-get-user-error',
-          query: 'rate(unet_get_user_info_error{namespace="production"}[1m]))',
+          query: 'sum(rate(unet_get_user_info_error{namespace="production"}[1m]))',
           alias: 'rate of get user info api error',
         },
         threshold: 5,
