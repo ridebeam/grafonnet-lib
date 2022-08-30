@@ -16,6 +16,7 @@ local serviceFilter = target.combineFilters(
 
 local rateOf5xxErrorMessage = 'Over 1% of requests are resulting in 5xx errors for last 5 minutes';
 local rateOfBadDataErrorMessage = 'Rate of bad data in free bikes feed is over 1 count per second in last 5 minutes';
+local rateOfInvalidTripDistanceMessage = 'Rate of invalid trip distance is high. Check mileage reporting of iot';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
@@ -35,7 +36,7 @@ local alertDefinitions = [
     ],
   },
   {
-    row: 'Rate of Bad Errors',
+    row: 'Rate of Bad Vehicle Data Errors',
     alerts: [
       {
         title: '[External Data API] Rate of Bad Data Errors',
@@ -44,6 +45,20 @@ local alertDefinitions = [
         },
         threshold: 0,
         message: rateOfBadDataErrorMessage,
+        noDataState: 'ok',
+      },
+    ],
+  },
+  {
+    row: 'Rate of Invalid Trip Distance',
+    alerts: [
+      {
+        title: '[External Data API] Rate of Invalid Trip Distance',
+        counter: {
+          name: 'external-data-api_trip-invalid-distance',
+        },
+        threshold: 5,
+        message: rateOfInvalidTripDistanceMessage,
         noDataState: 'ok',
       },
     ],
