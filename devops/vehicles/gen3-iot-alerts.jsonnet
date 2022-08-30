@@ -18,7 +18,8 @@ local filterVehicleWatchdog = target.combineFilters(
   target.equalsFilter('service', 'vehicle-watchdog'),
 );
 local filterGen3IoT = target.likeFilter('manufacturer', 'omnigen3');
-local globalFilter = target.combineFilters(filterIotServer, filterGen3IoT);
+local filterDeployedVehicle = target.likeFilter('vehicle_status', 'rider|standby');
+local globalFilter = target.combineFilterArray([filterIotServer, filterGen3IoT, filterDeployedVehicle]);
 
 
 local alertDefaults = {

@@ -16,11 +16,10 @@ local filters = {
   manufacture: target.likeFilter('manufacture', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
   model: target.likeFilter('vehicle_model', '$vehicle_model'),
-  city: target.notEqualFilter('city_id', '223'), // ignore data from China factory
   vehicleStatus: target.likeFilter('vehicle_status', '$vehicle_status')
 };
 
-local commonFilters = target.combineFilterArray([filters.model, filters.manufacturer, filters.firmware, filters.city]);
+local commonFilters = target.combineFilterArray([filters.model, filters.manufacturer, filters.firmware]);
 local commonAPIFilters = target.combineFilterArray([filters.model, filters.manufacture, filters.firmware]);
 local beamAPIFilter = target.likeFilter('service', 'api|messaging');
 
@@ -381,7 +380,7 @@ grafana.dashboard.new(
   template.new(
     name='firmware',
     datasource=null,
-    query='label_values(adapter_incoming{vehicle_status=~"rider|standy"}, firmware)',
+    query='label_values(adapter_incoming, firmware)',
     allValues='.*',
     current='All',
     includeAll=true,
@@ -394,7 +393,7 @@ grafana.dashboard.new(
   template.new(
     name='vehicle_model',
     datasource=null,
-    query='label_values(adapter_incoming{vehicle_status=~"rider|standy"}, vehicle_model)',
+    query='label_values(adapter_incoming, vehicle_model)',
     allValues='.*',
     current='All',
     includeAll=true,

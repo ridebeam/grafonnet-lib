@@ -17,8 +17,11 @@ local filterVehicleWatchdog = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
   target.equalsFilter('service', 'vehicle-watchdog'),
 );
+
+local filterDeployedVehicle = target.likeFilter('vehicle_status', 'rider|standby');
 local filterMMX = target.equalsFilter('vehicle_model', 'NINEBOT_MODEL_MAX_PLUS_X');
-local globalFilter = target.combineFilters(filterIotServer, filterMMX);
+
+local globalFilter = target.combineFilterArray([filterIotServer, filterMMX, filterDeployedVehicle]);
 
 
 local alertDefaults = {
