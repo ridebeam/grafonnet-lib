@@ -380,7 +380,7 @@ grafana.dashboard.new(
   template.new(
     name='firmware',
     datasource=null,
-    query='label_values(adapter_incoming, firmware)',
+    query='label_values(adapter_incoming{city_id=""}, firmware)',
     allValues='.*',
     current='All',
     includeAll=true,
@@ -393,7 +393,7 @@ grafana.dashboard.new(
   template.new(
     name='vehicle_model',
     datasource=null,
-    query='label_values(adapter_incoming, vehicle_model)',
+    query='label_values(adapter_incoming{city_id=""}, vehicle_model)',
     allValues='.*',
     current='All',
     includeAll=true,
