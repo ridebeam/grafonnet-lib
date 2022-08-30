@@ -13,13 +13,13 @@ local filterService = target.combineFilters(
 
 local alertDefs = [
   {
-    row: 'Success Rate',
+    row: 'Error Rate',
     alerts: [
       {
         title: '[UNET] Add Trip Error Rate',
         custom: {
           name: 'add-trip-success-rate',
-          query: 'sum(rate(unet_add_ride_error{namespace="production"})[1m])/sum(rate(unet_add_ride_attempt{namespace="production"})[1m]) * 100',
+          query: '(sum(rate(unet_add_ride_error{namespace="production"})[1m]) OR vector(0)) / sum(rate(unet_add_ride_attempt{namespace="production"})[1m]) * 100',
           alias: 'error add trips',
           intervalFactor: 2,
         },
@@ -31,7 +31,7 @@ local alertDefs = [
         title: '[UNET] Add Location Error Rate',
         custom: {
           name: 'add-location-success-rate',
-          query: 'sum(rate(unet_add_location_error{namespace="production"})[1m])/sum(rate(unet_add_location_attempt{namespace="production"})[1m]) * 100',
+          query: '(sum(rate(unet_add_location_error{namespace="production"})[1m])  OR vector(0)) / sum(rate(unet_add_location_attempt{namespace="production"})[1m]) * 100',
           alias: 'error add location',
           intervalFactor: 2,
         },
@@ -43,7 +43,7 @@ local alertDefs = [
         title: '[UNET] Add Status Error',
         custom: {
           name: 'add-status-error-rate',
-          query: 'sum(rate(unet_vehicle_status_update_error{namespace="production"})[1m])/sum(rate(unet_vehicle_status_update_attempt{namespace="production"})[1m]) * 100',
+          query: '(sum(rate(unet_vehicle_status_update_error{namespace="production"})[1m]) OR vector(0)) / sum(rate(unet_vehicle_status_update_attempt{namespace="production"})[1m]) * 100',
           alias: 'error add status',
           intervalFactor: 2,
         },
