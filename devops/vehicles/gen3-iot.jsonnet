@@ -143,26 +143,31 @@ local targets = {
     ),
     riderTripReview1: target.counter(
       metric='rider-trip-review',
+      alias='1-star',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), commonAPIFilters)
     ),
     riderTripReview2: target.counter(
       metric='rider-trip-review',
+      alias='2-star',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), commonAPIFilters)
     ),
     riderTripReview3: target.counter(
       metric='rider-trip-review',
+      alias='3-star',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), commonAPIFilters)
     ),
     riderTripReview4: target.counter(
       metric='rider-trip-review',
+      alias='4-star',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), commonAPIFilters)
     ),
     riderTripReview5: target.counter(
       metric='rider-trip-review',
+      alias='5-star',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), commonAPIFilters)
     ),
