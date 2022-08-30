@@ -402,7 +402,7 @@ grafana.dashboard.new(
 )
 
 .addTemplate(
-  template.new(
+  template.custom(
     name='vehicle_status',
     query='rider,standy,operations,manual',
     allValues='.*',
