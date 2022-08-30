@@ -64,6 +64,9 @@ local targets = {
     addStatusError: target.counter(
       metric='unet-vehicle-status-update-error'
     ),
+    addLocationError: target.counter(
+      metric='unet-add-location-error'
+    ),
   },
   unetApi: {
     count: target.counter(
@@ -117,6 +120,7 @@ local panels = {
       targets.errors.addRideDbError,
       targets.errors.getUserInfo,
       targets.errors.addStatusError,
+      targets.errors.addLocationError,
     ]),
   },
   unetApi: {
