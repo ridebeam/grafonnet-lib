@@ -224,7 +224,7 @@ grafana.dashboard.new(
   template.new(
     name='firmware',
     datasource=null,
-    query='label_values(adapter_incoming, firmware)',
+    query='label_values(adapter_incoming{city_id=""}, firmware)',
     allValues='.*',
     current='All',
     includeAll=true,
