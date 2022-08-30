@@ -58,7 +58,7 @@ local targets = {
     addRideApiError: target.counter(
       metric='unet-add-ride-error',
     ),
-    addRideDbError: target.timers(
+    addRideDbError: target.counter(
       metric='unet-failed-to-save-ride',
     ),
     addStatusError: target.counter(

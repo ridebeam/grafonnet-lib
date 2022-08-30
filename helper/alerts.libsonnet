@@ -142,10 +142,13 @@ local cwPanel = cwHelpers.panel;
     withServiceFilters=false,
   )[metric.percentile],
 
-  createCustom(metric):: promTarget.target(
-    expr=metric.query,
-    legendFormat=metric.alias,
-  ),
+  createCustom(metric)::
+    local factor = if std.objectHas(metric, 'intervalFactor') then metric.intervalFactor else 1;
+    promTarget.target(
+      expr=metric.query,
+      legendFormat=metric.alias,
+      intervalFactor=factor,
+    ),
 
   createGCPCounter(metric)::
     metric.gcpHelpers.target.counter(
