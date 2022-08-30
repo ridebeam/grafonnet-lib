@@ -404,7 +404,6 @@ grafana.dashboard.new(
 .addTemplate(
   template.new(
     name='vehicle_status',
-    datasource=null,
     query='rider,standy,operations,manual',
     allValues='.*',
     current='All',
