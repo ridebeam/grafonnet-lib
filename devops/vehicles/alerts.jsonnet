@@ -155,6 +155,7 @@ local warningAlerts = [
         message: |||
           Vehicles with invalid mileage rising more than expected
         |||,
+        noDataState: 'ok',
       },
     ],
   },
