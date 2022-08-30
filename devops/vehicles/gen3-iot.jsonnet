@@ -142,27 +142,27 @@ local targets = {
       filters=target.combineFilters(beamAPIFilter, commonAPIFilters)
     ),
     riderTripReview1: target.counter(
-      metric='rider-trip-review-1',
+      metric='rider-trip-review',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 1)), commonAPIFilters)
     ),
     riderTripReview2: target.counter(
-      metric='rider-trip-review-2',
+      metric='rider-trip-review',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 2)), commonAPIFilters)
     ),
     riderTripReview3: target.counter(
-      metric='rider-trip-review-3',
+      metric='rider-trip-review',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 3)), commonAPIFilters)
     ),
     riderTripReview4: target.counter(
-      metric='rider-trip-review-4',
+      metric='rider-trip-review',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 4)), commonAPIFilters)
     ),
     riderTripReview5: target.counter(
-      metric='rider-trip-review-5',
+      metric='rider-trip-review',
       withServiceFilters=false,
       filters=target.combineFilters(target.combineFilters(beamAPIFilter, target.equalsFilter('trip_review', 5)), commonAPIFilters)
     ),
