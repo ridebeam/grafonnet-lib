@@ -43,6 +43,7 @@ local cwPanel = cwHelpers.panel;
     test: [$.slackTest],
     opsGRAlerts: [$.slackWarn, $.opsgenieOpsGR],
     vehiclesAlerts: [$.slack, $.opsgenieVehicles],
+    slackAlertsOnly: [$.slack],
   },
 
   alertDefaults:: {
