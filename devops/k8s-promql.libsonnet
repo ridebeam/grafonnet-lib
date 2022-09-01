@@ -10,6 +10,38 @@ local panel = helpers.panel;
 local gcpLogsBase = 'https://console.cloud.google.com/logs/query;query=resource.type%3D%22k8s_container%22%0Aresource.labels.namespace_name%3D%22${env}﻿%22%0A%28labels.k8s-pod%2Fapp_kubernetes_io%2Fpart-of%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fcomponent%3D%22﻿${service}﻿%22%20OR%20labels.k8s-pod%2Fapp_kubernetes_io%2Fname%3D%22﻿${service}﻿%22%29';
 local gcpLogsSuffix = '?project=﻿${__field.labels.project_id}';
 
+local goMemGauges = [
+  { name: 'memory_alloc', kind: 'bytes' },
+  { name: 'sys_memory_alloc', kind: 'bytes' },
+  { name: 'heap_alloc', kind: 'bytes' },
+  { name: 'sys_heap', kind: 'bytes' },
+  { name: 'heap_idle', kind: 'bytes' },
+  { name: 'heap_inuse', kind: 'bytes' },
+  { name: 'heap_objects', kind: 'short' },
+  { name: 'stack_inuse', kind: 'bytes' },
+  { name: 'sys_stack', kind: 'bytes' },
+  { name: 'stack_mspan_inuse', kind: 'bytes' },
+  { name: 'sys_stack_mspan', kind: 'bytes' },
+  { name: 'stack_mcache_inuse', kind: 'bytes' },
+  { name: 'sys_stack_mcache', kind: 'bytes' },
+  { name: 'gc_sys', kind: 'bytes' },
+  { name: 'other_sys', kind: 'bytes' },
+  { name: 'next_gc_heap_size', kind: 'bytes' },
+  { name: 'last_gc_finished_timestamp', kind: 'dateTimeAsIso' },
+  { name: 'gc_cpu_fraction', kind: 'percent' },
+];
+
+local goMemRates = [
+  { name: 'total_memory_alloc', kind: 'bytes' },
+  { name: 'memory_lookups', kind: 'short' },
+  { name: 'memory_malloc', kind: 'short' },
+  { name: 'memory_frees', kind: 'short' },
+  { name: 'heap_release', kind: 'bytes' },
+  { name: 'num_gc', kind: 'short' },
+  { name: 'num_forced_gc', kind: 'short' },
+  { name: 'pause_total', kind: 'ms' },
+];
+
 {
   targets: {
     process: {
@@ -75,6 +107,24 @@ local gcpLogsSuffix = '?project=﻿${__field.labels.project_id}';
         metric='process/cpu_goroutines',
         groupBys=['pod_name'],
       ),
+    } + {
+      ['mem' + metric.name]: target.gauges('process/' + metric.name)
+      for metric in goMemGauges
+    } + {
+      ['mem' + metric.name + 'Each']: target.gauges(
+        metric='process/' + metric.name,
+        groupBys=['pod_name'],
+      )
+      for metric in goMemGauges
+    } + {
+      ['mem' + metric.name]: target.rate('process/' + metric.name)
+      for metric in goMemRates
+    } + {
+      ['mem' + metric.name + 'Each']: target.rate(
+        metric='process/' + metric.name,
+        groupBys=['pod_name'],
+      )
+      for metric in goMemRates
     },
     http: {
       latency: target.timers('opencensus.io/http/server/latency'),
@@ -276,6 +326,29 @@ local gcpLogsSuffix = '?project=﻿${__field.labels.project_id}';
         },
       },
     },
+    serviceMem: {
+      ['mem' + metric.name]: panel.new(metric.name, format=metric.kind).addTargets([
+        $.targets.golang['mem' + metric.name].avg,
+        $.targets.golang['mem' + metric.name].max,
+      ])
+      for metric in goMemGauges
+    } + {
+      ['mem' + metric.name]: panel.new(metric.name, format=metric.kind).addTargets([
+        $.targets.golang['mem' + metric.name],
+      ])
+      for metric in goMemRates
+    },
+    serviceMemEach: {
+      ['mem' + metric.name + 'Each']: panel.new(metric.name + ' Each', format=metric.kind, legend_show=true).addTargets([
+        $.targets.golang['mem' + metric.name + 'Each'].max,
+      ])
+      for metric in goMemGauges
+    } + {
+      ['mem' + metric.name + 'Each']: panel.new(metric.name + ' Each', format=metric.kind, legend_show=true).addTargets([
+        $.targets.golang['mem' + metric.name + 'Each'],
+      ])
+      for metric in goMemRates
+    },
     http: {
       latency: panel.timeLinear('Latency', format='ms').addTargets([
         $.targets.http.latency.p99,
@@ -345,6 +418,14 @@ local gcpLogsSuffix = '?project=﻿${__field.labels.project_id}';
         $.panels.service.goroutines,
         $.panels.service.log,
       ]
+    ]),
+    serviceMem: row.new('Service Memory Usage').addPanels([
+      panel.halfRow(p)
+      for p in std.objectValues($.panels.serviceMem)
+    ]),
+    serviceMemEach: row.new('Service Memory Usage Per Pod').addPanels([
+      panel.halfRow(p)
+      for p in std.objectValues($.panels.serviceMemEach)
     ]),
     http: row.new('HTTP').addPanels([
       panel.halfRow(p)

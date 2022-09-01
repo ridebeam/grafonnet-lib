@@ -3,6 +3,10 @@ local row = grafana.row;
 local template = grafana.template;
 local k8s = import '../k8s-promql.libsonnet';
 
+local prom = import '../../helper/promql.libsonnet';
+local helpers = prom.init();
+local panel = helpers.panel;
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'GCP Go Service',
@@ -33,6 +37,8 @@ grafana.dashboard.new(
 
 .addRows([
   k8s.rows.service,
+  panel.collapseRow(k8s.rows.serviceMem),
+  panel.collapseRow(k8s.rows.serviceMemEach),
   k8s.rows.http,
   k8s.rows.grpc,
   k8s.rows.kafka,
