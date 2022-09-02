@@ -109,7 +109,7 @@ local alertDefs = [
           alias: 'pct rate of get user info api error',
           intervalFactor: 6,
         },
-        threshold: 20,
+        threshold: 101,
         message: 'Get User Info API failing over 20% of times',
         noDataState: 'ok',
       },
