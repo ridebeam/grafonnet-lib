@@ -43,7 +43,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'ecuLock'),
           ),
         },
-        threshold: 3,
+        threshold: 0.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT ecuLock error
@@ -59,7 +59,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'batteryLock'),
           ),
         },
-        threshold: 1,
+        threshold: 0.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT battery unlock error
@@ -76,7 +76,7 @@ local alertDefinitions = [
             target.equalsFilter('state', 'helmetLock'),
           ),
         },
-        threshold: 3,
+        threshold: 0.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT helmet lock error
@@ -90,7 +90,7 @@ local alertDefinitions = [
           name: 'error-report',
           filters: globalFilter,
         },
-        threshold: 3,
+        threshold: 0.5,
         noDataState: 'ok',
         message: |||
           Seeing high volume of iot error codes
@@ -104,7 +104,7 @@ local alertDefinitions = [
           name: 'alarm-report',
           filters: globalFilter,
         },
-        threshold: 3,
+        threshold: 0.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
@@ -118,7 +118,7 @@ local alertDefinitions = [
           name: 'disconnection',
           filters: globalFilter,
         },
-        threshold: 5,
+        threshold: 0.8,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT disconnection count exceeds threshold
@@ -133,7 +133,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         format: 's',
-        threshold: 15,
+        threshold: 12,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT ecu lock unlock timing exceeds threshold
@@ -148,7 +148,7 @@ local alertDefinitions = [
           filters: globalFilter,
         },
         format: 's',
-        threshold: 15,
+        threshold: 12,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT helmet lock timing exceeds threshold
@@ -168,7 +168,7 @@ local alertDefinitions = [
           name: 'vehicle-connected-count',
           filters: target.combineFilters(filterVehicleWatchdog, filterGen3IoT),
         },
-        threshold: 400,
+        threshold: 280,
         thresholdType: 'lt',
         message: |||
           Total connected gen3 vehicles drops below threshold
@@ -180,7 +180,7 @@ local alertDefinitions = [
           name: 'adapter-incoming',
           filters: filterGen3IoT,
         },
-        threshold: 2000,
+        threshold: 500,
         message: |||
           Total gen3 iot messages received exceeds threshold
         |||,
