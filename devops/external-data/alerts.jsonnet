@@ -30,7 +30,7 @@ local alertDefinitions = [
           query: '((sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production", response_code=~"5.."}[2m])) OR vector(0)) / sum(rate(istio_requests_total{reporter="source", destination_service_name="external-data-api-http", destination_service_namespace="production"}[2m]))) * 100',
           alias: 'percentage rate of 5xx errors to rate of total requests',
         },
-        threshold: 1,
+        threshold: 5,
         message: rateOf5xxErrorMessage,
       },
     ],
