@@ -182,7 +182,7 @@ local alertDefinitions = [
           name: 'adapter-incoming',
           filters: filterMMX,
         },
-        threshold: 20,
+        threshold: 50,
         message: |||
           Total MMX messages received exceeds threshold
         |||,
