@@ -77,6 +77,11 @@ local targets = {
       ),
       groupBys=['cmd_outgoing'],
     ),
+    actionError: target.counter(
+      metric='action-error',
+      filters=filters.manufacturer,
+      groupBys=['state_name'],
+    ),
     actionExecuted: target.counter(
       metric='action-executed',
       filters=filters.manufacturer,
@@ -137,6 +142,9 @@ local panels = {
     actionExecuted: panel.counter('Action executed').addTargets([
       targets.commands.actionExecuted,
     ]),
+    actionError: panel.counter('Action errors').addTargets([
+      targets.commands.actionError,
+    ]),
     actionDurationP50: panel.timeLinear('Action duration p50').addTargets([
       targets.commands.actionDuration.p50,
     ]),
@@ -174,6 +182,7 @@ local rows = {
       panel.showTable(panels.commands.receivedFW, avg=true, current=true),
       panel.showTable(panels.commands.send, avg=true, current=true),
       panels.commands.actionExecuted,
+      panels.commands.actionError,
       panels.commands.actionDurationP50,
       panels.commands.actionDurationP95,
       panels.commands.actionDurationP99,

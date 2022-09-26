@@ -157,13 +157,29 @@ local warningAlerts = [
         |||,
         noDataState: 'ok',
       },
+      {
+        title: 'error-throttle-off',
+        counter: {
+          name: 'action-error',
+          filters: target.combineFilters(
+            filterIotServer,
+            target.equalsFilter('state', 'throttle'),
+          ),
+        },
+        threshold: 1,
+        thresholdType: 'gt',
+        message: |||
+          Error when trying to turn off throttle
+        |||,
+        noDataState: 'ok',
+      },
     ],
   },
 ];
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'Production Alerts',
+  'Vehicle Alerts',
   uid='vehicles_alerts',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
