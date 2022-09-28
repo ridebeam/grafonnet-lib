@@ -166,10 +166,10 @@ local warningAlerts = [
             target.equalsFilter('state', 'throttle'),
           ),
         },
-        threshold: 1,
+        threshold: 3,
         thresholdType: 'gt',
         message: |||
-          Error when trying to turn off throttle
+          Error when trying to toggle throttle state
         |||,
         noDataState: 'ok',
       },
