@@ -173,6 +173,19 @@ local warningAlerts = [
         |||,
         noDataState: 'ok',
       },
+      {
+        title: 'vehicle-throttle-in-ops-zone',
+        counter: {
+          name: 'vehicle-throttle-in-ops-zone',
+          filters: filterVehicleController,
+        },
+        threshold: 3,
+        thresholdType: 'gt',
+        message: |||
+          Vehicle with throttle off in ops zone
+        |||,
+        noDataState: 'ok',
+      },
     ],
   },
 ];
