@@ -79,17 +79,26 @@ local targets = {
     ),
     actionError: target.counter(
       metric='action-error',
-      filters=filters.manufacturer,
+      filters=target.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
       groupBys=['state_name'],
     ),
     actionExecuted: target.counter(
       metric='action-executed',
-      filters=filters.manufacturer,
+     filters=target.combineFilters(
+       filters.firmware,
+       filters.manufacturer,
+     ),
       groupBys=['state_name'],
     ),
     actionDuration: target.timers(
       metric='action-duration',
-      filters=filters.manufacturer,
+      filters=target.combineFilters(
+        filters.firmware,
+        filters.manufacturer,
+      ),
       groupBys=['state_name'],
     ),
     rerouted: target.counter(
