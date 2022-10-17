@@ -104,7 +104,7 @@ local alertDefinitions = [
           name: 'alarm-report',
           filters: globalFilter,
         },
-        threshold: 0.5,
+        threshold: 1.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
@@ -118,7 +118,7 @@ local alertDefinitions = [
           name: 'disconnection',
           filters: globalFilter,
         },
-        threshold: 0.8,
+        threshold: 3.5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT disconnection count exceeds threshold
