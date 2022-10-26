@@ -213,7 +213,7 @@ local prom = grafana.prometheus;
 
     $.target(
       '(sum(%s) %s OR vector(0)) / sum(%s) %s' % [numMetricsAgg, $.groupBys(groupBys), denomMetricsAgg, $.groupBys(groupBys)],
-      legendFormat=$.alias(alias, [], metric),
+      legendFormat=$.alias(alias, groupBys, metric),
       intervalFactor=intervalFactor,
     ),
 
