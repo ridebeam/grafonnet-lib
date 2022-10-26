@@ -11,9 +11,12 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
+local clusterFilter = target.equalsFilter('cluster', '$cluster');
+local workflowNameFilter = target.equalsFilter('workflow_name', '$workflow');
+
 local workflowFilters = target.combineFilters(
-  target.equalsFilter('cluster', '$cluster'),
-  target.equalsFilter('workflow_name', '$workflow'),
+  clusterFilter,
+  workflowNameFilter,
 );
 
 local targets = {
@@ -36,6 +39,13 @@ local targets = {
       groupBys=['status'],
       withServiceFilters=false,
     ),
+    taskFailRate: target.ratio(
+      metric='argo_workflows_task_exec_result',
+      filters=clusterFilter,
+      groupBys=['task_name'],
+      numeratorFilters=target.equalsFilter('status', 'Failed'),
+      withServiceFilters=false,
+    ),
   },
 };
 
@@ -51,6 +61,9 @@ local panels = {
       targets.execution.duration.avg,
       targets.execution.duration.max,
     ]),
+    taskFailRate: panel.counter('Task Execution Fail Rate', format='percentunit').addTargets([
+      targets.execution.taskFailRate,
+    ]),
   },
 };
 
@@ -61,6 +74,7 @@ local rows = {
       panels.execution.result,
       panels.execution.successRate,
       panels.execution.duration,
+      panels.execution.taskFailRate,
     ]
   ]),
 };

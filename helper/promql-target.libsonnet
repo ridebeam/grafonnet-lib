@@ -192,6 +192,7 @@ local prom = grafana.prometheus;
     intervalFactor=1,
     alias='',
     filters='',
+    groupBys=[],
     numeratorFilters='',  // eg status=~5..
     denominatorFilters='',
     withServiceFilters=true,
@@ -211,7 +212,7 @@ local prom = grafana.prometheus;
     ], metricsList));
 
     $.target(
-      '(sum(%s) OR vector(0)) / sum(%s)' % [numMetricsAgg, denomMetricsAgg],
+      '(sum(%s) %s OR vector(0)) / sum(%s) %s' % [numMetricsAgg, $.groupBys(groupBys), denomMetricsAgg, $.groupBys(groupBys)],
       legendFormat=$.alias(alias, [], metric),
       intervalFactor=intervalFactor,
     ),
