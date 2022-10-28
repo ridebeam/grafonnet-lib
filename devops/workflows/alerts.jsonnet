@@ -18,7 +18,7 @@ local alertDefinitions = [
         title: 'Task execution fail rate',
         custom: {
           name: 'workflow-task-execution-fail-rate',
-          query: '(sum(rate(argo_workflows_task_exec_result{cluster="production", status="Failed"}[5m])) by (task_name) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="production"}[5m])) by (task_name) * 100',
+          query: '(sum(rate(argo_workflows_task_exec_result{cluster="core-sg", status="Failed"}[5m])) by (task_name) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="core-sg"}[5m])) by (task_name) * 100',
           alias: 'workflow task execution fail rate',
         },
         threshold: 1,
