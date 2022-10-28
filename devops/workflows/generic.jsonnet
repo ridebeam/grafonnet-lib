@@ -46,6 +46,13 @@ local targets = {
       numeratorFilters=target.equalsFilter('status', 'Failed'),
       withServiceFilters=false,
     ),
+    failRateByCity: target.ratio(
+      metric='argo_workflows_exec_result',
+      filters=clusterFilter,
+      groupBys=['workflow_name', 'city'],
+      numeratorFilters=target.equalsFilter('status', 'Failed'),
+      withServiceFilters=false,
+    ),
   },
 };
 
@@ -64,6 +71,9 @@ local panels = {
     taskFailRate: panel.counter('Task Execution Fail Rate', format='percentunit').addTargets([
       targets.execution.taskFailRate,
     ]),
+    failRateByCity: panel.counter('Workflow Execution Fail Rate By City', format='percentunit').addTargets([
+      targets.execution.failRateByCity,
+    ]),
   },
 };
 
@@ -75,6 +85,7 @@ local rows = {
       panels.execution.successRate,
       panels.execution.duration,
       panels.execution.taskFailRate,
+      panels.execution.failRateByCity,
     ]
   ]),
 };
