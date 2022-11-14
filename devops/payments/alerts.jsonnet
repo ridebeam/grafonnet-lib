@@ -30,7 +30,7 @@ local alertDefinitions = [
       {
         title: '[payment-002] Create Order Failed',
         counter: { name: 'create-order-failed' },
-        threshold: 3,
+        threshold: 30,
         message: msg,
       },
       {
