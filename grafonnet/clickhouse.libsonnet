@@ -5,9 +5,10 @@
    * @name clickhouse.target
    *
    * @param database specify the database
-   * @param table specify the table  
+   * @param table specify the table
    * @param query The SQL query
    * @param format (default `'time_series'`)
+   * @param dateTimeColDataType (default `'time_bucket'`)
    */
 
   target(
@@ -16,6 +17,7 @@
     table,
     query,
     format='time_series',
+    dateTimeColDataType='time_bucket',
   ):: {
     database: database,
     datasource: {
@@ -23,7 +25,7 @@
       uid: datasourceUID,
     },
     dateLoading: false,
-    dateTimeColDataType: 'time_bucket',
+    dateTimeColDataType: dateTimeColDataType,
     datetimeLoading: false,
     extrapolate: true,
     table: table,
