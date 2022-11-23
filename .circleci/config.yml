@@ -1,63 +1,48 @@
 version: 2.1
+
 jobs:
   build:
     docker:
       - image: cimg/base:2020.01
-
     environment:
       JSONNET_VERSION: 0.18.0
-
     steps:
       - checkout
       - run: git clone https://github.com/ridebeam/grafonnet-lib
-      - run:
-          name: download jsonnet
-          command: |
-            curl -L https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_Linux_x86_64.tar.gz --output tool.tar.gz
-            tar -xzf tool.tar.gz
-            ./jsonnet --version
+      - run: .circleci/setup-jsonnet.sh
       - run: PATH=$PATH:$(pwd) .circleci/build-all.sh
 
   fetch-and-publish-staging:
     docker:
       - image: cimg/base:2020.01
+    environment:
+      JSONNET_VERSION: 0.18.0
     steps:
       - checkout
       - run: git clone https://github.com/ridebeam/grafonnet-lib
-      - run:
-          name: download jsonnet
-          command: |
-            curl -L https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_Linux_x86_64.tar.gz --output tool.tar.gz
-            tar -xzf tool.tar.gz
-            ./jsonnet --version
+      - run: .circleci/setup-jsonnet.sh
       - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" "http://grafana-staging.core.ridebeam.cloud" ${GRAFANA_STAGING_API_TOKEN}
 
   fetch-and-publish-core:
     docker:
       - image: cimg/base:2020.01
+    environment:
+      JSONNET_VERSION: 0.18.0
     steps:
       - checkout
       - run: git clone https://github.com/ridebeam/grafonnet-lib
-      - run:
-          name: download jsonnet
-          command: |
-            curl -L https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_Linux_x86_64.tar.gz --output tool.tar.gz
-            tar -xzf tool.tar.gz
-            ./jsonnet --version
+      - run: .circleci/setup-jsonnet.sh
       - run: PATH=$PATH:$(pwd) ./update-gcp.sh "core" "https://grafana.core.ridebeam.cloud" ${GRAFANA_CORE_API_TOKEN}
 
   fetch-and-publish-devops:
     docker:
       - image: cimg/base:2020.01
+    environment:
+      JSONNET_VERSION: 0.18.0
     steps:
       - checkout
       - run: git clone https://github.com/ridebeam/grafonnet-lib
-      - run:
-          name: download jsonnet
-          command: |
-            curl -L https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_Linux_x86_64.tar.gz --output tool.tar.gz
-            tar -xzf tool.tar.gz
-            ./jsonnet --version
+      - run: .circleci/setup-jsonnet.sh
       - run: PATH=$PATH:$(pwd) ./update-gcp.sh "devops" "https://grafana.devops.ridebeam.cloud" ${GRAFANA_API_TOKEN}
 
 workflows:
