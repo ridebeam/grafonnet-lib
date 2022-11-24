@@ -5,53 +5,13 @@ local template = grafana.template;
 local row = grafana.row;
 local clickhouse = import '../../helper/clickhouse.libsonnet';
 local alertsHelper = import '../../helper/alerts.libsonnet';
+local vizHelper = import '../../helper/viz.libsonnet';
 
 local helpers = clickhouse.init();
-local target = helpers.target;
 local panel = helpers.panel;
+local target = helpers.target;
 
-// TODO: Make this queryable from Clickhouse.
-// This is a list of cities that have alerts enabled.
-local supportedCities = [
-  { id: 121, name: 'Seoul' },
-  { id: 16, name: 'Brisbane' },
-  { id: 356, name: 'Daegu' },
-  { id: 612, name: 'Goyang-Paju' },
-  { id: 483, name: 'CheonanCity' },
-  { id: 552, name: 'Cheongju' },
-  { id: 12, name: 'Kuala Lumpur' },
-  { id: 650, name: 'Gwangju' },
-  { id: 13, name: 'Auckland' },
-  { id: 416, name: 'Incheon' },
-  { id: 370, name: 'ADLCity' },
-  { id: 21, name: 'Canberra' },
-  { id: 341, name: 'Seongnam-Suwon' },
-  { id: 15, name: 'Wellington' },
-  { id: 507, name: 'Busan' },
-  { id: 349, name: 'Selangor' },
-  { id: 553, name: 'Daejeon' },
-  { id: 460, name: 'Townsville' },
-  { id: 1118, name: 'Hobart' },
-  { id: 891, name: 'Gunsan' },
-  { id: 19, name: 'Sydney' },
-  { id: 618, name: 'Gwangyang' },
-  { id: 1425, name: 'Chuncheon' },
-  { id: 1119, name: 'Launceston' },
-  { id: 1121, name: 'Whangarei' },
-  { id: 1096, name: 'Mackay' },
-  { id: 1190, name: 'Esperance' },
-  { id: 809, name: 'Palmerston North' },
-  { id: 300, name: 'Bunbury' },
-  { id: 580, name: 'Bangkok' },
-  { id: 1519, name: 'Fethiye' },
-  { id: 1529, name: 'Marmaris' },
-  { id: 1036, name: 'PortDouglas' },
-  { id: 994, name: 'Phuket' },
-  { id: 1079, name: 'Rockingham' },
-  { id: 1464, name: 'Bodrum' },
-  { id: 1443, name: 'Pahang' },
-  { id: 1462, name: 'Burnie' },
-];
+local supportedCities = import 'cities.jsonnet';
 
 // TODO: simplify this with dbt view, it should be just a one-liner like:
 //
@@ -93,7 +53,7 @@ local trips_query(city_id) =
 ;
 
 local targets = {
-  allTripsStart: target.target(
+  tripsCount: target.target(
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
     query=trips_query('$city_id'),
@@ -102,23 +62,8 @@ local targets = {
   ),
 };
 
-local fieldOverride(name, properties) = {
-  matcher: {
-    id: 'byName',
-    options: name,
-  },
-  properties: std.map(function(p) {
-                id: 'custom.%s' % [p],
-                value: properties.custom[p],
-              }, std.objectFields(std.get(properties, 'custom', {})))
-              + std.map(function(p) {
-                id: p,
-                value: properties[p],
-              }, std.filter(function(p) p != 'custom', std.objectFields(properties))),
-};
-
 local overrides = [
-  fieldOverride('yhat_upper', {
+  vizHelper.fieldOverride('yhat_upper', {
     custom: {
       fillBelowTo: 'yhat_lower',
       lineWidth: 0,
@@ -133,7 +78,7 @@ local overrides = [
     displayName: 'Threshold',
     min: 0,
   }),
-  fieldOverride('yhat_lower', {
+  vizHelper.fieldOverride('yhat_lower', {
     custom: {
       lineWidth: 0,
       fillOpacity: 0,
@@ -146,7 +91,7 @@ local overrides = [
     },
     min: 0,
   }),
-  fieldOverride('yhat', {
+  vizHelper.fieldOverride('yhat', {
     custom: {
       fillOpacity: 0,
       lineWidth: 3,
@@ -159,7 +104,7 @@ local overrides = [
     displayName: 'Forecasted trips',
     min: 0,
   }),
-  fieldOverride('y', {
+  vizHelper.fieldOverride('y', {
     custom: {
       fillOpacity: 0,
       lineWidth: 0,
@@ -182,13 +127,13 @@ local createPanel(title, target) =
 ;
 
 local panels = {
-  tripsCount: createPanel('Trips count (30m interval)', targets.allTripsStart),
+  tripsCount: createPanel('Trips count (30m interval)', targets.tripsCount),
 };
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Trips',
-  uid='business_metrics_trips',
+  uid='business_health_metrics_trips',
   refresh='15m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-7d',

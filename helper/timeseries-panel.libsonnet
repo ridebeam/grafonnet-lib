@@ -18,7 +18,13 @@ local panel = grafana.timeSeriesPanel;
       format=format,
       time_shift=time_shift,
       nullPointMode='null as zero',
-    ),
+    ) {
+      setFieldConfigDefaults(defaults):: self {
+        fieldConfig: {
+          defaults: defaults,
+        },
+      },
+    },
 
     fullRow(panel):: panel { span: 12 },
     halfRow(panel):: panel { span: 6 },
