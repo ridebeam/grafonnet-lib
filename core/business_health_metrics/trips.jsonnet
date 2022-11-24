@@ -11,7 +11,7 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local supportedCities = import 'cities.jsonnet';
+local supportedCities = import 'cities.json';
 
 // TODO: simplify this with dbt view, it should be just a one-liner like:
 //

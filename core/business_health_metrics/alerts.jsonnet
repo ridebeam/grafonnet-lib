@@ -11,7 +11,7 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local supportedCities = import 'cities.jsonnet';
+local supportedCities = import 'cities.json';
 
 local citiesWithAlerts = std.filter(function(c) std.get(c, 'alerts', default=false), supportedCities);
 
