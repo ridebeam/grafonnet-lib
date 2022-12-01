@@ -20,7 +20,7 @@ local rows = [
 
 grafana.dashboard.new(
   'Per City Metrics',
-  uid='business_health_metrics_per_city',
+  uid='per_city',
   refresh='15m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-7d',
