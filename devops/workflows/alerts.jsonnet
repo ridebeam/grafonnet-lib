@@ -27,10 +27,10 @@ local alertDefinitions = [
         noDataState: 'ok',
       },
       {
-        title: 'Workflow execution fail rate by city',
+        title: 'Workflow execution fail rate',
         custom: {
           name: 'workflow-execution-fail-rate',
-          query: '(sum(rate(argo_workflows_exec_result{cluster="core-sg", status="Failed"}[5m])) by (workflow_name, city) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="core-sg"}[5m])) by (workflow_name, city) * 100',
+          query: '(sum(rate(argo_workflows_exec_result{cluster="core-sg", status="Failed"}[5m])) by (workflow_name) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="core-sg"}[5m])) by (workflow_name) * 100',
           alias: '{{workflow_name}}',
         },
         threshold: 1,
