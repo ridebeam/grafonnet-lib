@@ -231,7 +231,7 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='manufacturer',
-    query='omni,okai,omnigen3,omniat,tbit',
+    query='omni,okai,omnigen3,omniat,tbit,kuickwheel',
     allValues='.*',
     current='All',
     includeAll=true,
