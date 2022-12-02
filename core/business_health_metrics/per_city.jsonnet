@@ -4,12 +4,41 @@ local row = grafana.row;
 local jwebb = import '../../helper/jwebb.libsonnet';
 local supportedCities = import 'cities.json';
 
+local paymentsQuery =
+  |||
+    with
+    raw_events as (
+      select
+        event_time,
+        visitParamExtractString(properties, 'itemType') as item_type,
+        visitParamExtractInt(properties, 'cityId') as city_id
+      from jwebb.events
+      where event_name = 'Purchase'
+      and item_type = 'Trip'
+      and city_id = $city_id
+    )
+    select
+      toString(city_id) as city_id,
+      toStartOfInterval(event_time, interval 30 minute) as time_bucket,
+      count() as count
+    from raw_events
+    where $timeFilter
+    group by city_id, time_bucket
+    order by time_bucket asc
+  |||
+;
+
 // Add metrics here
 local metrics = [
   {
     name: 'trips',
     title: 'Trip Starts',
     query: 'select city_id, time_bucket, count from jwebb.trips_count_30m where $timeFilter and city_id = $city_id order by time_bucket asc',
+  },
+  {
+    name: 'payments',
+    title: 'Payment transactions',
+    query: paymentsQuery,
   },
 ];
 
