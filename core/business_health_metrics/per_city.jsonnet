@@ -28,6 +28,52 @@ local paymentsQuery =
   |||
 ;
 
+local weatherQuery(weather) =
+  |||
+    select
+      toUInt32(toStartOfInterval(event_time, interval 1 hour))*1000 as time,
+      (toUInt32(toStartOfInterval(event_time, interval 1 hour))*1000) + 3600000 as time_end,
+      description[1] as text
+    from jwebb.weather
+    where georegion_id = $city_id
+    and event_time >= $from and event_time <= $to
+    and text = '%(weather)s'
+  ||| % { weather: weather.name }
+;
+
+local weatherAnnotation(weather) =
+  {
+    datasource: {
+      type: 'vertamedia-clickhouse-datasource',
+      uid: '_Az-rRXnz',
+    },
+    enable: true,
+    name: weather.name,
+    iconColor: weather.iconColor,
+    query: weatherQuery(weather),
+    rawQuery: weatherQuery(weather),
+  };
+
+// Grafana does not support overriding color, so we create 1 annotation query per weather
+local weathers = [
+  // {
+  //   name: 'Clouds',
+  //   iconColor: '#adadad',
+  // },
+  {
+    name: 'Drizzle',
+    iconColor: 'super-light-blue',
+  },
+  {
+    name: 'Rain',
+    iconColor: 'blue',
+  },
+  {
+    name: 'Thunderstorm',
+    iconColor: '#1b3c6e',
+  },
+];
+
 // Add metrics here
 local metrics = [
   {
@@ -103,6 +149,6 @@ grafana.dashboard.new(
         name: 'Now',
         query: "select toUInt32(toStartOfInterval(now(), INTERVAL 30 minute))*1000 as time, 'Now' as text",
       },
-    ],
+    ] + [weatherAnnotation(w) for w in weathers],
   },
 }
