@@ -11,7 +11,7 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local pastQuery(metric, cityId) =
+local pastQuery(metric, coverage=0.99) =
   |||
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
@@ -22,11 +22,11 @@ local pastQuery(metric, cityId) =
         if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y < yhat_lower, y, null) as anomaly_negative,
         if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y > yhat_upper, y, null) as anomaly_positive
     from executable(
-        'table_forecast_multi.py %(metric)s',
+        'table_forecast_multi.py %(metric)s %(coverage)f',
         'TabSeparated',
         'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
         (%(query)s))
-  ||| % { metric: metric.name, query: metric.query, cityId: cityId }
+  ||| % { metric: metric.name, query: metric.query, coverage: coverage }
 ;
 
 local futureQuery(metric, cityId) =
@@ -179,11 +179,11 @@ local overrides = [
   }),
 ];
 
-local newPastTarget(metric, cityId) =
+local newPastTarget(metric, cityId, coverage) =
   target.target(
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=pastQuery(metric, cityId),
+    query=pastQuery(metric, coverage),
     table='events',
     dateTimeColDataType='time_bucket',
   )
@@ -199,15 +199,15 @@ local newFutureTarget(metric, cityId) =
   )
 ;
 
-local newPanel(metric, cityId) =
+local newPanel(metric, cityId, coverage) =
   panel.fullRow(
     panel.new(title=metric.title)
-    .addTargets([newPastTarget(metric, cityId), newFutureTarget(metric, cityId)])
+    .addTargets([newPastTarget(metric, cityId, coverage), newFutureTarget(metric, cityId)])
     .addOverrides(overrides)
   )
 ;
 
 {
-  newPanel(metric, cityId)::
-    newPanel(metric, cityId),
+  newPanel(metric, cityId, coverage=0.99)::
+    newPanel(metric, cityId, coverage),
 }
