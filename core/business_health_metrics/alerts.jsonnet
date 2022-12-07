@@ -15,36 +15,27 @@ local supportedCities = import 'cities.json';
 
 local citiesWithAlerts = std.filter(function(c) std.get(c, 'alerts', default=false), supportedCities);
 
-local query =
+local cityQuery =
   |||
     with
     cities as (
         select arrayJoin(%s) as city_id
     ),
-    raw_events as (
-        SELECT
-            event_time,
-            event_name,
-            e.city_id,
-            properties
-        FROM $table e
-        RIGHT JOIN cities c ON c.city_id = e.city_id
-        WHERE event_name IN ('TRIP_START_SUCCESS')
-        AND $timeFilter
-    ),
-    trips_count_30m AS (
-        SELECT
-            city_id,
-            toStartOfInterval(event_time, INTERVAL 30 minute) AS time_bucket,
-            count() as count
-        FROM raw_events
-        GROUP BY time_bucket, city_id
+    time_series as (
+      select 
+          city_id,
+          time_bucket, 
+          sum(count) as count
+      from $table t
+      right join cities g ON g.city_id = t.city_id 
+      where $timeFilter 
+      group by city_id, time_bucket
+      order by time_bucket asc
     ),
     trips_count_30m_forecast AS (
         select
             toDateTime(time_bucket) as time_bucket,
             city_id,
-            g.name as city_name,
             if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
             yhat_upper,
             yhat,
@@ -53,26 +44,59 @@ local query =
             'table_forecast_multi.py trips',
             'TabSeparated',
             'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
-            (select city_id, time_bucket, count from trips_count_30m order by time_bucket asc)) e
-        left join georegions g ON g.id = e.city_id
+            (select * from time_series))
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        city_name as city_id,
+        g.name as city_id,
         y-yhat_lower as dist
-    from trips_count_30m_forecast
+    from trips_count_30m_forecast t
+    left join georegions g ON g.id = t.city_id
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
     order by time_bucket asc
   ||| % [[c.id for c in citiesWithAlerts]]
 ;
 
+local globalQuery =
+  |||
+    with
+    trips_count_global_forecast AS (
+        select
+            toDateTime(time_bucket) as time_bucket,
+            if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
+            toInt64(yhat) as yhat,
+            y
+        from executable(
+            'table_forecast_multi.py trips',
+            'TabSeparated',
+            'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
+            (select 1 as city_id, time_bucket, count as count from $table where $timeFilter order by time_bucket asc)) e
+    )
+    select
+        (toUInt32(toDateTime(time_bucket)) * 1000) as t,
+        toString(time_bucket) as tb,
+        toString(y) as actual,
+        toString(yhat) as forecasted,
+        toString(yhat_lower) as threshold,
+        y-yhat_lower as dist
+    from trips_count_global_forecast
+    where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
+    order by time_bucket asc
+  |||
+;
+
 local targets = {
-  tripsDist: target.target(
+  trips: target.target(
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=query,
-    table='events',
-    dateTimeColDataType='event_time',
+    query=cityQuery,
+    table='trips_count_30m',
+  ),
+  tripsGlobal: target.target(
+    database='jwebb',
+    datasourceUID=clickhouse.dataSourceUIDProd,
+    query=globalQuery,
+    table='trips_count_global',
   ),
 };
 
@@ -82,7 +106,7 @@ local alertConditions = {
     query: {
       params: [
         'A',
-        '2h',
+        '1h',
         'now',
       ],
     },
@@ -133,17 +157,82 @@ local fieldConfigDefaults = {
   },
 };
 
+local overrides = [
+  vizHelper.fieldOverride('tb', {
+    custom: {
+      hideFrom: {
+        tooltip: true,
+        viz: true,
+        legend: true,
+      },
+    },
+  }),
+  vizHelper.fieldOverride('actual', {
+    custom: {
+      hideFrom: {
+        tooltip: true,
+        viz: true,
+        legend: true,
+      },
+    },
+  }),
+  vizHelper.fieldOverride('forecasted', {
+    custom: {
+      hideFrom: {
+        tooltip: true,
+        viz: true,
+        legend: true,
+      },
+    },
+  }),
+  vizHelper.fieldOverride('threshold', {
+    custom: {
+      hideFrom: {
+        tooltip: true,
+        viz: true,
+        legend: true,
+      },
+    },
+  }),
+];
+
+local cityMessage =
+  |||
+    City-level trip starts anomaly detected.
+  |||
+;
+
+local globalMessage =
+  |||
+    Global trip starts anomaly detected.
+  |||
+;
+
 local panels = {
-  trips: panel.new(title='Trips below forecast threshold')
+  trips: panel.new(title='City-level trip starts below forecast threshold')
          .setFieldConfigDefaults(fieldConfigDefaults)
-         .addTargets([targets.tripsDist])
+         .addTargets([targets.trips])
          .addAlert(
-    name='Trips below forecast threshold',
+    name='City-level trip starts below forecast threshold',
     forDuration='5m',
     frequency='1m',
-    notifications=[alertsHelper.slackBusinessMonitoringWarning],
+    message=cityMessage,
+    notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
          .addConditions([alertConditions.trips]),
+
+  tripsGlobal: panel.new(title='Global trip starts below forecast threshold')
+               .setFieldConfigDefaults(fieldConfigDefaults)
+               .addTargets([targets.tripsGlobal])
+               .addOverrides(overrides)
+               .addAlert(
+    name='Global trip starts below forecast threshold',
+    forDuration='5m',
+    frequency='1m',
+    message=globalMessage,
+    notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
+  )
+               .addConditions([alertConditions.trips]),
 };
 
 local rows = {
@@ -151,6 +240,7 @@ local rows = {
     panel.fullRow(p)
     for p in [
       panels.trips,
+      panels.tripsGlobal,
     ]
   ]),
 };
@@ -158,7 +248,7 @@ local rows = {
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Alerts',
-  uid='business_health_metrics_alerts',
+  uid='alerts',
   refresh='5m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',

@@ -35,7 +35,7 @@ local cwPanel = cwHelpers.panel;
   coreSlackData: { uid: 'QVVrMvj7z' },
   slackBusinessMonitoring: { uid: 'iFPymc6nz' },
   slackBusinessMonitoringWarning: { uid: 'I6S3segVk' },
-
+  webhooks: { uid: 'qa61c9OVz' },
 
   notifications: {
     productionAlerts: [$.slack, $.opsgenie],
