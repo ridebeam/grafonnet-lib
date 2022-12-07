@@ -41,18 +41,39 @@ local alertDefinitions = [
     row: 'Vehicle Scraping',
     alerts: [
       {
-        title: 'Vehicle Scraped (Vehicles)',
+        title: 'Vehicle Scraped (Vehicles) - Only Beam',
         custom: {
           name: 'Vehicle Scraped Number',
           query: |||
-            sum(delta(compintel_scrape_vehicles_sum{namespace="%(env)s", service="%(service)s"}[1m])) by (competitor)
+            sum(delta(compintel_scrape_vehicles_sum{competitor=~"beam_.*", namespace="%(env)s", service="%(service)s"}[30m])) by (competitor)
           ||| % { env: env, service: service },
           alias: '{{Vehicle Number}}',
         },
         threshold: 5,
         thresholdType: 'lt',
+        evaluateEvery: '1m',
+        evaluateFor: '30m',
+        message: 'Some Report Scraped NONE SCOOTERS : Only Beam',
+      },
+    ],
+  },
+  {
+    row: 'Vehicle Scraping',
+    alerts: [
+      {
+        title: 'Vehicle Scraped (Vehicles) - All except Beam',
+        custom: {
+          name: 'Vehicle Scraped Number',
+          query: |||
+            sum(delta(compintel_scrape_vehicles_sum{competitor!~"beam_.*", namespace="%(env)s", service="%(service)s"}[60m])) by (competitor)
+          ||| % { env: env, service: service },
+          alias: '{{Vehicle Number}}',
+        },
+        threshold: 5,
+        thresholdType: 'lt',
+        evaluateEvery: '1m',
         evaluateFor: '60m',
-        message: 'Some Report Scraped none scooter',
+        message: 'Some Report Scraped NONE SCOOTERS : All except Beam',
       },
     ],
   },
