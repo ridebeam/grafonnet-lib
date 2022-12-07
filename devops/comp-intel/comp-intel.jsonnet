@@ -100,7 +100,7 @@ local rows = {
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'comp-intel monitoring',
-  uid='comp_intel_dashboard_prod',
+  uid='comp-intel_dashboard',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',

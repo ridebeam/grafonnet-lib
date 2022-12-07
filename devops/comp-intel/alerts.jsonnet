@@ -119,7 +119,7 @@ local alertDefinitions = [
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Comp-Intel Alerts',
-  uid='comp_intel_alerts_prod',
+  uid='comp-intel_alerts',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',
