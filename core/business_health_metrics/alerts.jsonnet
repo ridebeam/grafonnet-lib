@@ -86,7 +86,7 @@ local countryQuery =
             yhat,
             y
         from executable(
-            'table_forecast_multi.py trips',
+            'table_forecast_multi.py trips 0.9999',
             'TabSeparated',
             'country_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
             (select * from time_series))
@@ -112,7 +112,7 @@ local globalQuery =
             toInt64(yhat) as yhat,
             y
         from executable(
-            'table_forecast_multi.py trips',
+            'table_forecast_multi.py trips 0.9999',
             'TabSeparated',
             'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
             (select 1 as city_id, time_bucket, count as count from $table where $timeFilter order by time_bucket asc)) e

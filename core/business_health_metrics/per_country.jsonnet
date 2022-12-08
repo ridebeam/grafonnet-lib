@@ -14,7 +14,7 @@ local metrics = [
 ];
 
 local rows = [
-  row.new(metric.title).addPanels([jwebb.newPanel(metric, '$country_id')])
+  row.new(metric.title).addPanels([jwebb.newPanel(metric, '$country_id', coverage=0.9999)])
   for metric in metrics
 ];
 
