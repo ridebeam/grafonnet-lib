@@ -1,0 +1,22 @@
+[
+  {
+    "id": 51,
+    "name": "South Korea",
+    "alerts": true
+  },
+  {
+    "id": 9,
+    "name": "Australia",
+    "alerts": true
+  },
+  {
+    "id": 4,
+    "name": "Malaysia",
+    "alerts": true
+  },
+  {
+    "id": 10,
+    "name": "New Zealand",
+    "alerts": true
+  }
+]

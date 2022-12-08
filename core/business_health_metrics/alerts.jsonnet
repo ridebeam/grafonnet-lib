@@ -12,8 +12,11 @@ local panel = helpers.panel;
 local target = helpers.target;
 
 local supportedCities = import 'cities.json';
+local supportedCountries = import 'countries.json';
 
 local citiesWithAlerts = std.filter(function(c) std.get(c, 'alerts', default=false), supportedCities);
+local countriesWithAlerts = std.filter(function(c) std.get(c, 'alerts', default=false), supportedCountries);
+
 
 local cityQuery =
   |||
@@ -57,6 +60,48 @@ local cityQuery =
   ||| % [[c.id for c in citiesWithAlerts]]
 ;
 
+local countryQuery =
+  |||
+    with
+    countries as (
+        select arrayJoin(%s) as country_id
+    ),
+    time_series as (
+      select 
+          country_id,
+          time_bucket, 
+          sum(count) as count
+      from $table t
+      right join countries g ON g.country_id = t.country_id 
+      where $timeFilter 
+      group by country_id, time_bucket
+      order by time_bucket asc
+    ),
+    trips_count_30m_forecast AS (
+        select
+            toDateTime(time_bucket) as time_bucket,
+            country_id,
+            if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
+            yhat_upper,
+            yhat,
+            y
+        from executable(
+            'table_forecast_multi.py trips',
+            'TabSeparated',
+            'country_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
+            (select * from time_series))
+    )
+    select
+        (toUInt32(toDateTime(time_bucket)) * 1000) as t,
+        g.name as country_id,
+        y-yhat_lower as dist
+    from trips_count_30m_forecast t
+    left join georegions g ON g.id = t.country_id
+    where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
+    order by time_bucket asc
+  ||| % [[c.id for c in countriesWithAlerts]]
+;
+
 local globalQuery =
   |||
     with
@@ -91,6 +136,12 @@ local targets = {
     datasourceUID=clickhouse.dataSourceUIDProd,
     query=cityQuery,
     table='trips_count_30m',
+  ),
+  tripsCountry: target.target(
+    database='jwebb',
+    datasourceUID=clickhouse.dataSourceUIDProd,
+    query=countryQuery,
+    table='trips_count_country',
   ),
   tripsGlobal: target.target(
     database='jwebb',
@@ -202,6 +253,12 @@ local cityMessage =
   |||
 ;
 
+local countryMessage =
+  |||
+    Country-level trip starts anomaly detected.
+  |||
+;
+
 local globalMessage =
   |||
     Global trip starts anomaly detected.
@@ -220,6 +277,18 @@ local panels = {
     notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
          .addConditions([alertConditions.trips]),
+
+  tripsCountry: panel.new(title='Country-level trip starts below forecast threshold')
+                .setFieldConfigDefaults(fieldConfigDefaults)
+                .addTargets([targets.trips])
+                .addAlert(
+    name='Country-level trip starts below forecast threshold',
+    forDuration='5m',
+    frequency='1m',
+    message=countryMessage,
+    notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
+  )
+                .addConditions([alertConditions.trips]),
 
   tripsGlobal: panel.new(title='Global trip starts below forecast threshold')
                .setFieldConfigDefaults(fieldConfigDefaults)
@@ -240,6 +309,7 @@ local rows = {
     panel.fullRow(p)
     for p in [
       panels.trips,
+      panels.tripsCountry,
       panels.tripsGlobal,
     ]
   ]),
