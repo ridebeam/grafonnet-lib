@@ -280,7 +280,7 @@ local panels = {
 
   tripsCountry: panel.new(title='Country-level trip starts below forecast threshold')
                 .setFieldConfigDefaults(fieldConfigDefaults)
-                .addTargets([targets.trips])
+                .addTargets([targets.tripsCountry])
                 .addAlert(
     name='Country-level trip starts below forecast threshold',
     forDuration='5m',
