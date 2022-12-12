@@ -170,7 +170,7 @@ local alertDefinitions = [
           name: 'vehicle-connected-count',
           filters: target.combineFilters(filterVehicleWatchdog, filterMMX),
         },
-        threshold: 10,
+        threshold: 550,
         thresholdType: 'lt',
         message: |||
           Total connected MMX vehicles drops below threshold
