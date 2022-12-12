@@ -119,10 +119,7 @@ local globalQuery =
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        toString(time_bucket) as tb,
-        toString(y) as actual,
-        toString(yhat) as forecasted,
-        toString(yhat_lower) as threshold,
+        toString(time_bucket) as alerted_at,
         y-yhat_lower as dist
     from trips_count_global_forecast
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
@@ -274,6 +271,10 @@ local panels = {
     forDuration='5m',
     frequency='1m',
     message=cityMessage,
+    alertRuleTags={
+      metric: 'trips',
+      type: 'city',
+    },
     notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
          .addConditions([alertConditions.trips]),
@@ -286,6 +287,10 @@ local panels = {
     forDuration='5m',
     frequency='1m',
     message=countryMessage,
+    alertRuleTags={
+      metric: 'trips',
+      type: 'country',
+    },
     notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
                 .addConditions([alertConditions.trips]),
@@ -299,6 +304,10 @@ local panels = {
     forDuration='5m',
     frequency='1m',
     message=globalMessage,
+    alertRuleTags={
+      metric: 'trips',
+      type: 'global',
+    },
     notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
                .addConditions([alertConditions.trips]),
