@@ -104,7 +104,7 @@ local alertDefinitions = [
           name: 'alarm-report',
           filters: globalFilter,
         },
-        threshold: 1.5,
+        threshold: 5,
         noDataState: 'ok',
         message: |||
           Seeing gen3 IoT alarm report exceeds threshold
