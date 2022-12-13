@@ -28,14 +28,13 @@ local cityQuery =
       select 
           city_id,
           time_bucket, 
-          sum(count) as count
+          count
       from $table t
       right join cities g ON g.city_id = t.city_id 
       where $timeFilter 
-      group by city_id, time_bucket
       order by time_bucket asc
     ),
-    trips_count_30m_forecast AS (
+    trips_count_city_forecast AS (
         select
             toDateTime(time_bucket) as time_bucket,
             city_id,
@@ -51,11 +50,12 @@ local cityQuery =
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        g.name as city_id,
-        y-yhat_lower as dist
-    from trips_count_30m_forecast t
-    left join georegions g ON g.id = t.city_id
+        toString(city_id) as city_id,
+        toString(time_bucket) as alerted_at,
+        sum(y-yhat_lower) as dist
+    from trips_count_city_forecast t
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
+    group by time_bucket, city_id, alerted_at
     order by time_bucket asc
   ||| % [[c.id for c in citiesWithAlerts]]
 ;
@@ -70,14 +70,13 @@ local countryQuery =
       select 
           country_id,
           time_bucket, 
-          sum(count) as count
+          count
       from $table t
       right join countries g ON g.country_id = t.country_id 
       where $timeFilter 
-      group by country_id, time_bucket
       order by time_bucket asc
     ),
-    trips_count_30m_forecast AS (
+    trips_count_country_forecast AS (
         select
             toDateTime(time_bucket) as time_bucket,
             country_id,
@@ -93,11 +92,12 @@ local countryQuery =
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        g.name as country_id,
-        y-yhat_lower as dist
-    from trips_count_30m_forecast t
-    left join georegions g ON g.id = t.country_id
+        toString(country_id) as country_id,
+        toString(time_bucket) as alerted_at,
+        sum(y-yhat_lower) as dist
+    from trips_count_country_forecast t
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
+    group by time_bucket, country_id, alerted_at
     order by time_bucket asc
   ||| % [[c.id for c in countriesWithAlerts]]
 ;
