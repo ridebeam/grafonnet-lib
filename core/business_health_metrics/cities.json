@@ -1,7 +1,8 @@
 [
   {
     "id": 121,
-    "name": "Seoul"
+    "name": "Seoul",
+    "alerts": true
   },
   {
     "id": 16,
@@ -9,8 +10,8 @@
     "alerts": true
   },
   {
-    "id": 356,
-    "name": "Daegu",
+    "id": 650,
+    "name": "Gwangju",
     "alerts": true
   },
   {
@@ -19,139 +20,33 @@
     "alerts": true
   },
   {
-    "id": 483,
-    "name": "CheonanCity"
+    "id": 356,
+    "name": "Daegu",
+    "alerts": true
   },
   {
     "id": 552,
-    "name": "Cheongju"
-  },
-  {
-    "id": 12,
-    "name": "Kuala Lumpur"
-  },
-  {
-    "id": 650,
-    "name": "Gwangju"
-  },
-  {
-    "id": 13,
-    "name": "Auckland"
-  },
-  {
-    "id": 416,
-    "name": "Incheon"
-  },
-  {
-    "id": 370,
-    "name": "ADLCity"
-  },
-  {
-    "id": 21,
-    "name": "Canberra"
+    "name": "Cheongju",
+    "alerts": true
   },
   {
     "id": 341,
-    "name": "Seongnam-Suwon"
+    "name": "Seongnam-Suwon",
+    "alerts": true
   },
   {
-    "id": 15,
-    "name": "Wellington"
+    "id": 12,
+    "name": "Kuala Lumpur",
+    "alerts": true
   },
   {
-    "id": 507,
-    "name": "Busan"
+    "id": 416,
+    "name": "Incheon",
+    "alerts": true
   },
   {
-    "id": 349,
-    "name": "Selangor"
-  },
-  {
-    "id": 553,
-    "name": "Daejeon"
-  },
-  {
-    "id": 460,
-    "name": "Townsville"
-  },
-  {
-    "id": 1118,
-    "name": "Hobart"
-  },
-  {
-    "id": 891,
-    "name": "Gunsan"
-  },
-  {
-    "id": 19,
-    "name": "Sydney"
-  },
-  {
-    "id": 618,
-    "name": "Gwangyang"
-  },
-  {
-    "id": 1425,
-    "name": "Chuncheon"
-  },
-  {
-    "id": 1119,
-    "name": "Launceston"
-  },
-  {
-    "id": 1121,
-    "name": "Whangarei"
-  },
-  {
-    "id": 1096,
-    "name": "Mackay"
-  },
-  {
-    "id": 1190,
-    "name": "Esperance"
-  },
-  {
-    "id": 809,
-    "name": "Palmerston North"
-  },
-  {
-    "id": 300,
-    "name": "Bunbury"
-  },
-  {
-    "id": 580,
-    "name": "Bangkok"
-  },
-  {
-    "id": 1519,
-    "name": "Fethiye"
-  },
-  {
-    "id": 1529,
-    "name": "Marmaris"
-  },
-  {
-    "id": 1036,
-    "name": "PortDouglas"
-  },
-  {
-    "id": 994,
-    "name": "Phuket"
-  },
-  {
-    "id": 1079,
-    "name": "Rockingham"
-  },
-  {
-    "id": 1464,
-    "name": "Bodrum"
-  },
-  {
-    "id": 1443,
-    "name": "Pahang"
-  },
-  {
-    "id": 1462,
-    "name": "Burnie"
+    "id": 13,
+    "name": "Auckland",
+    "alerts": true
   }
 ]
