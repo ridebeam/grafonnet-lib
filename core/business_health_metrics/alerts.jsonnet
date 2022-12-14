@@ -127,6 +127,33 @@ local globalQuery =
   |||
 ;
 
+local currentEventsLagQuery =
+  |||
+    WITH
+        parts AS (SELECT max(max_time) AS latest_time FROM system.parts WHERE database = 'jwebb' AND table = 'events'),
+        current AS (SELECT max(event_time) AS latest_time FROM jwebb.events)
+    SELECT
+        $timeSeries AS t,
+        (SELECT latest_time FROM current) - (SELECT latest_time FROM parts) AS lag
+    FROM $table
+    WHERE $timeFilter
+    GROUP BY t
+    ORDER BY t
+  |||
+;
+
+local futureEventsCountQuery =
+  |||
+    SELECT
+        $timeSeries AS t,
+        (SELECT COUNT(*) FROM $table WHERE event_time > now()) AS count
+    FROM $table
+    WHERE $timeFilter
+    GROUP BY t
+    ORDER BY t
+  |||
+;
+
 local targets = {
   trips: target.target(
     database='jwebb',
@@ -146,6 +173,22 @@ local targets = {
     query=globalQuery,
     table='trips_count_global',
   ),
+  currentEventsLag: target.target(
+    database='jwebb',
+    datasourceUID=clickhouse.dataSourceUIDProd,
+    query=currentEventsLagQuery,
+    table='events',
+    interval='10m',
+    dateTimeColDataType='event_time',
+  ),
+  futureEventsCount: target.target(
+    database='jwebb',
+    datasourceUID=clickhouse.dataSourceUIDProd,
+    query=futureEventsCountQuery,
+    table='events',
+    interval='30m',
+    dateTimeColDataType='event_time',
+  ),
 };
 
 local alertConditions = {
@@ -164,6 +207,46 @@ local alertConditions = {
     },
     evaluator: {
       type: 'lt',
+      params: [
+        0,
+      ],
+    },
+  },
+  currentEventsLag: {
+    type: 'query',
+    query: {
+      params: [
+        'A',
+        '1h',
+        'now',
+      ],
+    },
+    reducer: {
+      type: 'last',
+      params: [],
+    },
+    evaluator: {
+      type: 'gt',
+      params: [
+        5,
+      ],
+    },
+  },
+  futureEventsCount: {
+    type: 'query',
+    query: {
+      params: [
+        'A',
+        '1h',
+        'now',
+      ],
+    },
+    reducer: {
+      type: 'last',
+      params: [],
+    },
+    evaluator: {
+      type: 'gt',
       params: [
         0,
       ],
@@ -262,6 +345,18 @@ local globalMessage =
   |||
 ;
 
+local currentEventsLagMessage =
+  |||
+    Current events missing in jwebb
+  |||
+;
+
+local futureEventsCountMessage =
+  |||
+    Future events found in jwebb
+  |||
+;
+
 local panels = {
   trips: panel.new(title='City-level trip starts below forecast threshold')
          .setFieldConfigDefaults(fieldConfigDefaults)
@@ -311,6 +406,28 @@ local panels = {
     notifications=[alertsHelper.slackBusinessMonitoringWarning, alertsHelper.webhooks],
   )
                .addConditions([alertConditions.trips]),
+
+  currentEventsLag: panel.new(title='Current events lag')
+                    .addTargets([targets.currentEventsLag])
+                    .addAlert(
+    name='Current events lag above threshold',
+    forDuration='5m',
+    frequency='1m',
+    message=currentEventsLagMessage,
+    notifications=[alertsHelper.coreSlackData],
+  )
+                    .addConditions([alertConditions.currentEventsLag]),
+
+  futureEventsCount: panel.new(title='Future events found in jwebb')
+                     .addTargets([targets.futureEventsCount])
+                     .addAlert(
+    name='Number of future events above threshold',
+    forDuration='5m',
+    frequency='1m',
+    message=futureEventsCountMessage,
+    notifications=[alertsHelper.coreSlackData],
+  )
+                     .addConditions([alertConditions.futureEventsCount]),
 };
 
 local rows = {
@@ -320,6 +437,13 @@ local rows = {
       panels.trips,
       panels.tripsCountry,
       panels.tripsGlobal,
+    ]
+  ]),
+  events: row.new('Events').addPanels([
+    panel.fullRow(p)
+    for p in [
+      panels.currentEventsLag,
+      panels.futureEventsCount,
     ]
   ]),
 };
@@ -337,4 +461,5 @@ grafana.dashboard.new(
 
 .addRows([
   rows.trips,
+  rows.events,
 ])
