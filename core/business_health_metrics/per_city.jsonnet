@@ -3,6 +3,12 @@ local template = grafana.template;
 local row = grafana.row;
 local jwebb = import '../../helper/jwebb.libsonnet';
 local supportedCities = import 'cities.json';
+local clickhouse = import '../../helper/clickhouse.libsonnet';
+local vizHelper = import '../../helper/viz.libsonnet';
+
+local helpers = clickhouse.init();
+local panel = helpers.panel;
+local target = helpers.target;
 
 local paymentsQuery =
   |||
@@ -83,8 +89,68 @@ local metrics = [
   },
 ];
 
+local alertsCityQuery(metric) =
+  |||
+    SELECT
+        countIf(false_negative = 0) as alerts,
+        countIf(false_positive = 1) as false_positives,
+        countIf(false_negative = 1) as false_negatives
+    FROM $table
+    WHERE metric = '%(metric)s'
+    AND city_id = $city_id
+    AND $timeFilter
+  ||| % { metric: metric.name }
+;
+
+local alertsCityTarget(metric) =
+  target.target(
+    database='jwebb',
+    datasourceUID=clickhouse.dataSourceUIDProd,
+    query=alertsCityQuery(metric),
+    table='alerts_city',
+    dateTimeColDataType='time_bucket',
+  ) {
+    format: 'table',
+  }
+;
+
+local alertOverrides = [
+  vizHelper.fieldOverride('alerts', {
+    displayName: 'Alerts',
+    color: {
+      mode: 'fixed',
+      fixedColor: 'text',
+    },
+  }),
+  vizHelper.fieldOverride('false_positives', {
+    displayName: 'False positives',
+    color: {
+      mode: 'fixed',
+      fixedColor: 'text',
+    },
+  }),
+  vizHelper.fieldOverride('false_negatives', {
+    displayName: 'False negatives',
+    color: {
+      mode: 'fixed',
+      fixedColor: 'text',
+    },
+  }),
+];
+
+local alertsPanel(metric) =
+  panel.halfRow(
+    panel.new(title='Alerts')
+    .addTargets([alertsCityTarget(metric)])
+    .addOverrides(alertOverrides)
+  ) { type: 'stat' }
+;
+
 local rows = [
-  row.new(metric.title).addPanels([jwebb.newPanel(metric, '$city_id')])
+  row.new(metric.title).addPanels([
+    jwebb.newPanel(metric, '$city_id'),
+    alertsPanel(metric),
+  ])
   for metric in metrics
 ];
 
