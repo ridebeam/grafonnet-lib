@@ -18,6 +18,7 @@
     query,
     format='time_series',
     dateTimeColDataType='time_bucket',
+    interval=null,
   ):: {
     database: database,
     datasource: {
@@ -35,6 +36,7 @@
     round: '0s',
     format: format,
     intervalFactor: 1,
+    [if interval != null then 'interval']: interval,
     dateTimeType: 'DATETIME',
     query: query,
     formattedQuery: query,
