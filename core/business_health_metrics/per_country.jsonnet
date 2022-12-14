@@ -79,6 +79,25 @@ grafana.dashboard.new(
         name: 'Now',
         query: "select toUInt32(toStartOfInterval(now(), INTERVAL 30 minute))*1000 as time, 'Now' as text",
       },
+      {
+        datasource: {
+          type: 'datasource',
+          uid: 'grafana',
+        },
+        enable: true,
+        hide: true,
+        iconColor: 'purple',
+        name: 'Deployment',
+        query: 'SELECT\n  toUInt32(ts) * 1000 AS time,\n  description AS text,\n  tags\nFROM\n  event_table\nWHERE\n  ts >= toDateTime($from) AND ts < toDateTime($to)\n',
+        target: {
+          limit: 100,
+          matchAny: false,
+          tags: [
+            'app-sync-succeeded',
+          ],
+          type: 'tags',
+        },
+      },
     ],
   },
 }
