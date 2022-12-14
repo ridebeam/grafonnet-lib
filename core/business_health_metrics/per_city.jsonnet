@@ -81,11 +81,6 @@ local metrics = [
     title: 'Trip Starts',
     query: 'select city_id, time_bucket, count from jwebb.trips_count_30m where $timeFilter and city_id = $city_id order by time_bucket asc',
   },
-  {
-    name: 'payments',
-    title: 'Payment transactions',
-    query: paymentsQuery,
-  },
 ];
 
 local rows = [
