@@ -39,8 +39,7 @@ local cityQuery =
             toDateTime(time_bucket) as time_bucket,
             city_id,
             if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
-            yhat_upper,
-            yhat,
+            toInt64(yhat) as yhat,
             y
         from executable(
             'table_forecast_multi.py trips',
@@ -51,11 +50,17 @@ local cityQuery =
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
         toString(city_id) as city_id,
+        g.name as city_name,
+        toString(g.parent_id) as country_id,
         toString(time_bucket) as alerted_at,
+        toString(sum(y)) as actual,
+        toString(sum(yhat)) as forecasted,
+        toString(sum(yhat_lower)) as threshold,
         sum(y-yhat_lower) as dist
     from trips_count_city_forecast t
+    left join default.georegions g on t.city_id = g.id
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
-    group by time_bucket, city_id, alerted_at
+    group by time_bucket, city_id, city_name, country_id, alerted_at
     order by time_bucket asc
   ||| % [[c.id for c in citiesWithAlerts]]
 ;
@@ -81,8 +86,7 @@ local countryQuery =
             toDateTime(time_bucket) as time_bucket,
             country_id,
             if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
-            yhat_upper,
-            yhat,
+            toInt64(yhat) as yhat,
             y
         from executable(
             'table_forecast_multi.py trips 0.9999',
@@ -93,11 +97,16 @@ local countryQuery =
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
         toString(country_id) as country_id,
+        g.name as country_name,
         toString(time_bucket) as alerted_at,
+        toString(sum(y)) as actual,
+        toString(sum(yhat)) as forecasted,
+        toString(sum(yhat_lower)) as threshold,
         sum(y-yhat_lower) as dist
     from trips_count_country_forecast t
+    left join default.georegions g on t.country_id = g.id
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
-    group by time_bucket, country_id, alerted_at
+    group by time_bucket, country_id, country_name, alerted_at
     order by time_bucket asc
   ||| % [[c.id for c in countriesWithAlerts]]
 ;
@@ -120,6 +129,9 @@ local globalQuery =
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
         toString(time_bucket) as alerted_at,
+        toString(y) as actual,
+        toString(yhat) as forecasted,
+        toString(yhat_lower) as threshold,
         y-yhat_lower as dist
     from trips_count_global_forecast
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
