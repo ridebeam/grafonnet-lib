@@ -86,7 +86,7 @@ local countryQuery =
             toDateTime(time_bucket) as time_bucket,
             country_id,
             toInt64(if(country_id = 51,
-                if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(toHour(toDateTime(time_bucket)) = 23, yhat*0.75, if(yhat_lower < 0, 0, yhat_lower))),
+                if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(yhat_lower < 0, 0, yhat_lower)),
                 if(yhat_lower < 0, 0, yhat_lower)
             )) as yhat_lower,
             toInt64(yhat) as yhat,
@@ -123,7 +123,7 @@ local globalQuery =
             toInt64(if(
               toHour(toDateTime(time_bucket)) between 5 and 15,
               yhat_lower*0.5,
-              if(toHour(toDateTime(time_bucket)) = 23, yhat*0.75, if(yhat_lower < 0, 0, yhat_lower))))
+              if(yhat_lower < 0, 0, yhat_lower)))
             as yhat_lower,
             toInt64(yhat) as yhat,
             y

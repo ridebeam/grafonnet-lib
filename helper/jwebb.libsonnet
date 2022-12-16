@@ -16,7 +16,7 @@ local pastQuery(metric, coverage=0.99) =
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
         if(city_id in (1, 51),
-            if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(toHour(toDateTime(time_bucket)) = 23, yhat*0.75, if(yhat_lower < 0, 0, yhat_lower))),
+            if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(yhat_lower < 0, 0, yhat_lower)),
             if(yhat_lower < 0, 0, yhat_lower)
         ) as yhat_lower,
         yhat_upper,
