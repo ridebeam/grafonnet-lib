@@ -165,7 +165,7 @@ local futureEventsCountQuery =
   |||
     SELECT
         $timeSeries AS t,
-        (SELECT COUNT(*) FROM $table WHERE event_time > now()) AS count
+        (SELECT COUNT(*) FROM $table WHERE event_time > now() + INTERVAL 10 MINUTE) AS count
     FROM $table
     WHERE $timeFilter
     GROUP BY t
