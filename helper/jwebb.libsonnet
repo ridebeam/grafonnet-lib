@@ -15,9 +15,11 @@ local pastQuery(metric, coverage=0.99) =
   |||
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        if(yhat_lower < 0, 0, yhat_lower) as yhat_lower,
+        if(city_id in (1, 51),
+            if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(toHour(toDateTime(time_bucket)) = 23, yhat*0.75, if(yhat_lower < 0, 0, yhat_lower))),
+            if(yhat_lower < 0, 0, yhat_lower)
+        ) as yhat_lower,
         yhat_upper,
-        -- yhat,
         if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute), y, null) as y,
         if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y < yhat_lower, y, null) as anomaly_negative,
         if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y > yhat_upper, y, null) as anomaly_positive
@@ -37,8 +39,6 @@ local futureQuery(metric, cityId) =
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        -- yhat_lower as future_yhat_lower,
-        -- yhat_upper as future_yhat_upper,
         yhat as future_yhat
     from executable(
         'table_forecast_multi.py %(metric)s',
