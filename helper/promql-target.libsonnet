@@ -150,6 +150,7 @@ local prom = grafana.prometheus;
     withServiceFilters=true,
   ):: $.counter(metric, metrics, 'delta', interval, intervalFactor, alias, filters, groupBys, includeZero, withServiceFilters),
 
+
   rate(
     metric='',
     metrics=[],
@@ -161,6 +162,18 @@ local prom = grafana.prometheus;
     includeZero=false,
     withServiceFilters=true,
   ):: $.counter(metric, metrics, 'rate', interval, intervalFactor, alias, filters, groupBys, includeZero, withServiceFilters),
+
+  increase(
+    metric='',
+    metrics=[],
+    interval='$__interval',
+    intervalFactor=1,
+    alias='',
+    filters='',
+    groupBys=[],
+    includeZero=false,
+    withServiceFilters=true,
+  ):: $.counter(metric, metrics, 'increase', interval, intervalFactor, alias, filters, groupBys, includeZero, withServiceFilters),
 
   counter(
     metric='',

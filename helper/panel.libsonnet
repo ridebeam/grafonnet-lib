@@ -11,6 +11,7 @@ local panel = grafana.graphPanel;
       description=null,
       format='short',
       legend_show=true,
+      percentage=false,
     ):: panel.new(
       title=title,
       description=description,
@@ -20,6 +21,7 @@ local panel = grafana.graphPanel;
       legend_show=legend_show,
       legend_sortDesc=true,
       nullPointMode='null as zero',
+      percentage=percentage,
     ),
 
     counter(
@@ -44,6 +46,10 @@ local panel = grafana.graphPanel;
       description=null,
       format='s',
       legend_show=true,
+      lines=true,
+      points=false,
+      pointradius=5,
+      nullPointMode='null as zero',
     ):: panel.new(
       title=title,
       description=description,
@@ -51,7 +57,10 @@ local panel = grafana.graphPanel;
       format=format,
       min=0,
       legend_show=legend_show,
-      nullPointMode='null as zero',
+      nullPointMode=nullPointMode,
+      lines=lines,
+      points=points,
+      pointradius=pointradius,
     ),
 
     timeLog2(
