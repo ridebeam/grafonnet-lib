@@ -30,4 +30,5 @@
   googleCloudMonitoring:: import 'google_cloud_monitoring.libsonnet',
   clickhouse:: import 'clickhouse.libsonnet',
   timeSeriesPanel:: import 'timeseries_panel.libsonnet',
+  bigquery:: import 'bigquery.libsonnet',
 }
