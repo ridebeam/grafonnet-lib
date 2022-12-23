@@ -65,7 +65,7 @@ local alertDefinitions = [
         custom: {
           name: 'Vehicle Scraped Number',
           query: |||
-            sum(delta(compintel_scrape_vehicles_sum{competitor!~"beam_.*", namespace="%(env)s", service="%(service)s"}[60m])) by (competitor)
+            sum(delta(compintel_scrape_vehicles_sum{competitor!~"(beam_.*|marti_adana|marti_ankara|marti_balıkesir|marti_kayseri|marti_konya|marti_marmaris|marti_mersin)", namespace="%(env)s", service="%(service)s"}[60m])) by (competitor)
           ||| % { env: env, service: service },
           alias: '{{Vehicle Number}}',
         },
