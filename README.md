@@ -8,7 +8,10 @@ Install jq `brew install jq`
 
 Instructions can be found [here](https://github.com/google/jsonnet#packages).
 
-Clone the [Beam Grafonnet Submodule](https://github.com/ridebeam/grafonnet-lib).
+Clone the [Beam Grafonnet Submodule](https://github.com/ridebeam/grafonnet-lib):
+```sh
+git clone https://github.com/ridebeam/grafonnet-lib
+```
 
 Copy the library over to the root of the directory to run locally.
 
