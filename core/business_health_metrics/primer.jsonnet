@@ -146,6 +146,7 @@ local rows = [
       ])
       .addAlert(
         name=metric.alertName,
+        noDataState='ok',
         notifications=[alertsHelper.slackBusinessMonitoringWarning],
       )
       .addConditions([
