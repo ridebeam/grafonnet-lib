@@ -161,10 +161,10 @@ local rows = [
 grafana.dashboard.new(
   'Primer Payment Metrics',
   uid='global',
-  refresh='15m',
+  refresh='5m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
-  time_from='now-7d',
-  time_to='now+2d',
+  time_from='now-3h',
+  time_to='now',
   tags=['generated'],
   editable=true,
 )
