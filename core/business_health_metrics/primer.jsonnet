@@ -59,31 +59,31 @@ local metricGroups = [
     metrics: [
       {
         title: 'primer save payment failure count (error)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"save_primer_failed"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"save_primer_failed"\' group by time_bucket',
         alertName: 'primer save payment failure exceed threshold',
         alertCondition: countExceedConditional(0),
       },
       {
         title: 'primer tokenize failure count (error)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_error"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_error"\' group by time_bucket',
         alertName: 'primer tokenize failure exceeds threshold',
         alertCondition: countExceedConditional(0),
       },
       {
         title: 'primer tokenize timeout count (error)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_timeout"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_timeout"\' group by time_bucket',
         alertName: 'primer tokenize timeout happens',
         alertCondition: countExceedConditional(0),
       },
       {
         title: 'primer tokenize latency count (latency)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
         alertName: 'primer add payment latency is high',
         alertCondition: countExceedConditional(0),
       },
       {
         title: 'primer add payment tokenized success count (volume)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' group by time_bucket',
         alertName: 'primer add payment attempts volume is low',
         alertCondition: countLessThanThreshold(10),
       },
@@ -95,19 +95,19 @@ local metricGroups = [
     metrics: [
       {
         title: 'primer charge order failed (error)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_FAILED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_FAILED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket',
         alertName: 'primer charge order failed',
         alertCondition: countExceedConditional(0),
       },
       {
         title: 'primer charge order success counts (volume)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket',
         alertName: 'primer charge order success count',
         alertCondition: countLessThanThreshold(2),
       },
       {
         title: 'primer charge order latency (latency)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
         alertName: 'primer charge order success count',
         alertCondition: countExceedConditional(2),
       }
@@ -119,7 +119,7 @@ local metricGroups = [
     metrics: [
       {
         title: 'primer refund failed (error)',
-        query: 'select toStartOfFiveMinute("event_time") as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'PAYMENT_AUDIT\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractRaw(properties, \'audit_type\')=\'"refund_failed"\' group by time_bucket',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'PAYMENT_AUDIT\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractRaw(properties, \'audit_type\')=\'"refund_failed"\' group by time_bucket',
         alertName: 'primer refund failed',
         alertCondition: countExceedConditional(0),
       }
@@ -167,6 +167,7 @@ grafana.dashboard.new(
   time_to='now',
   tags=['generated'],
   editable=true,
+  timezone='Asia/Singapore',
 )
 
 .addRows(rows)
