@@ -79,10 +79,10 @@ local metricGroups = [
         noDataState: 'ok',
       },
       {
-        title: 'primer tokenize latency count (latency)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
+        title: 'primer tokenize latency (latency/0.95/s)',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'latencyMS\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' group by time_bucket',
         alertName: 'primer add payment latency is high',
-        alertCondition: countExceedConditional(0),
+        alertCondition: countExceedConditional(5),
         noDataState: 'no_data',
       },
       {
@@ -113,10 +113,10 @@ local metricGroups = [
         noDataState: 'no_data',
       },
       {
-        title: 'primer charge order latency (latency)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractInt(properties, \'latencyMS\') > 5000 group by time_bucket',
+        title: 'primer charge order latency (latency/0.95/s)',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'latencyMS\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket',
         alertName: 'primer charge order success count',
-        alertCondition: countExceedConditional(2),
+        alertCondition: countExceedConditional(6),
         noDataState: 'no_data',
       }
     ],
