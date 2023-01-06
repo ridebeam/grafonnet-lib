@@ -45,7 +45,7 @@ local cityQuery =
             'table_forecast_multi.py trips',
             'TabSeparated',
             'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
-            (select * from time_series), SETTINGS command_read_timeout=30000)
+            (select * from time_series))
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
@@ -95,7 +95,7 @@ local countryQuery =
             'table_forecast_multi.py trips 0.9999',
             'TabSeparated',
             'country_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
-            (select * from time_series), SETTINGS command_read_timeout=30000)
+            (select * from time_series))
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
@@ -131,7 +131,7 @@ local globalQuery =
             'table_forecast_multi.py trips 0.9999',
             'TabSeparated',
             'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
-            (select 1 as city_id, time_bucket, count as count from $table where $timeFilter order by time_bucket asc), SETTINGS command_read_timeout=30000) e
+            (select 1 as city_id, time_bucket, count as count from $table where $timeFilter order by time_bucket asc)) e
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
