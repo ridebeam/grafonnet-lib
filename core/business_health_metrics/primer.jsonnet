@@ -82,7 +82,7 @@ local metricGroups = [
         title: 'primer tokenize latency (latency/0.95/s)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'latencyMS\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer add payment latency is high',
-        alertCondition: countExceedConditional(5),
+        alertCondition: countExceedConditional(6),
         noDataState: 'ok', //'no_data'
       },
       {
