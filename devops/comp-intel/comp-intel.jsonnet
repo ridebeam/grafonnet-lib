@@ -50,6 +50,24 @@ local targets = {
     format: 'unit',
     instant: true,
   },
+  duplication_rate: {
+    query: target.delta(
+      metric='compintel_duplication_rate_sum',
+      groupBys=['competitor'],
+    ),
+  } + {
+    format: 'unit',
+    instant: true,
+  },
+  max_duplicates: {
+    query: target.delta(
+      metric='compintel_max_duplicates_sum',
+      groupBys=['competitor'],
+    ),
+  } + {
+    format: 'unit',
+    instant: true,
+  },
 };
 
 local panels = {
@@ -73,6 +91,16 @@ local panels = {
       targets.comp_total_job.query,
     ]),
   },
+  duplication_rate: {
+    query: panel.counter('Duplication Rate', format='%').addTargets([
+      targets.duplication_rate.query,
+    ]),
+  },
+  max_duplicates: {
+    query: panel.counter('Max Duplicates Count by vehicle ID', format='vehicles').addTargets([
+      targets.max_duplicates.query,
+    ]),
+  },
 };
 
 local rows = {
@@ -93,6 +121,13 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.comp_total_job.query,
+    ]
+  ]),
+  duplicates: row.new('Duplicates').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.duplication_rate.query,
+      panels.max_duplicates.query,
     ]
   ]),
 };
