@@ -164,4 +164,5 @@ grafana.dashboard.new(
   rows.vehicle_count,
   rows.comp_timer,
   rows.total_job,
+  rows.duplicates,
 ])
