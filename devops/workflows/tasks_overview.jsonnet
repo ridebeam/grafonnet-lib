@@ -264,7 +264,7 @@
   },
   timezone: 'browser',
   title: 'Tasks Overview',
-  uid: 'tasks_overview',
+  uid: 'workflows_tasks_overview',
   version: 2,
   weekStart: '',
 }

@@ -1518,7 +1518,7 @@
   timepicker: {},
   timezone: '',
   title: 'Alerts weekly overview',
-  uid: 'cbcrQOcVz',
+  uid: 'business_health_metrics_alerts_weekly',
   version: 26,
   weekStart: '',
 }
