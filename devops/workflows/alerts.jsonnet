@@ -12,30 +12,33 @@ local panel = helpers.panel;
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
   {
-    row: 'Fail Rate',
+    row: 'Tasks',
     alerts: [
       {
-        title: 'Task execution fail rate',
+        title: 'Task execution failed(threshold 0)',
         custom: {
           name: 'workflow-task-execution-fail-rate',
-          query: '(sum(rate(argo_workflows_task_exec_result{cluster="core-sg", status="Failed"}[5m])) by (task_name) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="core-sg"}[5m])) by (task_name) * 100',
+          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed", task_name!="create-tasks"}[5m])',
           alias: '{{task_name}}',
         },
-        threshold: 1,
+        threshold: 0,
+        reducerType: 'max',
         thresholdType: 'gt',
-        message: 'Task fail rate is more than 1%',
+        message: '<https://grafana.devops.ridebeam.cloud/d/tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
         noDataState: 'ok',
       },
       {
-        title: 'Workflow execution fail rate',
+        title: 'Task execution failed(threshold 2)',
         custom: {
-          name: 'workflow-execution-fail-rate',
-          query: '(sum(rate(argo_workflows_exec_result{cluster="core-sg", status="Failed"}[5m])) by (workflow_name) OR vector(0)) / sum(rate(argo_workflows_task_exec_result{cluster="core-sg"}[5m])) by (workflow_name) * 100',
-          alias: '{{workflow_name}}',
+          name: 'workflow-task-execution-fail-rate',
+          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed", task_name="create-tasks"}[15m])',
+          alias: '{{task_name}}',
         },
-        threshold: 1,
+        threshold: 2,
+        reducerType: 'max',
         thresholdType: 'gt',
-        message: 'Workflow fail rate is more than 1%',
+        evaluateFor: '10m',
+        message: '<https://grafana.devops.ridebeam.cloud/d/tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
         noDataState: 'ok',
       },
     ],
