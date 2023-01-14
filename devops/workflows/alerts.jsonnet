@@ -24,7 +24,7 @@ local alertDefinitions = [
         threshold: 0,
         reducerType: 'max',
         thresholdType: 'gt',
-        message: '<https://grafana.devops.ridebeam.cloud/d/tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
+        message: '<https://grafana.devops.ridebeam.cloud/d/workflows_tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
         noDataState: 'ok',
       },
       {
@@ -38,7 +38,7 @@ local alertDefinitions = [
         reducerType: 'max',
         thresholdType: 'gt',
         evaluateFor: '10m',
-        message: '<https://grafana.devops.ridebeam.cloud/d/tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
+        message: '<https://grafana.devops.ridebeam.cloud/d/workflows_tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
         noDataState: 'ok',
       },
     ],
