@@ -11,12 +11,16 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
+// This is getting more complex. We should consider exploring dbt python model
+// to make sure that tweaks to the model is properly tracked.
+
 local pastQuery(metric, coverage=0.99) =
   |||
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,
-        if(city_id in (1, 51),
-            if(toHour(toDateTime(time_bucket)) between 5 and 15, yhat_lower*0.5, if(yhat_lower < 0, 0, yhat_lower)),
+        multiIf(
+            city_id in (1, 51) and toHour(toDateTime(time_bucket)) between 5 and 15,
+            yhat_lower*0.5,
             if(yhat_lower < 0, 0, yhat_lower)
         ) as yhat_lower,
         yhat_upper,
@@ -28,6 +32,28 @@ local pastQuery(metric, coverage=0.99) =
         'TabSeparated',
         'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
         (%(query)s))
+  ||| % { metric: metric.name, query: metric.query, coverage: coverage }
+;
+
+local pastQueryWithRain(metric, coverage=0.99) =
+  |||
+    select
+        (toUInt32(toDateTime(time_bucket)) * 1000) as t,
+        multiIf(
+            city_id in (1, 51) and toHour(toDateTime(time_bucket)) between 5 and 15,
+            yhat_lower*0.5,
+            if(yhat_lower < 0, 0, yhat_lower * (1-(1-0.3)*rain_smoothed))
+        ) as yhat_lower,
+        yhat_upper,
+        if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute), y, null) as y,
+        if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y < yhat_lower, y, null) as anomaly_negative,
+        if(toDateTime(time_bucket) < toStartOfInterval(now(), INTERVAL 30 minute) and y > yhat_upper, y, null) as anomaly_positive
+    from executable(
+        'table_forecast_multi.py %(metric)s %(coverage)f',
+        'TabSeparated',
+        'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
+        (%(query)s)) e
+    left join jwebb.rain_30m w on toDateTime(e.time_bucket) = w.time_bucket and w.city_id = $city_id
   ||| % { metric: metric.name, query: metric.query, coverage: coverage }
 ;
 
@@ -179,11 +205,11 @@ local overrides = [
   }),
 ];
 
-local newPastTarget(metric, cityId, coverage) =
+local newPastTarget(metric, cityId, coverage, includeRain) =
   target.target(
     database='jwebb',
     datasourceUID=clickhouse.dataSourceUIDProd,
-    query=pastQuery(metric, coverage),
+    query=if (includeRain) then pastQueryWithRain(metric, coverage) else pastQuery(metric, coverage),
     table='events',
     dateTimeColDataType='time_bucket',
   )
@@ -199,15 +225,15 @@ local newFutureTarget(metric, cityId) =
   )
 ;
 
-local newPanel(metric, cityId, coverage) =
+local newPanel(metric, cityId, coverage, includeRain) =
   panel.fullRow(
     panel.new(title=metric.title)
-    .addTargets([newPastTarget(metric, cityId, coverage), newFutureTarget(metric, cityId)])
+    .addTargets([newPastTarget(metric, cityId, coverage, includeRain), newFutureTarget(metric, cityId)])
     .addOverrides(overrides)
   )
 ;
 
 {
-  newPanel(metric, cityId, coverage=0.99)::
-    newPanel(metric, cityId, coverage),
+  newPanel(metric, cityId, coverage=0.99, includeRain=false)::
+    newPanel(metric, cityId, coverage, includeRain),
 }

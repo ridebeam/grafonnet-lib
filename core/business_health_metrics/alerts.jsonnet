@@ -38,14 +38,15 @@ local cityQuery =
         select
             toDateTime(time_bucket) as time_bucket,
             city_id,
-            if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower)) as yhat_lower,
+            if(toInt64(yhat_lower) < 0, 0, toInt64(yhat_lower * (1-(1-0.3)*rain_smoothed))) as yhat_lower,
             toInt64(yhat) as yhat,
             y
         from executable(
             'table_forecast_multi.py trips',
             'TabSeparated',
             'city_id UInt64, time_bucket String, y Float64, yhat Float64, yhat_lower Float64, yhat_upper Float64',
-            (select * from time_series))
+            (select * from time_series)) e
+        left join jwebb.rain_30m w on toDateTime(e.time_bucket) = w.time_bucket and w.city_id = e.city_id
     )
     select
         (toUInt32(toDateTime(time_bucket)) * 1000) as t,

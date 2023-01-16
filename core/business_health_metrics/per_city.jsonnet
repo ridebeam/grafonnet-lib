@@ -10,30 +10,6 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local paymentsQuery =
-  |||
-    with
-    raw_events as (
-      select
-        event_time,
-        visitParamExtractString(properties, 'itemType') as item_type,
-        visitParamExtractInt(properties, 'cityId') as city_id
-      from jwebb.events
-      where event_name = 'Purchase'
-      and item_type = 'Trip'
-      and city_id = $city_id
-    )
-    select
-      toString(city_id) as city_id,
-      toStartOfInterval(event_time, interval 30 minute) as time_bucket,
-      count() as count
-    from raw_events
-    where $timeFilter
-    group by city_id, time_bucket
-    order by time_bucket asc
-  |||
-;
-
 local weatherQuery(weather) =
   |||
     select
@@ -148,7 +124,7 @@ local alertsPanel(metric) =
 
 local rows = [
   row.new(metric.title).addPanels([
-    jwebb.newPanel(metric, '$city_id'),
+    jwebb.newPanel(metric, '$city_id', includeRain=true),
     alertsPanel(metric),
   ])
   for metric in metrics
