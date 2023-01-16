@@ -68,6 +68,15 @@ local targets = {
     format: 'unit',
     instant: true,
   },
+  total_requests: {
+    query: target.delta(
+      metric='compintel_total_requests_sum',
+      groupBys=['competitor'],
+    ),
+  } + {
+    format: 'unit',
+    instant: true,
+  },
 };
 
 local panels = {
@@ -101,6 +110,11 @@ local panels = {
       targets.max_duplicates.query,
     ]),
   },
+  total_requests: {
+    query: panel.counter('Total requests made to competitor endpoints', format='requests').addTargets([
+      targets.total_requests.query,
+    ]),
+  },
 };
 
 local rows = {
@@ -128,6 +142,12 @@ local rows = {
     for p in [
       panels.duplication_rate.query,
       panels.max_duplicates.query,
+    ]
+  ]),
+  performance: row.new('Performance').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.total_requests.query,
     ]
   ]),
 };
@@ -165,4 +185,5 @@ grafana.dashboard.new(
   rows.comp_timer,
   rows.total_job,
   rows.duplicates,
+  rows.performance,
 ])
