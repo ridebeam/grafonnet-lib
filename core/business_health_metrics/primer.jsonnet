@@ -89,7 +89,7 @@ local metricGroups = [
         title: 'primer add payment tokenized success count (volume)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_success"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer add payment attempts volume is low',
-        alertCondition: countLessThanThreshold(10),
+        alertCondition: countLessThanThreshold(1),
         noDataState: 'ok', //'no_data'
       },
     ],
