@@ -16,11 +16,11 @@ local alertDefs = [
     row: 'Error Rate',
     alerts: [
       {
-        title: 'Register/Login With Google Error Rate',
+        title: 'Register/Login(without phone number) With Google Error Rate',
         custom: {
           name: 'register-with-google-error-rate',
-          query: '(sum(rate(register_with_google_failed{namespace="production"}[10m])) OR vector(0)) / sum(rate(register_with_google_attempt{namespace="production"}[10m]) > 0) * 100',
-          alias: 'error with register/login with google',
+          query: '((sum(rate(register_with_google_failed{namespace="production"}[10m])) OR vector(0)) - (sum(rate(login_with_google_send_otp_failed{namespace="production"}[10m])) OR vector(0))) / sum(rate(register_with_google_attempt{namespace="production"}[10m]) > 0) * 100',
+          alias: 'error register/login with google',
           intervalFactor: 2,
         },
         threshold: 5,
@@ -30,11 +30,25 @@ local alertDefs = [
         noDataState: 'ok',
       },
       {
-        title: 'Register/Login With Apple Error Rate',
+        title: 'Login With Google With Linked Phone Number Error Rate',
+        custom: {
+          name: 'register-with-google-with-linked-phone-number-error-rate',
+          query: '(sum(rate(login_with_google_send_otp_failed{namespace="production"}[60m])) OR vector(0)) / sum(rate(register_with_google_attempt{namespace="production"}[60m]) > 0) * 100',
+          alias: 'error login with google with linked phone number',
+          intervalFactor: 2,
+        },
+        threshold: 10,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of login with google with linked phone number above 10%',
+        noDataState: 'ok',
+      },
+      {
+        title: 'Register/Login(without phone number) With Apple Error Rate',
         custom: {
           name: 'register-with-apple-error-rate',
-          query: '(sum(rate(register_with_apple_failed{namespace="production"}[10m])) OR vector(0)) / sum(rate(register_with_apple_attempt{namespace="production"}[10m]) > 0) * 100',
-          alias: 'error with register/login with apple',
+          query: '((sum(rate(register_with_apple_failed{namespace="production"}[10m])) OR vector(0)) - (sum(rate(login_with_apple_send_otp_failed{namespace="production"}[10m])) OR vector(0))) / sum(rate(register_with_apple_attempt{namespace="production"}[10m]) > 0) * 100',
+          alias: 'error register/login with apple',
           intervalFactor: 2,
         },
         threshold: 5,
@@ -44,11 +58,25 @@ local alertDefs = [
         noDataState: 'ok',
       },
       {
+        title: 'Login With Apple With Linked Phone Number Error Rate',
+        custom: {
+          name: 'register-with-apple-with-linked-phone-number-error-rate',
+          query: '(sum(rate(login_with_apple_send_otp_failed{namespace="production"}[60m])) OR vector(0)) / sum(rate(register_with_apple_attempt{namespace="production"}[60m]) > 0) * 100',
+          alias: 'error login with apple with linked phone number',
+          intervalFactor: 2,
+        },
+        threshold: 10,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of login with apple with linked phone number above 10%',
+        noDataState: 'ok',
+      },
+      {
         title: 'Login With Phone Number Error Rate',
         custom: {
           name: 'login-with-phone-number-error-rate',
-          query: '((sum(rate(login_with_phone_number_failed{namespace="production"}[10m])) OR vector(0)) - (sum(rate(login_with_phone_number_failed_not_registered_user{namespace="production"}[10m]))) OR vector(0)) / sum(rate(login_with_phone_number_attempt{namespace="production"}[10m]) > 0) * 100',
-          alias: 'error with login with phone number',
+          query: '((sum(rate(login_with_phone_number_failed{namespace="production"}[10m])) OR vector(0)) - (sum(rate(login_with_phone_number_failed_not_registered_user{namespace="production"}[10m])) OR vector(0))) / sum(rate(login_with_phone_number_attempt{namespace="production"}[10m]) > 0) * 100',
+          alias: 'error login with phone number',
           intervalFactor: 2,
         },
         threshold: 10,
@@ -58,11 +86,25 @@ local alertDefs = [
         noDataState: 'ok',
       },
       {
+        title: 'User Not Found When Login Phone Number Error Rate',
+        custom: {
+          name: 'not-found-user-when-login-phone-number-error-rate',
+          query: '(sum(rate(login_with_phone_number_failed_not_registered_user{namespace="production"}[60m])) OR vector(0)) / sum(rate(login_with_phone_number_attempt{namespace="production"}[60m]) > 0) * 100',
+          alias: 'error user not found when login with phone number',
+          intervalFactor: 2,
+        },
+        threshold: 50,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of user not found when login with phone number above 50%',
+        noDataState: 'ok',
+      },
+      {
         title: 'Verify Otp Error Rate',
         custom: {
           name: 'verify-otp-error-rate',
           query: '(sum(rate(verify_otp_failed{namespace="production"}[10m])) OR vector(0)) / sum(rate(verify_otp_attempt{namespace="production"}[10m]) > 0) * 100',
-          alias: 'error with verifying otp',
+          alias: 'error verifying otp',
           intervalFactor: 2,
         },
         threshold: 5,
