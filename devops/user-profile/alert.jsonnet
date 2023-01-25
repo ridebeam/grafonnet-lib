@@ -37,10 +37,10 @@ local alertDefs = [
           alias: 'error login with google with linked phone number',
           intervalFactor: 2,
         },
-        threshold: 10,
+        threshold: 20,
         thresholdType: 'gt',
         queryTimeStart: '15m',
-        message: 'Error ratio of login with google with linked phone number above 10%',
+        message: 'Error ratio of login with google with linked phone number above 20%',
         noDataState: 'ok',
       },
       {
@@ -89,7 +89,7 @@ local alertDefs = [
         title: 'User Not Found When Login Phone Number Error Rate',
         custom: {
           name: 'not-found-user-when-login-phone-number-error-rate',
-          query: '(sum(rate(login_with_phone_number_failed_not_registered_user{namespace="production"}[60m])) OR vector(0)) / sum(rate(login_with_phone_number_attempt{namespace="production"}[60m]) > 0) * 100',
+          query: '(sum(rate(login_with_phone_number_failed_not_registered_user{namespace="production"}[6h])) OR vector(0)) / sum(rate(login_with_phone_number_attempt{namespace="production"}[6h]) > 0) * 100',
           alias: 'error user not found when login with phone number',
           intervalFactor: 2,
         },
@@ -130,7 +130,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(alertDefs, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.slackAlertsOnly,
+      channels: alerts.notifications.productionWarnings,
       reducerType: 'avg',
     },
   },)
