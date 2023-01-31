@@ -56,6 +56,19 @@ local alertDefs = [
         message: 'Error ratio of adding status of vehicle is over 20%',
         noDataState: 'ok',
       },
+       {
+              title: '[kps] Valid user id error rate',
+              custom: {
+                name: 'validate user id error rate',
+                query: '(sum(rate(validate_id_error{namespace="production"}[1m])) OR vector(0)) / sum(rate(validate_id_request{namespace="production"}[1m]) > 0) * 100',
+                alias: 'error validate id',
+                intervalFactor: 2,
+              },
+              threshold: 20,
+              thresholdType: 'gt',
+              message: 'Error ratio of validating user id is over 20%',
+              noDataState: 'ok',
+            },
     ],
   },
   {

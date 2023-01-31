@@ -67,6 +67,9 @@ local targets = {
     addLocationError: target.counter(
       metric='unet-add-location-error'
     ),
+    validateUserIdError: target.counter(
+      metric='validate-id-error'
+    ),
   },
   unetApi: {
     count: target.counter(
@@ -78,6 +81,14 @@ local targets = {
       groupBys=['unet_api_path'],
     ),
   },
+  kpsApi: {
+    count: target.counter(
+      metric='validate-id-request',
+    ),
+    latency: target.timers(
+      metric='validate-id-latency',
+    ),
+  }
 };
 
 local panels = {
@@ -121,6 +132,7 @@ local panels = {
       targets.errors.getUserInfo,
       targets.errors.addStatusError,
       targets.errors.addLocationError,
+      targets.errors.validateUserIdError,
     ]),
   },
   unetApi: {
@@ -133,6 +145,16 @@ local panels = {
       targets.unetApi.latency.p50,
     ]),
   },
+  kpsApi: {
+      requestCount: panel.counter('kps(user-id-valid) API request').addTargets([
+        targets.kpsApi.count,
+      ]),
+      latency: panel.timeLinear('kps(user-id-valid) API latency').addTargets([
+        targets.kpsApi.latency.p99,
+        targets.kpsApi.latency.p95,
+        targets.kpsApi.latency.p50,
+      ]),
+    },
 };
 
 local rows = {
@@ -155,6 +177,13 @@ local rows = {
       panels.unetApi.latency,
     ]
   ]),
+   kpsApi: row.new('kps API').addPanels([
+      panel.halfRow(p)
+      for p in [
+        panels.kpsApi.requestCount,
+        panels.kpsApi.latency,
+      ]
+    ]),
   errors: row.new('Errors').addPanels([
     panel.halfRow(p)
     for p in [
@@ -191,6 +220,7 @@ grafana.dashboard.new(
   k8s.rows.service,
   rows.service,
   rows.unetApi,
+  rows.kpsApi,
   rows.errors,
   panel.collapseRow(k8s.rows.grpc),
   panel.collapseRow(k8s.rows.postgres),
