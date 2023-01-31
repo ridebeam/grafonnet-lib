@@ -94,6 +94,7 @@ local alertDefinitions = [
         noDataState: 'ok',
         message: |||
           Seeing high volume of iot error codes
+          <https://redash.ridebeam.com/queries/19341/source|View Breakdown>
         |||,
       },
 
