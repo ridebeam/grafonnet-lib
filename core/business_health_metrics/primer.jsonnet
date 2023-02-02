@@ -61,7 +61,7 @@ local metricGroups = [
         title: 'primer save payment failure count (error)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"save_primer_failed"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer save payment failure exceed threshold',
-        alertCondition: countExceedConditional(0),
+        alertCondition: countExceedConditional(5),
         noDataState: 'ok',
       },
       {
@@ -102,7 +102,7 @@ local metricGroups = [
         title: 'primer charge order failed (error)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_FAILED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractRaw(properties, \'error\') not in (\'"failed to charge"\') group by time_bucket order by time_bucket asc',
         alertName: 'primer charge order failed',
-        alertCondition: countExceedConditional(0),
+        alertCondition: countExceedConditional(3),
         noDataState: 'ok',
       },
       {
