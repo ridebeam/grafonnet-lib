@@ -59,9 +59,9 @@ local metricGroups = [
     metrics: [
       {
         title: 'primer save payment failure count (error)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"save_primer_failed"\' group by time_bucket order by time_bucket asc',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"save_primer_failed"\' and visitParamExtractRaw(properties, \'error\') != \'"save payment method err: authorized failed"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer save payment failure exceed threshold',
-        alertCondition: countExceedConditional(5),
+        alertCondition: countExceedConditional(0),
         noDataState: 'ok',
       },
       {
