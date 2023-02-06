@@ -180,7 +180,10 @@ local alertDefinitions = [
                 target.equalsFilter('destination_service_namespace', 'production'),
               ),
             ),
-            numeratorFilters=target.likeFilter('response_code', '4.[012356789]'),
+            numeratorFilters=target.combineFilters(
+              target.likeFilter('response_code', '4.[012356789]'),
+              target.notEqualFilter('response_code', '429'),
+            ),
             withServiceFilters=false,
             interval='1m',
           ).expr,
