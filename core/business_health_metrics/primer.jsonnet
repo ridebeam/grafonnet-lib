@@ -75,7 +75,7 @@ local metricGroups = [
         title: 'primer tokenize timeout count (error)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_timeout"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer tokenize timeout happens',
-        alertCondition: countExceedConditional(0),
+        alertCondition: countExceedConditional(1),
         noDataState: 'ok',
       },
       {
