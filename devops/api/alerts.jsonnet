@@ -207,8 +207,9 @@ local alertDefinitions = [
         },
         format: 'ms',
         threshold: 10000,
+        // query for last 2min to check if p95 is bigger than 10s, if yes and this lasts for 3min, we alert
         queryTimeStart: '2m',
-        evaluateFor: '10m',
+        evaluateFor: '3m',
         // TODO message
         message: |||
           TODO
