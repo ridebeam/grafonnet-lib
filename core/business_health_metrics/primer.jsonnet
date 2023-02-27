@@ -66,7 +66,7 @@ local metricGroups = [
       },
       {
         title: 'primer tokenize failure count (error)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_error"\' and visitParamExtractRaw(properties, 'error') not like '%invalid-cardnumber%' group by time_bucket order by time_bucket asc',
+        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'paymentFSMEvent\' and visitParamExtractRaw(properties,\'step\')=\'"primer_tokenize_error"\' and visitParamExtractRaw(properties, \'error\') not like \'%invalid-cardnumber%\' group by time_bucket order by time_bucket asc',
         alertName: 'primer tokenize failure exceeds threshold',
         alertCondition: countExceedConditional(0),
         noDataState: 'ok',
