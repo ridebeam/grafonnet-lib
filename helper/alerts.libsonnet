@@ -26,6 +26,7 @@ local cwPanel = cwHelpers.panel;
   slackTest: { uid: '5th60Gc7z' },
   slackData: { uid: 'v22AHAf7k' },
   slackPayments: { uid: '_pd1H0fnk' },
+  slackOpsEngineering: { uid: '796wRExVk' },
   slackSettings: { uid: 'DA1AqzY7z' },
   slackCompIntel: { uid: 'YoazTlw7z' },
   opsgenie: { uid: 'krSwV2d7k' },
@@ -44,6 +45,7 @@ local cwPanel = cwHelpers.panel;
     opsGRAlerts: [$.slackWarn, $.opsgenieOpsGR],
     vehiclesAlerts: [$.slack, $.opsgenieVehicles],
     slackAlertsOnly: [$.slack],
+    opsEngineeringWarnings: [$.slackOpsEngineering],
   },
 
   alertDefaults:: {
