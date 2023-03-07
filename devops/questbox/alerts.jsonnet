@@ -52,7 +52,7 @@ local alertDefinitions = [
         title: 'Get Task for Vehicle Errors',
         custom: {
           name: 'rate-of-failure-ratio-get-task-vehicle',
-          query: '((sum(rate(questbox_get_task_vehicle_failure[2m])) OR vector(0)) / sum(rate(questbox_get_task_vehicle_attempts[2m]))) * 100',
+          query: '((sum(rate(questbox_get_task_vehicle_failure{namespace="production"}[1m])) OR vector(0)) / sum(rate(questbox_get_task_vehicle_attempts{namespace="production"}[1m]))) * 100',
           alias: 'rate of failure ratio get task vehicle',
         },
         threshold: 30,
@@ -62,7 +62,7 @@ local alertDefinitions = [
         title: 'Apply Action Errors',
         custom: {
           name: 'rate-of-failure-ratio-apply-action',
-          query: '((sum(rate(questbox_apply_action_failure[2m])) OR vector(0)) / sum(rate(questbox_apply_action_attempts[2m]))) * 100',
+          query: '((sum(rate(questbox_apply_action_failure{namespace="production"}[1m])) OR vector(0)) / sum(rate(questbox_apply_action_attempts{namespace="production"}[1m]))) * 100',
           alias: 'rate of failure ratio apply action',
         },
         threshold: 30,
@@ -88,6 +88,7 @@ grafana.dashboard.new(
     channels: alerts.notifications.opsEngineeringWarnings,
     evaluateFor: '5m',
     reducerType: 'min',
+    noDataState: 'ok',
   },
   gcpGauges+: {
     gcpHelpers: gcpHelpers,
