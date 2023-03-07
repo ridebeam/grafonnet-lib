@@ -112,7 +112,7 @@ local alertDefs = [
           query: '((sum(rate(unet_api_request{namespace="production", unet_api_response_status=~"5.."}[1m])) OR vector(0)) / sum(rate(unet_api_request{namespace="production"}[1m])) > 0) * 100',
           alias: 'percentage rate of 5xx errors to rate of total requests',
         },
-        threshold: 1,
+        threshold: 20,
         noDataState: 'ok',
         message: 'Too many API requests failing with 5xx. Inspect Unet Overview-Unet Service to identify which api has issue',
       },
