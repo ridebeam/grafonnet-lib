@@ -113,6 +113,7 @@ local alertDefs = [
           alias: 'percentage rate of 5xx errors to rate of total requests',
         },
         threshold: 20,
+        queryTimeStart: '15m',
         noDataState: 'ok',
         message: 'Too many API requests failing with 5xx. Inspect Unet Overview-Unet Service to identify which api has issue',
       },
