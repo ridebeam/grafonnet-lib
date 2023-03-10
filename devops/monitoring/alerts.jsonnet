@@ -66,8 +66,8 @@ local alertDefinitions = [
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'generic',
-  uid='monitoring_victoriametrics',
+  'System Generic',
+  uid='system_generic',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_from='now-24h',
