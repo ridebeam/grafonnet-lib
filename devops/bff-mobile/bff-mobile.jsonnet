@@ -43,7 +43,7 @@ local pnls(title, prefix, suffixes, groupBys) =
     ]),
 
     panel.timeLinear('Timing %s' % [title]).addTargets([
-      tmr.p99,
+      tmr.p95,
     ]),
 
   ];
