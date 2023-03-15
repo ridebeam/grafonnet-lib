@@ -186,6 +186,22 @@ local warningAlerts = [
         |||,
         noDataState: 'ok',
       },
+      {
+        title: 'unlock failed per model',
+        custom: {
+          name: 'unlock-failed-per-model',
+          // skipping okai & yadea since we have so much anomalies for those vehicle
+          query: |||
+            sum(rate(start_trip_error{namespace="production", vehicle_model!="OKAI_EB100", vehicle_model!="YADEA_Q20", vehicle_model!=""}[30m])) by (vehicle_model) / sum(rate(start_trip{namespace="production", vehicle_model!="OKAI_EB100", vehicle_model!="YADEA_Q20", vehicle_model!=""}[30m])) by (vehicle_model)
+          |||,
+          alias: '{{vehicle_model}}',
+        },
+        threshold: 0.3,
+        thresholdType: 'gt',
+        message: |||
+          Unlock error rate spikes
+        |||,
+      },
     ],
   },
 ];
