@@ -22,7 +22,7 @@ local targets = {
       metric='questbox-get-task-vehicle-failure',
     ),
     timing: target.timers(
-      metric='questbox-get-task-vehicle-timing',
+      metric='questbox-get-task-vehicle-latency',
     ),
   },
   getTaskForUser: {
@@ -36,7 +36,7 @@ local targets = {
       metric='questbox-get-task-user-failed',
     ),
     timing: target.timers(
-      metric='questbox-get-task-user-timing',
+      metric='questbox-get-task-user-latency',
     ),
   },
   applyAction: {
@@ -50,7 +50,7 @@ local targets = {
       metric='questbox-apply-action-failed',
     ),
     timing: target.timers(
-      metric='questbox-apply-action-timing',
+      metric='questbox-apply-action-latency',
     ),
   },
 };
@@ -116,9 +116,17 @@ grafana.dashboard.new(
 
 .addTemplate(
   template.custom(
-    name='namespace',
-    query='production',
+    name='env',
+    query='stable,staging,production',
     current='production',
+  )
+)
+
+.addTemplate(
+  template.custom(
+    name='service',
+    query='api',
+    current='api',
   )
 )
 
