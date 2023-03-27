@@ -31,7 +31,7 @@ local alertDefinitions = [
       {
         title: 'Get Task For Vehicle Latency',
         timer: {
-          name: 'questbox-get-task-vehicle-timing',
+          name: 'questbox-get-task-vehicle-latency',
           filters: target.equalsFilter('namespace', 'production'),
         },
         format: 's',
@@ -41,7 +41,7 @@ local alertDefinitions = [
       {
         title: 'Apply Action Latency',
         timer: {
-          name: 'questbox-apply-action-timing',
+          name: 'questbox-apply-action-latency',
           filters: target.equalsFilter('namespace', 'production'),
         },
         format: 's',

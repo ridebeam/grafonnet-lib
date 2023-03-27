@@ -27,7 +27,7 @@ local targets = {
   },
   getTaskForUser: {
     attempt: target.counter(
-      metric='questbox-get-task-user-attempt',
+      metric='questbox-get-task-user-attempts',
     ),
     success: target.counter(
       metric='questbox-get-task-user-success',
@@ -41,7 +41,7 @@ local targets = {
   },
   applyAction: {
     attempt: target.counter(
-      metric='questbox-apply-action-attempt',
+      metric='questbox-apply-action-attempts',
     ),
     success: target.counter(
       metric='questbox-apply-action-success',
