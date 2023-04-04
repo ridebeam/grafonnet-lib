@@ -33,7 +33,7 @@ local targets = {
       metric='questbox-get-task-user-success',
     ),
     failed: target.counter(
-      metric='questbox-get-task-user-failed',
+      metric='questbox-get-task-user-failure',
     ),
     timing: target.timers(
       metric='questbox-get-task-user-latency',
@@ -47,7 +47,7 @@ local targets = {
       metric='questbox-apply-action-success',
     ),
     failed: target.counter(
-      metric='questbox-apply-action-failed',
+      metric='questbox-apply-action-failure',
     ),
     timing: target.timers(
       metric='questbox-apply-action-latency',
