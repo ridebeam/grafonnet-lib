@@ -125,8 +125,9 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='service',
-    query='api',
-    current='api',
+    query='api,messaging',
+    allValues='.*',
+    current='All',
   )
 )
 
