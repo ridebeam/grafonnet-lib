@@ -52,7 +52,7 @@ local alertDefinitions = [
             query: |||
               count(histogram_quantile(0.99, sum(rate(kafka_consume_lag_bucket{namespace="production", service="iot-server", kafka_source_topic="vehicle-action"}[1m])) by (le,pod_name)))
             |||,
-            alias: '',
+            alias: 'count',
           },
           thresholdType: 'lt',
           threshold: 5,
