@@ -156,6 +156,27 @@ local alertDefinitions = [
   },
 ];
 
+local disconnectedVehicleAlerts = [
+ {
+    row: 'vehicle-watchdog',
+    alerts: [
+      {
+        title: 'number of deployed and disconnected vehicles by city',
+        custom: {
+          name: 'vehicle_deployed_disconnected',
+          query: |||
+            avg by(city_id) (vehicle_deployed_disconnected{namespace="production", service="vehicle-watchdog"}) > 0
+          |||,
+          alias: '{{city_id}}',
+        },
+        threshold: 300,
+        thresholdType: 'gt',
+        message: 'A lot of disconnected vehicle! A lot of disconnected vehicles! <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>',
+      }
+    ]
+  }
+];
+
 local warningAlerts = [
   {
     row: 'warnings',
@@ -237,6 +258,13 @@ grafana.dashboard.new(
   alerts.createRows(alertDefinitions, alerts.defaults {
     alerts+: {
       channels: alerts.notifications.vehiclesAlerts,
+    },
+  })
+)
+.addRows(
+  alerts.createRows(disconnectedVehicleAlerts, alerts.defaults {
+    alerts+: {
+      channels: alerts.notifications.iotConnectivityAlerts,
     },
   })
 )

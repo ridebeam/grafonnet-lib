@@ -29,6 +29,7 @@ local cwPanel = cwHelpers.panel;
   slackOpsEngineering: { uid: '796wRExVk' },
   slackSettings: { uid: 'DA1AqzY7z' },
   slackCompIntel: { uid: 'YoazTlw7z' },
+  slackIotConnectivity: { uid: 'rnbtzKLVk' },
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
   opsgenieVehicles: { uid: '9NE5WPjnz' },
@@ -46,6 +47,7 @@ local cwPanel = cwHelpers.panel;
     vehiclesAlerts: [$.slack, $.opsgenieVehicles],
     slackAlertsOnly: [$.slack],
     opsEngineeringWarnings: [$.slackOpsEngineering],
+    iotConnectivityAlerts: [$.slackIotConnectivity],
   },
 
   alertDefaults:: {
