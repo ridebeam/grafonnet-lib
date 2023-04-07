@@ -46,6 +46,22 @@ local alertDefinitions = [
         |||,
       },
       {
+          title: 'iot-server kafka vehicle-action consume instance count',
+          custom: {
+            name: 'iot-server kafka vehicle-action consume instance count',
+            query: |||
+              count(histogram_quantile(0.99, sum(rate(kafka_consume_lag_bucket{namespace="production", service="iot-server", kafka_source_topic="vehicle-action"}[1m])) by (le,pod_name)))
+            |||,
+            alias: '',
+          },
+          thresholdType: 'lt',
+          threshold: 5,
+          // TODO message
+          message: |||
+            TODO
+          |||,
+      },
+      {
         title: 'kafka consumption rate: vehicle-action',
         counter: {
           name: 'kafka-consume',
