@@ -55,7 +55,7 @@ local alertDefinitions = [
             alias: 'count',
           },
           thresholdType: 'lt',
-          threshold: 5,
+          threshold: 5.5,
           // TODO message
           message: |||
             TODO
