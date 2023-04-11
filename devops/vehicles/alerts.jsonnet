@@ -271,7 +271,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(warningAlerts, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.productionWarnings,
+      channels: alerts.notifications.vehiclesWarning,
     },
   })
 )
