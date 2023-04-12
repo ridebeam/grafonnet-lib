@@ -23,14 +23,14 @@ local analyticsWatchdogAlertFilter = target.combineFilters(
 local msg = 'Please check the playbook page and look for the corresponding alert code: https://beammobility.atlassian.net/wiki/spaces/BE/pages/2334654469/Payment+Service+Alert+Playbook';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
-local alertDefinitions = [
+local failureAlerts = [
   {
     row: 'Orders',
     alerts: [
       {
         title: '[payment-002] Create Order Failed',
         counter: { name: 'create-order-failed' },
-        threshold: 30,
+        threshold: 5,
         message: msg,
       },
       {
@@ -65,6 +65,43 @@ local alertDefinitions = [
   },
 ];
 
+local volumeAlerts = [
+  {
+    row: 'Orders',
+    alerts: [
+      {
+        title: '[payment-006] Create order attempt volume low',
+        counter: { name: 'create-order-attempt' },
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[payment-006] Create order success volume low',
+        counter: { name: 'create-order-success' },
+        threshold: 2,
+        message: msg,
+      },
+    ],
+  },
+  {
+    row: 'Recurring',
+    alerts: [
+      {
+        title: '[payment-007] Add Payment attempt volume low',
+        counter: { name: 'add-recurring-attempt' },
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[payment-007] Add Payment success volume low',
+        counter: { name: 'add-recurring-success' },
+        threshold: 2,
+        message: msg,
+      },
+    ],
+  },
+];
+
 local analyticsWatchdogAlertDefinitions = [
   {
     row: 'Orders',
@@ -90,7 +127,7 @@ grafana.dashboard.new(
   tags=['generated'],
   editable=true,
 )
-.addRows(alerts.createRows(alertDefinitions, alerts.defaults {
+.addRows(alerts.createRows(failureAlerts, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
     evaluateFor: '5m',
@@ -110,5 +147,17 @@ grafana.dashboard.new(
   counters+: {
     func: 'delta',
     filters: analyticsWatchdogAlertFilter,
+  },
+}))
+.addRows(alerts.createRows(volumeAlerts, alerts.defaults {
+  alerts+: {
+    channels: [alerts.slackPayments],
+    evaluateFor: '5m',
+    reducerType: 'max',
+    thresholdType: 'lt',
+  },
+  counters+: {
+    func: 'delta',
+    filters: serviceFilter,
   },
 }))
