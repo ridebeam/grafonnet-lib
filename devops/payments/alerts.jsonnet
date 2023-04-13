@@ -153,7 +153,7 @@ grafana.dashboard.new(
   alerts+: {
     channels: [alerts.slackPayments],
     evaluateFor: '5m',
-    reducerType: 'max',
+    reducerType: 'sum',
     thresholdType: 'lt',
   },
   counters+: {
