@@ -25,7 +25,7 @@ local msg = 'Please check the playbook page and look for the corresponding alert
 // one entry per row, with a list of panels for each alert (counter/timing)
 local failureAlerts = [
   {
-    row: 'Orders',
+    row: 'Order failures',
     alerts: [
       {
         title: '[payment-002] Create Order Failed',
@@ -42,7 +42,7 @@ local failureAlerts = [
     ],
   },
   {
-    row: 'Recurring',
+    row: 'Recurring failures',
     alerts: [
       {
         title: '[payment-001] Add Credit Card Failed',
@@ -53,7 +53,7 @@ local failureAlerts = [
     ],
   },
   {
-    row: 'Adyen',
+    row: 'Adyen failures',
     alerts: [
       {
         title: '[payment-003] Failed to handle Adyen 3DS',
@@ -67,7 +67,7 @@ local failureAlerts = [
 
 local volumeAlerts = [
   {
-    row: 'Orders',
+    row: 'Order volume',
     alerts: [
       {
         title: '[payment-006] Create order attempt volume low',
@@ -84,7 +84,7 @@ local volumeAlerts = [
     ],
   },
   {
-    row: 'Recurring',
+    row: 'Recurring volume',
     alerts: [
       {
         title: '[payment-007] Add Payment attempt volume low',
@@ -104,11 +104,17 @@ local volumeAlerts = [
 
 local analyticsWatchdogAlertDefinitions = [
   {
-    row: 'Orders',
+    row: 'Abnormals',
     alerts: [
       {
         title: '[payment-005] Orders stuck in notification',
         counter: { name: 'orders-stuck-for-notification' },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[payment-008] unknown migration version',
+        counter: { name: 'unknown-db-migration-version' },
         threshold: 1,
         message: msg,
       },
