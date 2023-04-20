@@ -102,7 +102,7 @@ local volumeAlerts = [
   },
 ];
 
-local analyticsWatchdogAlertDefinitions = [
+local abnormalEvents = [
   {
     row: 'Abnormals',
     alerts: [
@@ -144,11 +144,12 @@ grafana.dashboard.new(
     filters: serviceFilter,
   },
 }))
-.addRows(alerts.createRows(analyticsWatchdogAlertDefinitions, alerts.defaults {
+.addRows(alerts.createRows(abnormalEvents, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
     evaluateFor: '5m',
     reducerType: 'sum',
+    noDataState: 'ok',
   },
   counters+: {
     func: 'delta',
