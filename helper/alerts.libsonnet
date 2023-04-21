@@ -238,34 +238,35 @@ local cwPanel = cwHelpers.panel;
   // create for each entry a panel with alert
   createAlert(definition, defaults)::
     local def = defaults.alerts + definition;
-    [
-      $.panelHelper(def, defaults).new(def.title, format=def.format).addTargets([
-        $.createTarget(def, defaults),
-      ]).addAlert(
-        def.title,
-        notifications=def.channels,
-        message='%s\n\n%s' % [def.title, def.message],
-        forDuration=def.evaluateFor,
-        frequency=def.evaluateEvery,
-        noDataState=def.noDataState,
-      ).addConditions([
-        $.newCondition(
-          reducerType=def.reducerType,
-          threshold=def.threshold,
-          thresholdType=def.thresholdType,
-          queryTimeStart=def.queryTimeStart,
-        ),
-      ]),
-    ],
+    $.panelHelper(def, defaults).new(def.title, format=def.format).addTargets([
+      $.createTarget(def, defaults),
+    ]).addAlert(
+      def.title,
+      notifications=def.channels,
+      message='%s\n\n%s' % [def.title, def.message],
+      forDuration=def.evaluateFor,
+      frequency=def.evaluateEvery,
+      noDataState=def.noDataState,
+    ).addConditions([
+      $.newCondition(
+        reducerType=def.reducerType,
+        threshold=def.threshold,
+        thresholdType=def.thresholdType,
+        queryTimeStart=def.queryTimeStart,
+      ),
+    ]),
 
   // create panels for each row and put two panels side by side
   createRows(alertDefinitions, defaults=$.defaults):: [
     row.new(r.row).addPanels([
       promPanel.halfRow(p)
-      for p in std.flattenArrays([
-        $.createAlert(alert, defaults)
+      for p in [
+        if 'showTable' in alert then
+          promPanel.showTable($.createAlert(alert, defaults), current=true, sort='current')
+        else
+          $.createAlert(alert, defaults)
         for alert in r.alerts
-      ])
+      ]
     ])
     for r in alertDefinitions
   ],
