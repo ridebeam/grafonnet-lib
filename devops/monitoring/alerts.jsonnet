@@ -42,23 +42,26 @@ local alertDefinitions = [
         message: |||
           CrashLoopBackOff 1 time over 10 mins.
         |||,
+        channels: [alerts.slackWarn],
       },
       {
         title: 'Core: CrashLoopBackOff Count',
         custom: {
           name: 'CrashLoopBackOff Count',
           query: |||
-            increase(kube_pod_container_status_restarts_total{cluster="core-sg",exported_namespace=~"production"}[10m]) > 0
+            increase(kube_pod_container_status_restarts_total{cluster="core-sg",exported_namespace=~"production",pod!~".*cdc.*|.*dbt.*"}[4m]) > 0
           |||,
           alias: '{{cluster}} - {{exported_namespace}} -- {{pod}}',
         },
         // 1 times
-        threshold: 1,
-        evaluateFor: '10m',
+        threshold: 0,
+        evaluateFor: '3m',
         noDataState: 'ok',
+        evaluateEvery: '30s',
         message: |||
-          CrashLoopBackOff 1 time over 10 mins.
+          Has crashbackoff in the past 3 min
         |||,
+        channels: [alerts.slack],
       },
     ],
   },
