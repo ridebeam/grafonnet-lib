@@ -24,6 +24,30 @@ local alertDefinitions = [
     ],
   },
   {
+    row: 'CPU Monitor',
+    alerts: [
+      {
+        title: 'API Pod CPU Usage',
+        custom: {
+          name: 'CPU Usage exceeds 90%',
+          query: |||
+            sum(rate(container_cpu_usage_seconds_total{cluster="core-sg", namespace="production", container="api"}[3m])) by (pod) / (min(container_spec_cpu_quota{namespace="production", container="api"}[3m]) / min(container_spec_cpu_period{namespace="production", container="api"}[3m])) >0
+          |||,
+          alias: '{{pod}}',
+        },
+        // 90%
+        threshold: 0.9,
+        evaluateFor: '3m',
+        evaluateEvery: '30s',
+        noDataState: 'ok',
+        message: |||
+          CPU Usage exceeds 90% within 3 mins.
+        |||,
+        channels: [alerts.slackWarn],
+      },
+    ],
+  },
+  {
     row: 'Kubernetes',
     alerts: [
       {
