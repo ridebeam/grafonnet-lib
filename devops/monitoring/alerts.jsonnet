@@ -92,7 +92,7 @@ local alertDefinitions = [
         custom: {
           name: 'CrashLoopBackOff Count',
           query: |||
-            increase(kube_pod_container_status_restarts_total{cluster="payments-sg"}[4m]) > 0
+            increase(kube_pod_container_status_restarts_total{cluster="payments-sg", container!~".*cdc.*"}[4m]) > 0
           |||,
           alias: '{{exported_namespace}} -- {{pod}}',
         },
