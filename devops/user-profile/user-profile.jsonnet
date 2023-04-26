@@ -32,6 +32,17 @@ local targets = {
       metric='register-with-apple-failed',
     ),
   },
+  registerWithKakao: {
+    attempt: target.counter(
+      metric='register-with-kakao-attempt',
+    ),
+    success: target.counter(
+      metric='register-with-kakao-success',
+    ),
+    failure: target.counter(
+      metric='register-with-kakao-failed',
+    ),
+  },
   loginWithPhoneNumber: {
     attempt: target.counter(
       metric='login-with-phone-number-attempt',
@@ -73,6 +84,14 @@ local targets = {
       metric='login-with-apple-send-otp-failed',
     ),
   },
+  sendOtpWithKakaoLogin: {
+    success: target.counter(
+      metric='login-with-kakao-send-otp-success',
+    ),
+    failure: target.counter(
+      metric='login-with-kakao-send-otp-failed',
+    ),
+  },
 };
 
 
@@ -85,6 +104,10 @@ local panels = {
     registerWithAppleCounts: panel.counter('Register/Login With Apple Counts').addTargets([
       targets.registerWithApple.attempt,
       targets.registerWithApple.success,
+    ]),
+    registerWithKakaoCounts: panel.counter('Register/Login With Kakao Counts').addTargets([
+      targets.registerWithKakao.attempt,
+      targets.registerWithKakao.success,
     ]),
     loginWithPhoneNumberCounts: panel.counter('Login With Phone Number Counts').addTargets([
       targets.loginWithPhoneNumber.attempt,
@@ -100,15 +123,20 @@ local panels = {
     sendOtpWithAppleLoginCounts: panel.counter('Send Otp With Apple Login Counts').addTargets([
       targets.sendOtpWithAppleLogin.success,
     ]),
+    sendOtpWithKakaoLoginCounts: panel.counter('Send Otp With Kakao Login Counts').addTargets([
+      targets.sendOtpWithKakaoLogin.success,
+    ]),
   },
   errors: {
     general: panel.counter('Errors').addTargets([
       targets.registerWithGoogle.failure,
       targets.registerWithApple.failure,
+      targets.registerWithKakao.failure,
       targets.loginWithPhoneNumber.failure,
       targets.loginWithPhoneNumber.failureNoUserFound,
       targets.verifyOtp.failure,
       targets.sendOtpWithAppleLogin.failure,
+      targets.sendOtpWithKakaoLogin.failure,
       targets.sendOtpWithGoogleLogin.failure,
     ]),
   },
@@ -120,10 +148,12 @@ local rows = {
     for p in [
       panels.service.registerWithGoogleCounts,
       panels.service.registerWithAppleCounts,
+      panels.service.registerWithKakaoCounts,
       panels.service.loginWithPhoneNumberCounts,
       panels.service.verifyOtpCounts,
       panels.service.sendOtpWithGoogleLoginCounts,
       panels.service.sendOtpWithAppleLoginCounts,
+      panels.service.sendOtpWithKakaoLoginCounts,
     ]
   ]),
   errors: row.new('Errors').addPanels([

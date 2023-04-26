@@ -72,6 +72,34 @@ local alertDefs = [
         noDataState: 'ok',
       },
       {
+        title: 'Register/Login(without phone number) With Kakao Error Rate',
+        custom: {
+          name: 'register-with-kakao-error-rate',
+          query: '((sum(rate(register_with_kakao_failed{namespace="production"}[60m])) OR vector(0)) - (sum(rate(login_with_kakao_send_otp_failed{namespace="production"}[60m])) OR vector(0))) / sum(rate(register_with_kakao_attempt{namespace="production"}[60m]) > 0) * 100',
+          alias: 'error register/login with kakao',
+          intervalFactor: 2,
+        },
+        threshold: 20,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of register/login with kakao above 20%',
+        noDataState: 'ok',
+      },
+      {
+        title: 'Login With kakao With Linked Phone Number Error Rate',
+        custom: {
+          name: 'register-with-kakao-with-linked-phone-number-error-rate',
+          query: '(sum(rate(login_with_kakao_send_otp_failed{namespace="production"}[60m])) OR vector(0)) / sum(rate(register_with_kakao_attempt{namespace="production"}[60m]) > 0) * 100',
+          alias: 'error login with kakao with linked phone number',
+          intervalFactor: 2,
+        },
+        threshold: 20,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of login with kakao with linked phone number above 20%',
+        noDataState: 'ok',
+      },
+      {
         title: 'Login With Phone Number Error Rate',
         custom: {
           name: 'login-with-phone-number-error-rate',
