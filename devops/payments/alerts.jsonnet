@@ -108,7 +108,7 @@ local abnormalEvents = [
     alerts: [
       {
         title: '[payment-005] Orders stuck in notification',
-        counter: { name: 'orders-stuck-for-notification' },
+        counter: { name: 'waiting-on-notification-timeout' },
         threshold: 1,
         message: msg,
       },
