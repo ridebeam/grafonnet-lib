@@ -153,7 +153,7 @@ grafana.dashboard.new(
   },
   counters+: {
     func: 'delta',
-    filters: analyticsWatchdogAlertFilter,
+    filters: serviceFilter,
   },
 }))
 .addRows(alerts.createRows(volumeAlerts, alerts.defaults {
