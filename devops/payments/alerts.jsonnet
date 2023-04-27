@@ -118,6 +118,18 @@ local abnormalEvents = [
         threshold: 1,
         message: msg,
       },
+      {
+        title: '[payment-009] handle adyen notification requires re-send',
+        counter: { name: 'handle-adyen-notification-require-resend' },
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[payment-009] handle primer notification requires re-send',
+        counter: { name: 'handle-primer-notification-require-resend' },
+        threshold: 2,
+        message: msg,
+      },
     ],
   },
 ];

@@ -41,8 +41,14 @@ local metrics = [
   {
     row: 'Adyen',
     panels: [
-      { title: 'Handle Adyen Notification', prefix: 'handle-adyen-notification', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Handle Adyen Notification', prefix: 'handle-adyen-notification', counters: ['attempt', 'success', 'failed', 'require-resend'] },
       { title: 'Handle Adyen 3DS', prefix: 'handle-adyen-3ds', counters: ['attempt', 'success', 'failed', 'error'] },
+    ],
+  },
+  {
+    row: 'Primer',
+    panels: [
+      { title: 'Handle Primer Notification', prefix: 'handle-primer-notification', counters: ['attempt', 'success', 'failed', 'require-resend'] },
     ],
   },
   {
