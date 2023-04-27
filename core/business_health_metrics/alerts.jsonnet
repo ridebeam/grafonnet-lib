@@ -21,17 +21,14 @@ local countriesWithAlerts = std.filter(function(c) std.get(c, 'alerts', default=
 local cityQuery =
   |||
     with
-    cities as (
-        select arrayJoin(%s) as city_id
-    ),
     time_series as (
       select 
           city_id,
           time_bucket, 
           count
       from $table t
-      right join cities g ON g.city_id = t.city_id 
-      where $timeFilter 
+      where $timeFilter
+      AND city_id IN (%s)
       order by time_bucket asc
     ),
     trips_count_city_forecast AS (
@@ -63,23 +60,20 @@ local cityQuery =
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
     group by time_bucket, city_id, city_name, country_id, alerted_at
     order by time_bucket asc
-  ||| % [[c.id for c in citiesWithAlerts]]
+  ||| % [std.join(", ", std.map(function(c) std.toString(c.id), citiesWithAlerts))]
 ;
 
 local countryQuery =
   |||
     with
-    countries as (
-        select arrayJoin(%s) as country_id
-    ),
     time_series as (
       select 
           country_id,
           time_bucket, 
           count
       from $table t
-      right join countries g ON g.country_id = t.country_id 
       where $timeFilter 
+      and country_id IN (%s)
       order by time_bucket asc
     ),
     trips_count_country_forecast AS (
@@ -112,7 +106,7 @@ local countryQuery =
     where toDateTime(time_bucket) < toStartOfInterval(now(), interval 30 minute)
     group by time_bucket, country_id, country_name, alerted_at
     order by time_bucket asc
-  ||| % [[c.id for c in countriesWithAlerts]]
+  ||| % [std.join(", ", std.map(function(c) std.toString(c.id), countriesWithAlerts))]
 ;
 
 local globalQuery =
