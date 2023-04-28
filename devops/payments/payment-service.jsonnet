@@ -68,7 +68,7 @@ local pnls(title, prefix, suffixes) =
   local tmr = target.timers('%s-timing' % [prefix]);
 
   [
-    if std.length(suffixes) > 0 then panel.counter(title).addTargets([
+    panel.counter(title).addTargets([
       cnt('%s-%s' % [prefix, suffix])
       for suffix in suffixes
     ]),
