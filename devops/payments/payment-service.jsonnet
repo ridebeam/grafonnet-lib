@@ -68,10 +68,10 @@ local pnls(title, prefix, suffixes) =
   local tmr = target.timers('%s-timing' % [prefix]);
 
   [
-    panel.counter(title).addTargets([
+    if std.length(suffixes) > 0 then panel.counter(title).addTargets([
       cnt('%s-%s' % [prefix, suffix])
       for suffix in suffixes
-    ]),
+    ]) else null,
 
     panel.timeLinear('Timing %s' % [title]).addTargets([
       tmr.p50,
