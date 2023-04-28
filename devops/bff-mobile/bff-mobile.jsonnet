@@ -10,54 +10,107 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-// one entry per row, with a list of panel pairs (counter/timing)
-local metrics = [
-  {
-    row: 'GraphQL',
-    panels: [
-      { title: 'GraphQL Request', prefix: 'gql-request', counters: ['handled', 'error'], groupBys: ['gql_operation_name'] },
-      // { title: 'GraphQL Request Timing', prefix: 'gql-request-timing', counters: [], groupBys: ['gql_operation_name'] },
-    ],
+local metircs = {
+  GraphQL: {
+    successOverall: target.counter(
+      metric='gql-request-handled',
+    ),
+    success: target.counter(
+      metric='gql-request-handled',
+      groupBys=['gql_operation_name']
+    ),
+    failedOverall: target.counter(
+      metric='gql-request-error',
+    ),
+    failed: target.counter(
+      metric='gql-request-error',
+      groupBys=['gql_operation_name']
+    ),
+    timingOverall: target.timers(
+      metric='gql-request-timing',
+    ),
+    timing: target.timers(
+      metric='gql-request-timing',
+      groupBys=['gql_operation_name']
+    ),
   },
-  {
-    row: 'Beam-API',
-    panels: [
-      { title: 'Beam-API Request', prefix: 'beam-api-request', counters: ['handled', 'error'], groupBys: ['beam_api_request_url'] },
-      // { title: 'Beam-API Request Timing', prefix: 'beam-api-request-timing', counters: [], groupBys: ['beam_api_request_url'] },
-    ],
+  BeamApi: {
+    successOverall: target.counter(
+      metric='beam-api-request-handled',
+    ),
+    success: target.counter(
+      metric='beam-api-request-handled',
+      groupBys=['beam_api_request_url']
+    ),
+    failedOverall: target.counter(
+      metric='beam-api-request-error',
+    ),
+    failed: target.counter(
+      metric='beam-api-request-error',
+      groupBys=['beam_api_request_url']
+    ),
+    timingOverall: target.timers(
+      metric='beam-api-request-timing',
+    ),
+    timing: target.timers(
+      metric='beam-api-request-timing',
+      groupBys=['beam_api_request_url']
+    ),
   },
+};
 
-];
 
-// create a simple counter, with the metric name as alias
-local cnt(metric, groupBys) = target.counter(metric=metric, alias=metric, groupBys=groupBys);
-
-// create for each metric prefix a timer panel and the various counters
-local pnls(title, prefix, suffixes, groupBys) =
-  local tmr = target.timers('%s-timing' % [prefix], groupBys=groupBys);
-
-  [
-    panel.counter(title).addTargets([
-      cnt('%s-%s' % [prefix, suffix], groupBys)
-      for suffix in suffixes
-    ]),
-
-    panel.timeLinear('Timing %s' % [title]).addTargets([
-      tmr.p95,
-    ]),
-
-  ];
-
-// create panels for each row and put two panels side by side
 local rows = [
-  row.new(r.row).addPanels([
+  row.new('GraphQL').addPanels([
     panel.halfRow(p)
-    for p in std.flattenArrays([
-      pnls(panel.title, panel.prefix, panel.counters, panel.groupBys)
-      for panel in r.panels
-    ])
-  ])
-  for r in metrics
+    for p in [
+      panel.counter('GraphQL Request Overall (Handled)').addTargets([
+        metircs.GraphQL.successOverall,
+      ]),
+      panel.counter('GraphQL Request (Handled)').addTargets([
+        metircs.GraphQL.success,
+      ]),
+      panel.counter('GraphQL Request Overall (Error)').addTargets([
+        metircs.GraphQL.failedOverall,
+      ]),
+      panel.counter('GraphQL Request (Error)').addTargets([
+        metircs.GraphQL.failed,
+      ]),
+      panel.timeLinear('GraphQL Request Timing Overall').addTargets([
+        metircs.GraphQL.timingOverall.p50,
+        metircs.GraphQL.timingOverall.p95,
+        metircs.GraphQL.timingOverall.p99,
+      ]),
+      panel.timeLinear('GraphQL Request Timing').addTargets([
+        metircs.GraphQL.timing.p95,
+      ]),
+    ]
+  ]),
+  row.new('Beam API').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panel.counter('Beam API Request Overall (Handled)').addTargets([
+        metircs.BeamApi.successOverall,
+      ]),
+      panel.counter('Beam API Request (Handled)').addTargets([
+        metircs.BeamApi.success,
+      ]),
+      panel.counter('Beam API Request Overall (Error)').addTargets([
+        metircs.BeamApi.failedOverall,
+      ]),
+      panel.counter('Beam API Request (Error)').addTargets([
+        metircs.BeamApi.failed,
+      ]),
+      panel.timeLinear('Beam API Request Timing Overall').addTargets([
+        metircs.BeamApi.timingOverall.p50,
+        metircs.BeamApi.timingOverall.p95,
+        metircs.BeamApi.timingOverall.p99,
+      ]),
+      panel.timeLinear('Beam API Request Timing').addTargets([
+        metircs.BeamApi.timing.p95,
+      ]),
+    ]
+  ]),
 ];
 
 
