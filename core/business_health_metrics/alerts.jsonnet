@@ -262,7 +262,7 @@ local alertConditions = {
     evaluator: {
       type: 'gt',
       params: [
-        0,
+        100,
       ],
     },
   },
