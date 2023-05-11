@@ -258,6 +258,72 @@ local warningAlerts = [
   },
 ];
 
+local databaseAlerts = [
+  {
+    row: 'postgres',
+    alerts: [
+      {
+        title: 'vehicle db latency',
+        custom: {
+          name: 'vehicle_db_latency',
+          query: |||
+            histogram_quantile(0.99, sum(rate(go_sql_client_latency_bucket{namespace="production", service="vehicle-controller"}[$__interval])) by (le, go_sql_method))
+          |||,
+          alias: 'count',
+        },
+        format: 'ms',
+        thresholdType: 'gt',
+        threshold: 150,
+        message: 'High Latency from vehicle DB <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
+        showTable: true,
+      },
+      {
+        title: 'vehicle db write error',
+        custom: {
+          name: 'vehicle_db_error',
+          query: |||
+            sum(rate(pg_put_error{namespace="production", service="vehicle-controller"}[$__interval]))  > 0
+          |||,
+          alias: 'count',
+        },
+        threshold: 0.5,
+        thresholdType: 'gt',
+        message: 'A lot of write error on vehicle db! <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
+        showTable: true,
+      },
+      {
+        title: 'vehicle task db latency',
+        custom: {
+          name: 'vehicle_task_db_latency',
+          query: |||
+            histogram_quantile(0.99, sum(rate(go_sql_client_latency_bucket{namespace="production", service="vehicle-tasks"}[$__interval])) by (le, go_sql_method))
+          |||,
+          alias: 'count',
+        },
+        format: 'ms',
+        thresholdType: 'gt',
+        threshold: 10,
+        message: 'High Latency from vehicle task DB <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
+        showTable: true,
+      },
+      {
+        title: 'vehicle db task write error',
+        custom: {
+          name: 'vehicle_task_db_error',
+          query: |||
+            sum(rate(pg_put_error{namespace="production", service="vehicle-tasks"}[$__interval]))  > 0
+          |||,
+          alias: 'count',
+        },
+        threshold: 0.5,
+        thresholdType: 'gt',
+        message: 'A lot of write error on vehicle task db! <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
+        showTable: true,
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Vehicle Alerts',
@@ -288,6 +354,13 @@ grafana.dashboard.new(
   alerts.createRows(warningAlerts, alerts.defaults {
     alerts+: {
       channels: alerts.notifications.vehiclesWarning,
+    },
+  })
+)
+.addRows(
+  alerts.createRows(databaseAlerts, alerts.defaults {
+    alerts+: {
+      channels: alerts.notifications.vehiclesAlerts,
     },
   })
 )
