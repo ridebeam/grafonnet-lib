@@ -2,12 +2,19 @@ local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
-local alerts = import '../../helper/alerts.libsonnet';
 local prom = import '../../helper/promql.libsonnet';
+local alerts = import '../../helper/alerts.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
+
+local gcp = import '../../helper/gcp.libsonnet';
+local gcpHelpers = gcp.init('ridebeam-core');
+local gcpTarget = gcpHelpers.target;
+local gcpPanel = gcpHelpers.panel;
+local m = gcpTarget.customMetric;
+local l = gcpTarget.label;
 
 local filterIotServer = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
@@ -258,9 +265,9 @@ local warningAlerts = [
   },
 ];
 
-local databaseAlerts = [
+local databaseWarnings = [
   {
-    row: 'postgres',
+    row: 'postgres warnings',
     alerts: [
       {
         title: 'vehicle db latency',
@@ -269,7 +276,7 @@ local databaseAlerts = [
           query: |||
             histogram_quantile(0.99, sum(rate(go_sql_client_latency_bucket{namespace="production", service="vehicle-controller"}[$__interval])) by (le, go_sql_method))
           |||,
-          alias: 'count',
+          alias: 'go_sql_method= "{{go_sql_method}}"',
         },
         format: 'ms',
         thresholdType: 'gt',
@@ -298,7 +305,7 @@ local databaseAlerts = [
           query: |||
             histogram_quantile(0.99, sum(rate(go_sql_client_latency_bucket{namespace="production", service="vehicle-tasks"}[$__interval])) by (le, go_sql_method))
           |||,
-          alias: 'count',
+          alias: 'go_sql_method= "{{go_sql_method}}"',
         },
         format: 'ms',
         thresholdType: 'gt',
@@ -319,6 +326,54 @@ local databaseAlerts = [
         thresholdType: 'gt',
         message: 'A lot of write error on vehicle task db! <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
         showTable: true,
+      },
+      {
+        title: 'Production Vehicle DB CPU Usage',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/cpu/utilization',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-vehicles'),
+        },
+        format: 'percentunit',
+        threshold: 0.75,
+        message: 'DB CPU usage is too high (75%)',  
+      },
+      {
+        title: 'Production Vehicle task DB CPU Usage',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/cpu/utilization',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-vehicle-tasks'),
+        },
+        format: 'percentunit',
+        threshold: 0.75,
+        message: 'DB CPU usage is too high (75%)',  
+      },
+    ],
+  },
+];
+
+local databaseAlerts = [
+  {
+    row: 'postgres alerts',
+    alerts: [
+      {
+        title: 'Production Vehicle DB CPU Usage (Critical)',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/cpu/utilization',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-vehicles'),
+        },
+        format: 'percentunit',
+        threshold: 0.85,
+        message: 'DB CPU usage is too high (85%)',  
+      },
+      {
+        title: 'Production Vehicle task DB CPU Usage (Critical)',
+        gcpGauge: {
+          name: 'cloudsql.googleapis.com/database/cpu/utilization',
+          filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-vehicle-tasks'),
+        },
+        format: 'percentunit',
+        threshold: 0.85,
+        message: 'DB CPU usage is too high (85%)',  
       },
     ],
   },
@@ -358,9 +413,24 @@ grafana.dashboard.new(
   })
 )
 .addRows(
+  alerts.createRows(databaseWarnings, alerts.defaults {
+    alerts+: {
+      channels: alerts.notifications.vehiclesWarning,
+      noDataState: 'ok',
+    },
+    gcpGauges+: {
+      gcpHelpers: gcpHelpers,
+    },
+  })
+)
+.addRows(
   alerts.createRows(databaseAlerts, alerts.defaults {
     alerts+: {
       channels: alerts.notifications.vehiclesAlerts,
+      noDataState: 'ok',
+    },
+    gcpGauges+: {
+      gcpHelpers: gcpHelpers,
     },
   })
 )
