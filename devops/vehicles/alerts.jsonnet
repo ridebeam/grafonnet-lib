@@ -309,7 +309,7 @@ local databaseWarnings = [
         },
         format: 'ms',
         thresholdType: 'gt',
-        threshold: 10,
+        threshold: 50,
         message: 'High Latency from vehicle task DB <https://grafana.devops.ridebeam.cloud/d/vehicles_alerts/vehicle-alerts?orgId=1&from=now-30m&to=now-1m|Go to dashboard>.',
         showTable: true,
       },
