@@ -73,15 +73,21 @@ local bffDashboardFranchiseAlerts = [
     alerts: [
       {
         title: 'Bad response from franchise service',
-        counter: {name: 'bad-franchise-service-response'},
-        threshold: 15,
-        message: 'Franchise service is responding with 4xx/5xx error codes.'
+        custom: {
+          query: '( sum(delta(bad_franchise_service_response{namespace="production"}[1m])) / sum(delta(total_franchise_requests{namespace="production"}[1m])) ) * 100',
+          alias: 'bad franchise service response rate',
+        },
+        threshold: 30,
+        message: '5xx responses from franchise service are > 30% of all requests to the franchise service.'
       },
       {
         title: 'Failure to forward request to franchise service',
-        counter: {name: 'failed-to-forward-franchise-request'},
-        threshold: 5,
-        message: 'Bff-Dashboard is failing to forward requests to franchise service.'
+        custom: {
+          query: '( sum(delta(failed-to-forward-franchise-request{namespace="production"}[1m])) / sum(delta(total_franchise_requests{namespace="production"}[1m])) ) * 100',
+          alias: 'failed to forward franchise request rate',
+        },
+        threshold: 30,
+        message: 'Bff-Dashboard requests failing to forward to franchise service are > 30% of all requests to the franchise service.'
       }
     ]
   },
@@ -115,9 +121,5 @@ grafana.dashboard.new(
     evaluateFor: '5m',
     reducerType: 'max',
     noDataState: 'ok',
-  },
-  counters+: {
-    func: 'delta',
-    filters: target.equalsFilter('namespace', 'production'),
-  },
+  }
 }))

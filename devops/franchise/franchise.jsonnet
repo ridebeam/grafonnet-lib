@@ -5,6 +5,7 @@ local template = grafana.template;
 local row = grafana.row;
 local prom = import '../../helper/promql.libsonnet';
 local k8s = import '../k8s-promql.libsonnet';
+local libProm = grafana.prometheus;
 
 local helpers = prom.init();
 local target = helpers.target;
@@ -47,6 +48,16 @@ local targets = {
       filters=target.combineFilters(filters.requestRoute, filters.notFoundStatus),
     ),
   },
+  resources: {
+    cpuUsage: libProm.target(
+      'sum(system_cpu_usage{namespace="$env", service="$service"}) by (pod_name) * 100',
+      legendFormat='{{pod_name}}'
+    ),
+    ramUsage: libProm.target(
+      '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env", service="$service"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env", service="$service"}[1m]))by(application, pod_name) )',
+      legendFormat='{{pod_name}}',
+    )
+  }
 };
 
 local panels = {
@@ -70,6 +81,14 @@ local panels = {
       targets.requests.notFoundStatus,
     ]),
   },
+  resourceUsage: {
+    cpuUsage: panel.new("CPU Usage").addTargets([
+        targets.resources.cpuUsage
+    ]),
+    ramUsage: panel.new("RAM Usage").addTargets([
+        targets.resources.ramUsage
+    ]),
+  }
 };
 
 local rows = {
@@ -82,6 +101,13 @@ local rows = {
       panels.general.unauthorizedCount,
       panels.general.forbiddenCount,
       panels.general.notFoundCount,
+    ]
+  ]),
+  resourceUsage: row.new('Resource Usage').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.resourceUsage.cpuUsage,
+      panels.resourceUsage.ramUsage,
     ]
   ]),
 };
@@ -113,4 +139,5 @@ grafana.dashboard.new(
 )
 .addRows([
   rows.general,
+  rows.resourceUsage,
 ])
