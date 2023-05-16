@@ -15,29 +15,15 @@ local alertDefinitions = [
     row: 'Tasks',
     alerts: [
       {
-        title: 'Task execution failed(threshold 0)',
+        title: 'Task execution failed',
         custom: {
           name: 'workflow-task-execution-fail-rate',
-          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed", task_name!="create-tasks"}[5m])',
+          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed"}[5m])',
           alias: '{{task_name}}',
         },
         threshold: 0,
         reducerType: 'max',
         thresholdType: 'gt',
-        message: '<https://grafana.devops.ridebeam.cloud/d/workflows_tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
-        noDataState: 'ok',
-      },
-      {
-        title: 'Task execution failed(threshold 2)',
-        custom: {
-          name: 'workflow-task-execution-fail-rate',
-          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed", task_name="create-tasks"}[15m])',
-          alias: '{{task_name}}',
-        },
-        threshold: 2,
-        reducerType: 'max',
-        thresholdType: 'gt',
-        evaluateFor: '10m',
         message: '<https://grafana.devops.ridebeam.cloud/d/workflows_tasks_overview/tasks-overview?orgId=1&from=now-24h&to=now-1m|Go to dashboard>',
         noDataState: 'ok',
       },
