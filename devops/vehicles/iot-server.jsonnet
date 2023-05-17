@@ -218,6 +218,7 @@ grafana.dashboard.new(
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
   time_to='now-1m',
+  time_from='now-1h',
   tags=['generated'],
 )
 
@@ -269,7 +270,7 @@ grafana.dashboard.new(
     datasource=null,
     query='label_values(action_executed{city_id=""}, state_name)',
     allValues='.*',
-    current='helmetLock,powerState,batteryLock,ecuLock',
+    current=['helmetLock','powerState','batteryLock','ecuLock'],
     includeAll=true,
     refresh=1,
     sort=1,
