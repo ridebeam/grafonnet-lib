@@ -14,6 +14,7 @@ local panel = helpers.panel;
 local filters = {
   manufacturer: target.likeFilter('manufacturer', '$manufacturer'),
   firmware: target.likeFilter('firmware', '$firmware'),
+  state_name: target.likeFilter('state_name', '$state_name'),
 };
 
 local targets = {
@@ -79,25 +80,34 @@ local targets = {
     ),
     actionError: target.counter(
       metric='action-error',
-      filters=target.combineFilters(
-        filters.firmware,
-        filters.manufacturer,
+      filters=target.combineFilterArray(
+        [
+          filters.firmware,
+          filters.manufacturer,
+          filters.state_name,
+        ]
       ),
       groupBys=['state_name'],
     ),
     actionExecuted: target.counter(
       metric='action-executed',
-     filters=target.combineFilters(
-       filters.firmware,
-       filters.manufacturer,
+     filters=target.combineFilterArray(
+       [
+         filters.firmware,
+         filters.manufacturer,
+         filters.state_name,
+       ]
      ),
       groupBys=['state_name'],
     ),
     actionDuration: target.timers(
       metric='action-duration',
-      filters=target.combineFilters(
-        filters.firmware,
-        filters.manufacturer,
+      filters=target.combineFilterArray(
+        [
+          filters.firmware,
+          filters.manufacturer,
+          filters.state_name,
+        ]
       ),
       groupBys=['state_name'],
     ),
@@ -233,8 +243,9 @@ grafana.dashboard.new(
     name='manufacturer',
     query='omni,okai,omnigen3,omniat,tbit,kuickwheel',
     allValues='.*',
-    current='All',
+    current='omnigen3',
     includeAll=true,
+    multi=true,
   )
 )
 
@@ -248,6 +259,21 @@ grafana.dashboard.new(
     includeAll=true,
     refresh=1,
     sort=1,
+    multi=true,
+  )
+)
+
+.addTemplate(
+  template.new(
+    name='state_name',
+    datasource=null,
+    query='label_values(action_executed{city_id=""}, state_name)',
+    allValues='.*',
+    current='helmetLock,powerState,batteryLock,ecuLock',
+    includeAll=true,
+    refresh=1,
+    sort=1,
+    multi=true,
   )
 )
 
