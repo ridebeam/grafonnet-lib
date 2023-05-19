@@ -28,13 +28,13 @@ local alertDefinitions = [
         noDataState: 'ok',
       },
       {
-        title: 'Workflow execution duration(threshold 30 minutes)',
+        title: 'Workflow execution duration(threshold 35 minutes)',
         custom: {
           name: 'workflow-execution-duration',
           query: 'argo_workflows_exec_duration_in_real_time{cluster="core-sg"}[24h]',
           alias: '{{workflow_name}}',
         },
-        threshold: 1800,
+        threshold: 2100,
         reducerType: 'max',
         thresholdType: 'gt',
         message: '<https://grafana.devops.ridebeam.cloud/d/workflows_alerts/workflows-alerts?orgId=1|Check the alert>',
