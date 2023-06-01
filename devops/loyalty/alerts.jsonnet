@@ -26,7 +26,7 @@ local alertDefinitions = [
         title: 'Add Member Error Rate',
         custom: {
           name: 'add-member-error-rate',
-          query: '(sum(rate(add_member_failed{namespace="production"}[10m])) OR vector(0)) / sum(rate(add_member_attempt{namespace="production"}[10m]) > 0) * 100',
+          query: '(sum(rate(add_member_failed{namespace="production",priority!="low"}[10m])) OR vector(0)) / sum(rate(add_member_attempt{namespace="production"}[10m]) > 0) * 100',
           alias: 'error with add member',
           intervalFactor: 2,
         },
@@ -34,6 +34,20 @@ local alertDefinitions = [
         thresholdType: 'gt',
         queryTimeStart: '15m',
         message: 'Error ratio of add member above 5%',
+        noDataState: 'ok',
+      },
+      {
+        title: 'Add Member Error Rate (Low Priority)',
+        custom: {
+          name: 'add-member-error-rate-low-priority',
+          query: '(sum(rate(add_member_failed{namespace="production",priority="low"}[10m])) OR vector(0)) / sum(rate(add_member_attempt{namespace="production"}[10m]) > 0) * 100',
+          alias: 'error with add member',
+          intervalFactor: 2,
+        },
+        threshold: 10,
+        thresholdType: 'gt',
+        queryTimeStart: '15m',
+        message: 'Error ratio of add member above 10%',
         noDataState: 'ok',
       },
       {
