@@ -187,19 +187,20 @@ local warningAlerts = [
   {
     row: 'warnings',
     alerts: [
-      {
-        title: 'invalid-mileage',
-        counter: {
-          name: 'invalid-mileage-value',
-          filters: filterIotServer,
-        },
-        threshold: 2,
-        thresholdType: 'gt',
-        message: |||
-          Vehicles with invalid mileage rising more than expected
-        |||,
-        noDataState: 'ok',
-      },
+      // turn off because to noisy and we can't do anything about it
+      //      {
+      //        title: 'invalid-mileage',
+      //        counter: {
+      //          name: 'invalid-mileage-value',
+      //          filters: filterIotServer,
+      //        },
+      //        threshold: 2,
+      //        thresholdType: 'gt',
+      //        message: |||
+      //          Vehicles with invalid mileage rising more than expected
+      //        |||,
+      //        noDataState: 'ok',
+      //      },
       {
         title: 'error-throttle-off',
         counter: {
@@ -335,7 +336,7 @@ local databaseWarnings = [
         },
         format: 'percentunit',
         threshold: 0.75,
-        message: 'DB CPU usage is too high (75%)',  
+        message: 'DB CPU usage is too high (75%)',
       },
       {
         title: 'Production Vehicle task DB CPU Usage',
@@ -345,7 +346,7 @@ local databaseWarnings = [
         },
         format: 'percentunit',
         threshold: 0.75,
-        message: 'DB CPU usage is too high (75%)',  
+        message: 'DB CPU usage is too high (75%)',
       },
     ],
   },
@@ -363,7 +364,7 @@ local databaseAlerts = [
         },
         format: 'percentunit',
         threshold: 0.85,
-        message: 'DB CPU usage is too high (85%)',  
+        message: 'DB CPU usage is too high (85%)',
       },
       {
         title: 'Production Vehicle task DB CPU Usage (Critical)',
@@ -373,7 +374,7 @@ local databaseAlerts = [
         },
         format: 'percentunit',
         threshold: 0.85,
-        message: 'DB CPU usage is too high (85%)',  
+        message: 'DB CPU usage is too high (85%)',
       },
     ],
   },
