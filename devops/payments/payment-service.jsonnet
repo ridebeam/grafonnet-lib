@@ -17,7 +17,7 @@ local metrics = [
     panels: [
       { title: 'Create Order', prefix: 'create-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Refund Order', prefix: 'refund-order', counters: ['attempt', 'success', 'failed'] },
-      { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed', 'not-found'] },
       { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error', 'timeout'] },
