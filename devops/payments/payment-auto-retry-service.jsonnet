@@ -1,11 +1,9 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local graphPanel = grafana.graphPanel;
-local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local row = grafana.row;
 local libProm = grafana.prometheus;
 local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
@@ -38,6 +36,13 @@ local targets = {
       legendFormat='%',
       intervalFactor=2,
     ),
+    errors: target.increase(
+      alias='or-errorred',
+      metric='order-retry-job-retry-order-error',
+      groupBys=['target_status'],
+      filters=filterPaymentAutoService,
+      withServiceFilters=false,
+    ),
   },
   recovered: {
     amountAttempted: target.increase(
@@ -50,10 +55,11 @@ local targets = {
     amountRecovered: target.increase(
       alias='amount-recovered',
       metric='order-retry-job-recovered',
+      groupBys=['currency'],
       filters=filterPaymentAutoService,
       withServiceFilters=false,
     ),
-  }
+  },
 };
 
 local panels = {
@@ -66,6 +72,9 @@ local panels = {
     ]),
     succeededPercent: panel.new('Order retries succeeded %', percentage=true).addTargets([
       targets.orderRetry.succeededPercent,
+    ]),
+    errorred: panel.new('Order retries errorred', percentage=true).addTargets([
+      targets.orderRetry.errors,
     ]),
   },
   recovered: {
@@ -80,11 +89,17 @@ local panels = {
 
 local rows = {
   orderRetry: row.new('Order Retry Attempted').addPanels([
-    panel.thirdRow(p)
+    panel.halfRow(p)
     for p in [
       panels.orderRetry.attempted,
       panels.orderRetry.succeeded,
+    ]
+  ]),
+  orderRetrySuccessError: row.new('Order Retry Success %/Errors').addPanels([
+    panel.halfRow(p)
+    for p in [
       panels.orderRetry.succeededPercent,
+      panels.orderRetry.errorred,
     ]
   ]),
   recovered: row.new('Recovered amount').addPanels([
