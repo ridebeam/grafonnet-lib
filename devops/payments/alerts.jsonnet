@@ -30,7 +30,7 @@ local failureAlerts = [
       {
         title: '[payment-002] Create Order Failed',
         counter: { name: 'create-order-failed' },
-        threshold: 5,
+        threshold: 10,
         message: msg,
       },
       {
@@ -47,7 +47,7 @@ local failureAlerts = [
       {
         title: '[payment-001] Add Credit Card Failed',
         counter: { name: 'add-recurring-failed' },
-        threshold: 5,
+        threshold: 10,
         message: msg,
       },
     ],
