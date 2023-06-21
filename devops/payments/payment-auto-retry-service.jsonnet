@@ -11,6 +11,10 @@ local panel = helpers.panel;
 
 local envFilter = target.equalsFilter('namespace', '$env');
 
+local filterPaymentService = target.combineFilters(
+  envFilter,
+  target.equalsFilter('service', 'payment-service'),
+);
 local filterPaymentAutoService = target.combineFilters(
   envFilter,
   target.equalsFilter('service', 'payment-auto-retry-service'),
@@ -49,14 +53,14 @@ local targets = {
       alias='amount-recovered-attempted',
       metric='order-retry-job-recovered-attempted',
       groupBys=['currency'],
-      filters=filterPaymentAutoService,
+      filters=filterPaymentService,
       withServiceFilters=false,
     ),
     amountRecovered: target.increase(
       alias='amount-recovered',
       metric='order-retry-job-recovered',
       groupBys=['currency'],
-      filters=filterPaymentAutoService,
+      filters=filterPaymentService,
       withServiceFilters=false,
     ),
   },
