@@ -29,14 +29,26 @@ local targets = {
       filters=filterPaymentAutoService,
       withServiceFilters=false,
     ),
-    succeeded: target.increase(
-      alias='or-succeeded',
-      metric='order-retry-job-retry-order-succeeded',
+    response: target.increase(
+      alias='or-response',
+      metric='order-retry-job-retry-order-response',
       filters=filterPaymentAutoService,
       withServiceFilters=false,
     ),
+    succeeded: target.increase(
+      alias='or-succeeded',
+      metric='order-retry-job-retry-order-succeeded',
+      filters=filterPaymentService,
+      withServiceFilters=false,
+    ),
+    failed: target.increase(
+      alias='or-failed',
+      metric='order-retry-job-retry-order-failed',
+      filters=filterPaymentService,
+      withServiceFilters=false,
+    ),
     succeededPercent: libProm.target(
-      '(sum(increase(order-retry-job-retry-order-succeeded{namespace="$env", service="payment-auto-retry-service"}[2h])))/(sum(increase(order-retry-job-retry-order{namespace="$env", service="payment-auto-retry-service"}[2h]))) > 0',
+      '(sum(increase(order-retry-job-retry-order-succeeded{namespace="$env", service="payment-service"}[2h])))/(sum(increase(order-retry-job-retry-order{namespace="$env", service="payment-service"}[2h]))) > 0',
       legendFormat='%',
       intervalFactor=2,
     ),
@@ -80,6 +92,12 @@ local panels = {
     errorred: panel.new('Order retries errorred', percentage=true).addTargets([
       targets.orderRetry.errors,
     ]),
+    response: panel.new('Order retries response').addTargets([
+      targets.orderRetry.response,
+    ]),
+    failed: panel.new('Order retries failed').addTargets([
+      targets.orderRetry.failed,
+    ]),
   },
   recovered: {
     recoveredAttempted: panel.counter('Amount recovered attempted').addTargets([
@@ -96,7 +114,14 @@ local rows = {
     panel.halfRow(p)
     for p in [
       panels.orderRetry.attempted,
+      panels.orderRetry.response,
+    ]
+  ]),
+  orderRetryResponseFailed: row.new('Order Retry Success and Failed').addPanels([
+    panel.halfRow(p)
+    for p in [
       panels.orderRetry.succeeded,
+      panels.orderRetry.failed,
     ]
   ]),
   orderRetrySuccessError: row.new('Order Retry Success %/Errors').addPanels([
