@@ -65,7 +65,7 @@ local targets = {
       alias='amount-recovered-attempted',
       metric='order-retry-job-recovered-attempted',
       groupBys=['currency'],
-      filters=filterPaymentService,
+      filters=filterPaymentAutoService,
       withServiceFilters=false,
     ),
     amountRecovered: target.increase(
