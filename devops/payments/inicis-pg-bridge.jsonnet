@@ -24,8 +24,8 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='service',
-    query='payment-inicis-pg-bridge',
-    current='payment-inicis-pg-bridge',
+    query='inicis-pg-bridge',
+    current='inicis-pg-bridge',
     hide='variable',
   )
 )
