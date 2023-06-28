@@ -228,10 +228,7 @@ local alertDefinitions = [
         threshold: 60,
         queryTimeStart: '2m',
         evaluateFor: '10m',
-        // TODO message
-        message: |||
-          TODO
-        |||,
+        message: 'https://beammobility.atlassian.net/l/cp/qNHQGAqr',
       },
     ],
   },
