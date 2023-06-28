@@ -4,6 +4,7 @@ local template = grafana.template;
 local row = grafana.row;
 local libProm = grafana.prometheus;
 local prom = import '../../helper/promql.libsonnet';
+local k8s = import '../k8s-promql.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
