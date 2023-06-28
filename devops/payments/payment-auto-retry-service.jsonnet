@@ -77,6 +77,20 @@ local targets = {
       withServiceFilters=false,
     ),
   },
+  indicators: {
+    lastProcessedOrderRetryId: target.gauges(
+      alias='last-read-order-retry-id',
+      metric='order-retry-id-greatest-processed',
+      filters=filterPaymentAutoService,
+      withServiceFilters=false,
+    ),
+    lastUpdatedOrderRetryId: target.gauges(
+      alias='last-updated-order-retry-id',
+      metric='order-retry-id-greatest-updated',
+      filters=filterPaymentAutoService,
+      withServiceFilters=false,
+    ),
+  },
 };
 
 local panels = {
@@ -108,6 +122,14 @@ local panels = {
       targets.recovered.amountRecovered,
     ]),
   },
+  indicators: {
+    lastProcessedOrderRetryId: panel.new('Last read order retry id').addTargets([
+      targets.indicators.lastProcessedOrderRetryId,
+    ]),
+    lastUpdatedOrderRetryId: panel.new('Last updated order retry id').addTargets([
+      targets.indicators.lastUpdatedOrderRetryId,
+    ]),
+  },
 };
 
 local rows = {
@@ -137,6 +159,13 @@ local rows = {
     for p in [
       panels.recovered.recoveredAttempted,
       panels.recovered.recoveredSucceeded,
+    ]
+  ]),
+  readAndWriteWatermarks: row.new('Read and Written to watermarks').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.indicators.lastProcessedOrderRetryId,
+      panels.indicators.lastUpdatedOrderRetryId,
     ]
   ]),
 
