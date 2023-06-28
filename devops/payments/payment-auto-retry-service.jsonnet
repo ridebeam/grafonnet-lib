@@ -170,6 +170,7 @@ grafana.dashboard.new(
 )
 
 .addRows([
+  k8s.rows.service,
   rows.orderRetry,
   rows.recovered,
 ])
