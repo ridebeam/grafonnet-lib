@@ -33,6 +33,9 @@ local metircs = {
       metric='gql-request-timing',
       groupBys=['gql_operation_name']
     ),
+    operationLatency: target.timers(
+      metric='gql_operation_latency',
+    ),
   },
   BeamApi: {
     successOverall: target.counter(
@@ -83,6 +86,11 @@ local rows = [
       ]),
       panel.timeLinear('GraphQL Request Timing').addTargets([
         metircs.GraphQL.timing.p95,
+      ]),
+      panel.timeLinear('GraphQL Operation Latency').addTargets([
+        metircs.GraphQL.operationLatency.p50,
+        metircs.GraphQL.operationLatency.p95,
+        metircs.GraphQL.operationLatency.p99,
       ]),
     ]
   ]),
