@@ -36,7 +36,7 @@ local failureAlerts = [
       {
         title: 'Hold Order Failed',
         counter: { name: 'hold-order-failed' },
-        threshold: 2,
+        threshold: 10,
         message: msg,
       },
       {
