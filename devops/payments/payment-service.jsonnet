@@ -112,6 +112,17 @@ grafana.dashboard.new(
   )
 )
 
+
+.addTemplate(
+  template.custom(
+    name='currency',
+    query='KRW,AUD,NZD,TRY,MYR,IDR,JPY,THB',
+    allValues='.*',
+    current='All',
+    includeAll=true,
+  )
+)
+
 .addTemplate(
   template.custom(
     name='service',
