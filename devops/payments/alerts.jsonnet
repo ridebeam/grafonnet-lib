@@ -34,6 +34,12 @@ local failureAlerts = [
         message: msg,
       },
       {
+        title: 'Hold Order Failed',
+        counter: { name: 'hold-order-failed' },
+        threshold: 2,
+        message: msg,
+      },
+      {
         title: '[payment-004] Refund order failed after retrial',
         counter: { name: 'refund-processing-failure' },
         threshold: 1,
