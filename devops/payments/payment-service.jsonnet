@@ -63,7 +63,7 @@ local metrics = [
 ];
 
 // create a simple counter, with the metric name as alias
-local cnt(metric) = target.counter(metric=metric, alias=metric);
+local cnt(metric) = target.counter(metric=metric, alias=metric, filters=currencyFilter);
 
 // create for each metric prefix a timer panel and the various counters
 local pnls(title, prefix, suffixes) =
