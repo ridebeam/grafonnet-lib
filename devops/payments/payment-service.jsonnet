@@ -64,10 +64,11 @@ local metrics = [
 
 // create a simple counter, with the metric name as alias
 local cnt(metric) = target.counter(metric=metric, alias=metric, filters=currencyFilter);
+local timers(metric) = target.timers(metric=metric, alias=metric, filters=currencyFilter);
 
 // create for each metric prefix a timer panel and the various counters
 local pnls(title, prefix, suffixes) =
-  local tmr = target.timers('%s-timing' % [prefix]);
+  local tmr = timers(metric='%s-timing' % [prefix]);
 
   [
     panel.counter(title).addTargets([
