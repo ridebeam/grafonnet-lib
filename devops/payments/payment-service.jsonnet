@@ -10,7 +10,7 @@ local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
 
-local currencyFilter = target.equalsFilter('currency', '$currency');
+local currencyFilter = target.likeFilter('currency', '$currency');
 
 // one entry per row, with a list of panel pairs (counter/timing)
 local metrics = [
