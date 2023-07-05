@@ -69,19 +69,19 @@ local failureAlerts = [
       {
         title: 'Hold Order Failed (KRW)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('KRW') },
-        threshold: 10,
+        threshold: 5,
         message: msg,
       },
       {
         title: 'Hold Order Failed (AUD|NZD)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('AUD|NZD')  },
-        threshold: 10,
+        threshold: 3,
         message: msg,
       },
       {
         title: 'Hold Order Failed (THB,MYR,TRY,IDR...)',
         counter: { name: 'hold-order-failed', filters: currentNotFilter('KRW|AUD|NZD') },
-        threshold: 10,
+        threshold: 3,
         message: msg,
       },
       {
@@ -104,25 +104,25 @@ local failureAlerts = [
       {
         title: '[payment-001] Add Credit Card Failed (primer)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Primer') },
-        threshold: 5,
+        threshold: 3,
         message: msg,
       },
       {
         title: '[payment-001] Add Credit Card Failed (adyen)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Adyen') },
-        threshold: 10,
+        threshold: 3,
         message: msg,
       },
       {
         title: '[payment-001] Add Credit Card Failed (inipay)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Inicis') },
-        threshold: 10,
+        threshold: 5,
         message: msg,
       },
       {
         title: '[payment-001] Add Credit Card Failed (toss)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Toss') },
-        threshold: 10,
+        threshold: 2,
         message: msg,
       },
       {
