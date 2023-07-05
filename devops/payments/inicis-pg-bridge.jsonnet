@@ -30,6 +30,15 @@ grafana.dashboard.new(
   )
 )
 
+.addTemplate(
+  template.custom(
+    name='cluster',
+    query='payments-sg',
+    current='payments-sg',
+    hide='variable',
+  )
+)
+
 .addRows(
   [
     k8s.rows.service,
