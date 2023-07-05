@@ -91,6 +91,12 @@ local failureAlerts = [
         message: msg,
       },
       {
+        title: 'Hold Order timeout (all currencies)',
+        counter: { name: 'hold-order-timeout' },
+        threshold: 2,
+        message: msg,
+      },
+      {
         title: '[payment-004] Refund order failed after retrial',
         counter: { name: 'refund-processing-failure' },
         threshold: 1,
