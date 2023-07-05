@@ -14,6 +14,21 @@ local serviceFilter = target.combineFilters(
   target.equalsFilter('service', 'payment-service'),
 );
 
+local currencyFilter(currency) = target.combineFilters(
+  serviceFilter,
+  target.likeFilter('currency', currency),
+);
+
+local currentNotFilter(currency) = target.combineFilters(
+  serviceFilter,
+  target.notLikeFilter('currency', currency),
+);
+
+local gatewayFilter(gateway) = target.combineFilters(
+  serviceFilter,
+  target.likeFilter('payment_gateway', gateway),
+);
+
 // alert metrics coming from analytics-watchdog
 local analyticsWatchdogAlertFilter = target.combineFilters(
   target.equalsFilter('namespace', 'production'),
@@ -28,13 +43,49 @@ local failureAlerts = [
     row: 'Order failures',
     alerts: [
       {
-        title: '[payment-002] Create Order Failed',
+        title: '[payment-002] Create Order Failed (KRW)',
+        counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
+        threshold: 5,
+        message: msg,
+      },
+      {
+        title: '[payment-002] Create Order Failed (AUD|NZD)',
+        counter: { name: 'create-order-failed', filters: currencyFilter('AUD|NZD')},
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[payment-002] Create Order Failed (THB,MYR,TRY,IDR...)',
+        counter: { name: 'create-order-failed', filters: currentNotFilter('KRW|AUD|NZD')},
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[payment-002] Create Order Failed (all currencies)',
         counter: { name: 'create-order-failed' },
         threshold: 10,
         message: msg,
       },
       {
-        title: 'Hold Order Failed',
+        title: 'Hold Order Failed (KRW)',
+        counter: { name: 'hold-order-failed', filters: currencyFilter('KRW') },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: 'Hold Order Failed (AUD|NZD)',
+        counter: { name: 'hold-order-failed', filters: currencyFilter('AUD|NZD')  },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: 'Hold Order Failed (THB,MYR,TRY,IDR...)',
+        counter: { name: 'hold-order-failed', currentNotFilter('KRW|AUD|NZD') },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: 'Hold Order Failed (all currencies)',
         counter: { name: 'hold-order-failed' },
         threshold: 10,
         message: msg,
@@ -51,7 +102,31 @@ local failureAlerts = [
     row: 'Recurring failures',
     alerts: [
       {
-        title: '[payment-001] Add Credit Card Failed',
+        title: '[payment-001] Add Credit Card Failed (primer)',
+        counter: { name: 'add-recurring-failed', filters=gatewayFilter('Primer') },
+        threshold: 5,
+        message: msg,
+      },
+      {
+        title: '[payment-001] Add Credit Card Failed (adyen)',
+        counter: { name: 'add-recurring-failed', filters=gatewayFilter('Adyen') },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: '[payment-001] Add Credit Card Failed (inipay)',
+        counter: { name: 'add-recurring-failed', filters=gatewayFilter('Inicis') },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: '[payment-001] Add Credit Card Failed (toss)',
+        counter: { name: 'add-recurring-failed', filters=gatewayFilter('Toss') },
+        threshold: 10,
+        message: msg,
+      },
+      {
+        title: '[payment-001] Add Credit Card Failed (all gateways)',
         counter: { name: 'add-recurring-failed' },
         threshold: 10,
         message: msg,
@@ -59,12 +134,12 @@ local failureAlerts = [
     ],
   },
   {
-    row: 'Adyen failures',
+    row: 'Notification handling failures',
     alerts: [
       {
         title: '[payment-003] Failed to handle Adyen 3DS',
         counter: { name: 'handle-adyen-3ds-failed' },
-        threshold: 5,
+        threshold: 10,
         message: msg,
       },
     ],
