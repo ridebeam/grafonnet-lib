@@ -43,85 +43,85 @@ local failureAlerts = [
     row: 'Order failures',
     alerts: [
       {
-        title: '[payment-002] Create Order Failed (KRW)',
+        title: '[create-order-failed] Create Order Failed (KRW)',
         counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-002] Create Order Failed (AUD|NZD)',
+        title: '[create-order-failed] Create Order Failed (AUD|NZD)',
         counter: { name: 'create-order-failed', filters: currencyFilter('AUD|NZD')},
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-002] Create Order Failed (THB,MYR,TRY,IDR...)',
+        title: '[create-order-failed] Create Order Failed (THB,MYR,TRY,IDR...)',
         counter: { name: 'create-order-failed', filters: currentNotFilter('KRW|AUD|NZD')},
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-002] Create Order Failed (all currencies)',
+        title: '[create-order-failed] Create Order Failed (all currencies)',
         counter: { name: 'create-order-failed' },
         threshold: 10,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Failed (KRW)',
+        title: '[hold-order-failed] Hold Order Failed (KRW)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('KRW') },
         threshold: 10,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Failed (AUD|NZD)',
+        title: '[hold-order-failed] Hold Order Failed (AUD|NZD)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('AUD|NZD')  },
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Failed (THB,MYR,TRY,IDR...)',
+        title: '[hold-order-failed] Hold Order Failed (THB,MYR,TRY,IDR...)',
         counter: { name: 'hold-order-failed', filters: currentNotFilter('KRW|AUD|NZD') },
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Failed (all currencies)',
+        title: '[hold-order-failed] Hold Order Failed (all currencies)',
         counter: { name: 'hold-order-failed' },
         threshold: 30,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Rejected (KRW)',
+        title: '[hold-order-rejected] Hold Order Rejected (KRW)',
         counter: { name: 'hold-order-error', filters: currencyFilter('KRW') },
         threshold: 10,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Rejected (AUD|NZD)',
+        title: '[hold-order-rejected] Hold Order Rejected (AUD|NZD)',
         counter: { name: 'hold-order-error', filters: currencyFilter('AUD|NZD')  },
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Rejected (THB,MYR,TRY,IDR...)',
+        title: '[hold-order-rejected] Hold Order Rejected (THB,MYR,TRY,IDR...)',
         counter: { name: 'hold-order-error', filters: currentNotFilter('KRW|AUD|NZD') },
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order Rejected (all currencies)',
+        title: '[hold-order-rejected] Hold Order Rejected (all currencies)',
         counter: { name: 'hold-order-error' },
         threshold: 20,
         message: msg,
       },
       {
-        title: '[payment-hold-order] Hold Order timeout (all currencies)',
+        title: '[hold-order-timeout] Hold Order timeout (all currencies)',
         counter: { name: 'hold-order-timeout' },
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-004] Refund order failed after retrial',
+        title: '[refund-order-failed] Refund order failed after retrial',
         counter: { name: 'refund-processing-failure' },
         threshold: 1,
         message: msg,
@@ -132,31 +132,31 @@ local failureAlerts = [
     row: 'Recurring failures',
     alerts: [
       {
-        title: '[payment-001] Add Credit Card Failed (primer)',
+        title: '[add-payment-failed] Add Credit Card Failed (primer)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Primer') },
         threshold: 3,
         message: msg,
       },
       {
-        title: '[payment-001] Add Credit Card Failed (adyen)',
+        title: '[add-payment-failed] Add Credit Card Failed (adyen)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Adyen') },
         threshold: 3,
         message: msg,
       },
       {
-        title: '[payment-001] Add Credit Card Failed (inipay)',
+        title: '[add-payment-failed] Add Credit Card Failed (inipay)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Inicis') },
         threshold: 5,
         message: msg,
       },
       {
-        title: '[payment-001] Add Credit Card Failed (toss)',
+        title: '[add-payment-failed] Add Credit Card Failed (toss)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Toss') },
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-001] Add Credit Card Failed (all gateways)',
+        title: '[add-payment-failed] Add Credit Card Failed (all gateways)',
         counter: { name: 'add-recurring-failed' },
         threshold: 10,
         message: msg,
@@ -167,7 +167,7 @@ local failureAlerts = [
     row: 'Notification handling failures',
     alerts: [
       {
-        title: '[payment-003] Failed to handle Adyen 3DS',
+        title: '[adyen-3ds-failed] Failed to handle Adyen 3DS',
         counter: { name: 'handle-adyen-3ds-failed' },
         threshold: 10,
         message: msg,
@@ -181,13 +181,13 @@ local volumeAlerts = [
     row: 'Order volume',
     alerts: [
       {
-        title: '[payment-006] Create order attempt volume low',
+        title: '[create-order-attempt-volume-low] Create order attempt volume low',
         counter: { name: 'create-order-attempt' },
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-006] Create order success volume low',
+        title: '[create-order-success-volume-low] Create order success volume low',
         counter: { name: 'create-order-success' },
         threshold: 2,
         message: msg,
@@ -198,13 +198,13 @@ local volumeAlerts = [
     row: 'Recurring volume',
     alerts: [
       {
-        title: '[payment-007] Add Payment attempt volume low',
+        title: '[add-payment-attempt-volume-low] Add Payment attempt volume low',
         counter: { name: 'add-recurring-attempt' },
         threshold: 2,
         message: msg,
       },
       {
-        title: '[payment-007] Add Payment success volume low',
+        title: '[add-payment-success-volume-low] Add Payment success volume low',
         counter: { name: 'add-recurring-success' },
         threshold: 2,
         message: msg,
@@ -218,7 +218,7 @@ local abnormalEvents = [
     row: 'Abnormals',
     alerts: [
       {
-        title: '[payment-005] Orders stuck in notification',
+        title: '[stuck-in-notification] Orders stuck in notification',
         counter: { name: 'waiting-on-notification-timeout' },
         threshold: 1,
         message: msg,
