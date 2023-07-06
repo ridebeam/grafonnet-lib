@@ -103,8 +103,14 @@ local failureAlerts = [
         message: msg,
       },
       {
-        title: '[hold-order-rejected] Hold Order Rejected (THB,MYR,TRY,IDR...)',
-        counter: { name: 'hold-order-error', filters: currentNotFilter('KRW|AUD|NZD') },
+        title: '[hold-order-rejected] Hold Order Rejected (TRY)',
+        counter: { name: 'hold-order-error', filters: currencyFilter('TRY') },
+        threshold: 5,
+        message: msg,
+      },
+      {
+        title: '[hold-order-rejected] Hold Order Rejected (THB,MYR,IDR...)',
+        counter: { name: 'hold-order-error', filters: currentNotFilter('KRW|AUD|NZD|TRY') },
         threshold: 5,
         message: msg,
       },
