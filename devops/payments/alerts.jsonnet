@@ -69,25 +69,25 @@ local failureAlerts = [
       {
         title: '[payment-hold-order] Hold Order Failed (KRW)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('KRW') },
-        threshold: 2,
+        threshold: 10,
         message: msg,
       },
       {
         title: '[payment-hold-order] Hold Order Failed (AUD|NZD)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('AUD|NZD')  },
-        threshold: 2,
+        threshold: 5,
         message: msg,
       },
       {
         title: '[payment-hold-order] Hold Order Failed (THB,MYR,TRY,IDR...)',
         counter: { name: 'hold-order-failed', filters: currentNotFilter('KRW|AUD|NZD') },
-        threshold: 2,
+        threshold: 5,
         message: msg,
       },
       {
         title: '[payment-hold-order] Hold Order Failed (all currencies)',
         counter: { name: 'hold-order-failed' },
-        threshold: 5,
+        threshold: 30,
         message: msg,
       },
       {
