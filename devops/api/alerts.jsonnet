@@ -223,6 +223,7 @@ local alertDefinitions = [
             messagingServiceFilter,
             target.equalsFilter('kafka_source_topic', 'vehicle-event'),
           ),
+          percentile: 'p95',
         },
         format: 's',
         threshold: 60,
