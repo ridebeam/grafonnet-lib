@@ -29,64 +29,64 @@ local filters = {
 };
 
 local targets = {
-    requests: {
-    completeSignUpAllowInvalidFraudDataFormat: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionInvalidFraudDataFormat, filters.contextCompleteSignUp),
-        filters.responseAllow
-      ),
-    ),
-    completeSignUpAllowVerificationFailed: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionVerificationFailed, filters.contextCompleteSignUp),
-        filters.responseAllow
-      ),
-    ),
-    completeSignUpAllowFraudDataIsNull: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionFraudDataIsNull, filters.contextCompleteSignUp),
-        filters.responseAllow
-      ),
-    ),
-    completeSignUpAllowWhitelistedUtilNotNullAndInFuture: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionWhitelistedUtilNotNullAndInFuture, filters.contextCompleteSignUp),
-        filters.responseAllow
-      ),
-    ),
-    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit, filters.contextCompleteSignUp),
-        filters.responseAllow
-      ),
-    ),
-    completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimit: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionAccountCreationCountGreaterThanAccountCreationLimit, filters.contextCompleteSignUp),
-        filters.responseBlock
-      ),
-    ),
-    completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimit: target.counter(
-      metric='fraud_service_total',
-      filters=target.combineFilters(
-        target.combineFilters(filters.conditionAccountUsageCountGreaterThanAccountUsageLimit, filters.contextCompleteSignUp),
-        filters.responseBlock
-      ),
-    ),
+  requests: {
+    completeSignUpAllowInvalidFraudDataFormat: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"InvalidFraudDataFormat", response=~"allow"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "A"
+    },
+    completeSignUpAllowVerificationFailed: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"VerificationFailed", response=~"allow"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "B"
+    },
+    completeSignUpAllowFraudDataIsNull: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"fraudDataIsNull", response=~"allow"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "C"
+    },
+    completeSignUpAllowWhitelistedUtilNotNullAndInFuture: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"whitelistedUtilNotNullAndInFuture", response=~"allow"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "D"
+    },
+    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"limitsOK", response=~"allow"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "E"
+    },
+    completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimit: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"accountCreationLimit", response=~"block"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "F"
+    },
+    completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimit: 
+    {
+      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"accountUsageLimit", response=~"block"}))' + '[$__interval]',
+      intervalFactor: 1,
+      legendFormat: "{{condition}}",
+      refId: "G"
+    },
   },
   resources: {
     cpuUsage: libProm.target(
-      'sum(system_cpu_usage{namespace="$env", service="$service"}) by (pod_name) * 100',
-      legendFormat='{{pod_name}}'
+      'sum(system_cpu_usage{namespace="$env"}) by (pod_name) * 100',
+      legendFormat='{{pod_name}}',
     ),
     ramUsage: libProm.target(
-      '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env", service="$service"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env", service="$service"}[1m]))by(application, pod_name) )',
+      '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env"}[1m]))by(application, pod_name) )',
       legendFormat='{{pod_name}}',
     )
   }
@@ -106,7 +106,7 @@ local panels = {
     completeSignUpAllowWhitelistedUtilNotNullAndInFutureCount: panel.counter('Complete Sign Up Allow Whitelisted Util Not Null And In Future').addTargets([
       targets.requests.completeSignUpAllowWhitelistedUtilNotNullAndInFuture,
     ]),
-    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimitCount: panel.counter('Complete Sign Up Allow Account Creation Count And Account Usage Count Less Than Account Usage Limit').addTargets([
+    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimitCount: panel.counter('Complete Sign Up Allow When Limits OK').addTargets([
       targets.requests.completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit,
     ]),
     completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimitCount: panel.counter('Complete Sign Up Block Account Creation Count Greater Than Account Creation Limit').addTargets([
@@ -168,9 +168,9 @@ grafana.dashboard.new(
 )
 .addTemplate(
   template.custom(
-    name='service',
-    query='fraud-service',
-    current='fraud-service',
+    name='context',
+    query='completeSignUp',
+    current='completeSignUp',
   )
 )
 .addRows([
