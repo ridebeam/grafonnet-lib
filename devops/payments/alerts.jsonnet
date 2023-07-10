@@ -267,6 +267,7 @@ grafana.dashboard.new(
     channels: [alerts.slackPayments],
     evaluateFor: '5m',
     reducerType: 'max',
+    noDataState: 'ok', // for failure metrics, it is ok to have no data
   },
   counters+: {
     func: 'delta',
@@ -278,7 +279,7 @@ grafana.dashboard.new(
     channels: [alerts.slackPayments],
     evaluateFor: '5m',
     reducerType: 'sum',
-    noDataState: 'ok',
+    noDataState: 'ok', // for abnormal metrics, it is ok to have no data
   },
   counters+: {
     func: 'delta',
@@ -291,6 +292,7 @@ grafana.dashboard.new(
     evaluateFor: '5m',
     reducerType: 'sum',
     thresholdType: 'lt',
+    noDataState: 'no_data', // for volume metrics, it is not ok to have no data
   },
   counters+: {
     func: 'delta',
