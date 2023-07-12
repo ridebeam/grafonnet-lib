@@ -189,13 +189,13 @@ local volumeAlerts = [
       {
         title: '[create-order-attempt-volume-low] Create order attempt volume low',
         counter: { name: 'create-order-attempt' },
-        threshold: 2,
+        threshold: 5,
         message: msg,
       },
       {
         title: '[create-order-success-volume-low] Create order success volume low',
         counter: { name: 'create-order-success' },
-        threshold: 2,
+        threshold: 5,
         message: msg,
       },
     ],
@@ -251,6 +251,26 @@ local abnormalEvents = [
   },
 ];
 
+local criticalVolumeAlerts = [
+  {
+    row: 'Order volume critical alert',
+    alerts: [
+      {
+        title: '[create-order-attempt-volume-low] Create order attempt volume low (critical), check service up',
+        counter: { name: 'create-order-attempt' },
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[create-order-success-volume-low] Create order success volume low (critical), check service up',
+        counter: { name: 'create-order-success' },
+        threshold: 2,
+        message: msg,
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Production Alerts',
@@ -293,6 +313,19 @@ grafana.dashboard.new(
     reducerType: 'sum',
     thresholdType: 'lt',
     noDataState: 'no_data', // for volume metrics, it is not ok to have no data
+  },
+  counters+: {
+    func: 'delta',
+    filters: serviceFilter,
+  },
+}))
+.addRows(alerts.createRows(criticalVolumeAlerts, alerts.defaults {
+  alerts+: {
+    channels: [alerts.slackPayments, alerts.opsgenie, alerts.slack],
+    evaluateFor: '5m',
+    reducerType: 'sum',
+    thresholdType: 'lt',
+    noDataState: 'ok', // for volume metrics, it is not ok to have no data
   },
   counters+: {
     func: 'delta',
