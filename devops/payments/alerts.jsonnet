@@ -71,25 +71,25 @@ local failureAlerts = [
 
       {
         title: '[create-order-rejected] Create Order rejected by gateway (KRW)',
-        counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
+        counter: { name: 'create-order-rejected', filters: currencyFilter('KRW')},
         threshold: 30,
         message: msg,
       },
       {
         title: '[create-order-rejected] Create Order rejected by gateway (AUD|NZD)',
-        counter: { name: 'create-order-failed', filters: currencyFilter('AUD|NZD')},
+        counter: { name: 'create-order-rejected', filters: currencyFilter('AUD|NZD')},
         threshold: 20,
         message: msg,
       },
       {
         title: '[create-order-rejected] Create Order rejected by gateway (THB,MYR,TRY,IDR...)',
-        counter: { name: 'create-order-failed', filters: currentNotFilter('KRW|AUD|NZD')},
+        counter: { name: 'create-order-rejected', filters: currentNotFilter('KRW|AUD|NZD')},
         threshold: 20,
         message: msg,
       },
       {
         title: '[create-order-rejected] Create Order rejected by gateway (all currencies)',
-        counter: { name: 'create-order-failed' },
+        counter: { name: 'create-order-rejected' },
         threshold: 50,
         message: msg,
       },
