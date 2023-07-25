@@ -17,18 +17,18 @@ local metrics = [
   {
     row: 'Orders',
     panels: [
-      { title: 'Create Order', prefix: 'create-order', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Create Order', prefix: 'create-order', counters: ['attempt', 'success', 'failed', 'rejected'] },
       { title: 'Refund Order', prefix: 'refund-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Cancel Order', prefix: 'cancel-order', counters: ['attempt', 'success', 'failed', 'not-found'] },
       { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
-      { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error', 'timeout'] },
+      { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error', 'timeout', 'rejected'] },
     ],
   },
   {
     row: 'Recurring',
     panels: [
-      { title: 'Add Recurring', prefix: 'add-recurring', counters: ['attempt', 'success', 'failed', 'action', 'error'] },
+      { title: 'Add Recurring', prefix: 'add-recurring', counters: ['attempt', 'success', 'failed', 'action', 'error', 'rejected'] },
       { title: 'Get Recurring', prefix: 'get-recurring', counters: ['attempt', 'success', 'failed'] },
       { title: 'Delete Recurring', prefix: 'delete-recurring', counters: ['attempt', 'success', 'failed'] },
     ],
