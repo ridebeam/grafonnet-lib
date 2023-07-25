@@ -38,10 +38,12 @@ local analyticsWatchdogAlertFilter = target.combineFilters(
 local msg = 'Please check the playbook page and look for the corresponding alert code: https://beammobility.atlassian.net/wiki/spaces/BE/pages/2334654469/Payment+Service+Alert+Playbook';
 
 // one entry per row, with a list of panels for each alert (counter/timing)
+// it alerts when in 2 minutes the avg count for each minute is higher than the configured threshold
 local failureAlerts = [
   {
     row: 'Order failures',
     alerts: [
+
       {
         title: '[create-order-failed] Create Order Failed (KRW)',
         counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
@@ -66,6 +68,32 @@ local failureAlerts = [
         threshold: 10,
         message: msg,
       },
+
+      {
+        title: '[create-order-rejected] Create Order rejected by gateway (KRW)',
+        counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
+        threshold: 30,
+        message: msg,
+      },
+      {
+        title: '[create-order-rejected] Create Order rejected by gateway (AUD|NZD)',
+        counter: { name: 'create-order-failed', filters: currencyFilter('AUD|NZD')},
+        threshold: 20,
+        message: msg,
+      },
+      {
+        title: '[create-order-rejected] Create Order rejected by gateway (THB,MYR,TRY,IDR...)',
+        counter: { name: 'create-order-failed', filters: currentNotFilter('KRW|AUD|NZD')},
+        threshold: 20,
+        message: msg,
+      },
+      {
+        title: '[create-order-rejected] Create Order rejected by gateway (all currencies)',
+        counter: { name: 'create-order-failed' },
+        threshold: 50,
+        message: msg,
+      },
+
       {
         title: '[hold-order-failed] Hold Order Failed (KRW)',
         counter: { name: 'hold-order-failed', filters: currencyFilter('KRW') },
@@ -92,13 +120,13 @@ local failureAlerts = [
       },
       {
         title: '[hold-order-rejected] Hold Order Rejected (KRW)',
-        counter: { name: 'hold-order-error', filters: currencyFilter('KRW') },
+        counter: { name: 'hold-order-rejected', filters: currencyFilter('KRW') },
         threshold: 10,
         message: msg,
       },
       {
         title: '[hold-order-rejected] Hold Order Rejected (AUD|NZD)',
-        counter: { name: 'hold-order-error', filters: currencyFilter('AUD|NZD')  },
+        counter: { name: 'hold-order-rejected', filters: currencyFilter('AUD|NZD')  },
         threshold: 20,
         message: msg,
       },
@@ -110,13 +138,13 @@ local failureAlerts = [
       },
       {
         title: '[hold-order-rejected] Hold Order Rejected (THB,MYR,IDR...)',
-        counter: { name: 'hold-order-error', filters: currentNotFilter('KRW|AUD|NZD|TRY') },
+        counter: { name: 'hold-order-rejected', filters: currentNotFilter('KRW|AUD|NZD|TRY') },
         threshold: 20,
         message: msg,
       },
       {
         title: '[hold-order-rejected] Hold Order Rejected (all currencies)',
-        counter: { name: 'hold-order-error' },
+        counter: { name: 'hold-order-rejected' },
         threshold: 40,
         message: msg,
       },
@@ -140,7 +168,7 @@ local failureAlerts = [
       {
         title: '[add-payment-failed] Add Credit Card Failed (primer)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Primer') },
-        threshold: 3,
+        threshold: 10,
         message: msg,
       },
       {
@@ -182,6 +210,8 @@ local failureAlerts = [
   },
 ];
 
+// volume alerts to make sure we receive enough traffic
+// it alerts when in 2 minutes the avg count for each minute is lower than the configured threshold
 local volumeAlerts = [
   {
     row: 'Order volume',
@@ -219,6 +249,8 @@ local volumeAlerts = [
   },
 ];
 
+// abnormal events
+// it alerts when any minutes the metric is emitted more than the configured threshold
 local abnormalEvents = [
   {
     row: 'Abnormals',
@@ -251,6 +283,8 @@ local abnormalEvents = [
   },
 ];
 
+// critical volume alerts to make sure we receive enough traffic
+// it alerts when in 3 minutes the max rate for each minute is lower than the configured threshold (rate is calculated as [delta / 60s])
 local criticalVolumeAlerts = [
   {
     row: 'Order volume critical alert',
@@ -258,13 +292,13 @@ local criticalVolumeAlerts = [
       {
         title: '[create-order-attempt-volume-low] Create order attempt volume low (critical), check service up',
         counter: { name: 'create-order-attempt' },
-        threshold: 2,
+        threshold: 2/60,
         message: msg,
       },
       {
         title: '[create-order-success-volume-low] Create order success volume low (critical), check service up',
         counter: { name: 'create-order-success' },
-        threshold: 2,
+        threshold: 2/60,
         message: msg,
       },
     ],
@@ -285,8 +319,8 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(failureAlerts, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
-    evaluateFor: '5m',
-    reducerType: 'max',
+    evaluateFor: '2m',
+    reducerType: 'avg',
     noDataState: 'ok', // for failure metrics, it is ok to have no data
   },
   counters+: {
@@ -297,8 +331,8 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(abnormalEvents, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
-    evaluateFor: '5m',
-    reducerType: 'sum',
+    evaluateFor: '1m',
+    reducerType: 'max',
     noDataState: 'ok', // for abnormal metrics, it is ok to have no data
   },
   counters+: {
@@ -309,8 +343,8 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(volumeAlerts, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
-    evaluateFor: '5m',
-    reducerType: 'sum',
+    evaluateFor: '2m',
+    reducerType: 'avg',
     thresholdType: 'lt',
     noDataState: 'no_data', // for volume metrics, it is not ok to have no data
   },
@@ -322,13 +356,13 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(criticalVolumeAlerts, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments, alerts.opsgenie, alerts.slack],
-    evaluateFor: '5m',
-    reducerType: 'sum',
+    evaluateFor: '3m', // if no data for 3m, alert critically with ops genie
+    reducerType: 'max',
     thresholdType: 'lt',
     noDataState: 'ok', // for volume metrics, it is not ok to have no data
   },
   counters+: {
-    func: 'delta',
+    func: 'rate', // for critical alert, we use rate function to make sure it doesn't fire for container crash (crash will have separated alert)
     filters: serviceFilter,
   },
 }))
