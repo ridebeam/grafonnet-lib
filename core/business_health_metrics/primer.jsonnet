@@ -116,7 +116,7 @@ local metricGroups = [
         title: 'primer charge order latency (latency/0.95/s)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'latencyMS\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_COMPLETED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' group by time_bucket order by time_bucket asc',
         alertName: 'primer charge order latency is high',
-        alertCondition: countExceedConditional(12),
+        alertCondition: countExceedConditional(20),
         noDataState: 'no_data',
       }
     ],
