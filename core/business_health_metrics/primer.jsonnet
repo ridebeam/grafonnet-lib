@@ -102,7 +102,7 @@ local metricGroups = [
         title: 'primer charge order failed (error)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'DO_PAYMENT_FAILED\' and visitParamExtractRaw(properties, \'gateway\')=\'"Primer"\' and visitParamExtractRaw(properties, \'error\') not in (\'"failed to charge"\') group by time_bucket order by time_bucket asc',
         alertName: 'primer charge order failed, (see https://redash.ridebeam.com/queries/22708/source)',
-        alertCondition: countExceedConditional(15),
+        alertCondition: countExceedConditional(25),
         noDataState: 'ok',
       },
       {
