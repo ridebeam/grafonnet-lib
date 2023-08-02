@@ -195,6 +195,12 @@ local failureAlerts = [
         threshold: 10,
         message: msg,
       },
+      {
+        title: '[add-payment-failed] Add Credit Card Failed (Iyzico)',
+        counter: { name: 'add-recurring-failed', filters: gatewayFilter('Iyzico') },
+        threshold: 1,
+        message: msg,
+      },
     ],
   },
   {
