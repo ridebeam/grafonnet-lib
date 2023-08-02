@@ -121,7 +121,7 @@ local failureAlerts = [
       {
         title: '[hold-order-rejected] Hold Order Rejected (KRW)',
         counter: { name: 'hold-order-rejected', filters: currencyFilter('KRW') },
-        threshold: 10,
+        threshold: 30,
         message: msg,
       },
       {
