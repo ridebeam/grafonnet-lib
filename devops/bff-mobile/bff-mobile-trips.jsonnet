@@ -92,6 +92,24 @@ local metrics = {
       filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'EndTrip')),
       withServiceFilters=false,
     ),
+    startTripError: target.counter(
+      metric='gql-request-error',
+      groupBys=['gql_operation_name'],
+      filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'StartTrip')),
+      withServiceFilters=false,
+    ),
+    endTripError: target.counter(
+      metric='gql-request-error',
+      groupBys=['gql_operation_name'],
+      filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'EndTrip')),
+      withServiceFilters=false,
+    ),  
+    getAppDataError: target.counter(
+      metric='gql-request-error',
+      groupBys=['gql_operation_name'],
+      filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'GetAppData')),
+      withServiceFilters=false,
+    ),       
   },
 };
 
@@ -137,8 +155,9 @@ local rows = [
         metrics.BeamApi.currentTripSuccess,
       ]),
       panel.counter('Trips Error').addTargets([
-        metrics.BeamApi.startTripError,
-        metrics.BeamApi.endTripError,
+        metrics.GQL.startTripError,
+        metrics.GQL.endTripError,
+        metrics.GQL.getAppDataError,
         metrics.BeamApi.currentTripError,
       ]),
       panel.timeLinear('Start Trip Alert Latency').addTargets([
@@ -147,7 +166,7 @@ local rows = [
         name='Start Trip Latency Alert',
         forDuration='5m',
         frequency='1m',
-        message="Start Trip Latency is above 3",
+        message="Start Trip Latency is above 10",
         notifications=[alertsHelper.slackTrips],
       ).addConditions([{
         type: 'query',
@@ -165,7 +184,7 @@ local rows = [
         evaluator: {
           type: 'gt',
           params: [
-            3,
+            10,
           ],
         },
       }]),
@@ -175,7 +194,7 @@ local rows = [
         name='End Trip Latency Alert',
         forDuration='5m',
         frequency='1m',
-        message="End Trip Latency is above 2",
+        message="End Trip Latency is above 10",
         notifications=[alertsHelper.slackTrips],
       ).addConditions([{
         type: 'query',
@@ -193,12 +212,12 @@ local rows = [
         evaluator: {
           type: 'gt',
           params: [
-            2,
+            10,
           ],
         },
       }]),
       panel.counter('Start Trip Error Alert').addTargets([
-        metrics.BeamApi.startTripError,
+        metrics.GQL.startTripError,
       ]).addAlert(
         name='Start Trip Error Alert',
         forDuration='5m',
@@ -226,7 +245,7 @@ local rows = [
         },
       }]),
       panel.counter('End Trip Error Alert').addTargets([
-        metrics.BeamApi.endTripError,
+        metrics.GQL.endTripError,
       ]).addAlert(
         name='End Trip Error Alert',
         forDuration='5m',
@@ -254,6 +273,35 @@ local rows = [
           ],
         },
       }]),
+      panel.counter('Get App Data Error Alert').addTargets([
+        metrics.GQL.getAppDataError,
+      ]).addAlert(
+        name='Get App Data Error Alert',
+        forDuration='5m',
+        frequency='1m',
+        message="Get App Data Error count is above 0.1",
+        notifications=[alertsHelper.slackTrips],
+        noDataState='ok',
+      ).addConditions([{
+        type: 'query',
+        query: {
+          params: [
+            'A',
+            '5m',
+            'now',
+          ],
+        },
+        reducer: {
+          type: 'max',
+          params: [],
+        },
+        evaluator: {
+          type: 'gt',
+          params: [
+            0.1,
+          ],
+        },
+      }]),      
     ]
   ]),
 ];
