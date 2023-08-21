@@ -264,7 +264,7 @@ local abnormalEvents = [
       {
         title: '[stuck-in-notification] Orders stuck in notification',
         counter: { name: 'waiting-on-notification-timeout' },
-        threshold: 1,
+        threshold: 5,
         message: msg,
       },
       {
