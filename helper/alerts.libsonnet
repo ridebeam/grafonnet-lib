@@ -31,6 +31,7 @@ local cwPanel = cwHelpers.panel;
   slackCompIntel: { uid: 'YoazTlw7z' },
   slackIotConnectivity: { uid: 'rnbtzKLVk' },
   slackVehicle: { uid: '1XzRz_Y4k' },
+  slackTrips: { uid: 'QNvX9FXVk' },
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
   opsgenieVehicles: { uid: '9NE5WPjnz' },

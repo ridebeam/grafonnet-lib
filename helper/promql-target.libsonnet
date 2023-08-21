@@ -45,6 +45,7 @@ local prom = grafana.prometheus;
     max: { quantile: '1.00' },
     p99: { quantile: '0.99' },
     p95: { quantile: '0.95' },
+    p90: { quantile: '0.9' },
     p50: { quantile: '0.50' },
     p05: { quantile: '0.05' },
     min: { quantile: '0.00' },

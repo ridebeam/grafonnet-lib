@@ -19,6 +19,7 @@ local filters = {
   confirmUnrepairableRoute: target.likeFilter('route', '/asset/vehicles/confirmUnrepairable/{vehicleId}'),
   p99: target.likeFilter('quantile', '0.99'),
   p95: target.likeFilter('quantile', '0.95'),
+  p90: target.likeFilter('quantile', '0.9'),
   p50: target.likeFilter('quantile', '0.5'),
 };
 
