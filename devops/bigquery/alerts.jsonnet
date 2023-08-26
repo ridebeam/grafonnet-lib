@@ -98,7 +98,7 @@ local alertDefinitions = [
           filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
           format: 'bytes',
         },
-        threshold: 3 * 1024 * 1024 * 1024,
+        threshold: 4 * 0.8 * 1024 * 1024 * 1024, // 80% of total 4GB memory configured
         message: 'High Memory Usage',
         evaluateFor: '15m',
       },
