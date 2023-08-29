@@ -15,11 +15,12 @@ local alertDefinitions = [
     row: 'Tasks',
     alerts: [
       {
-        title: 'Task execution failed',
+        title: 'Workflow execution failed',
         custom: {
-          name: 'workflow-task-execution-fail-rate',
-          query: 'increase(argo_workflows_task_exec_result{cluster="core-sg", status="Failed"}[5m])',
-          alias: '{{task_name}}',
+          name: 'workflow-execution-fail-rate',
+	  // Manually exclude dbt-bq-ci-test, proper filter will be done in https://beammobility.atlassian.net/browse/DP-1022
+          query: 'increase(argo_workflows_exec_result{cluster="core-sg", status="Failed", workflow_name!="dbt-bq-ci-test"}[5m])',
+          alias: '{{workflow_name}}',
         },
         threshold: 0,
         reducerType: 'max',
