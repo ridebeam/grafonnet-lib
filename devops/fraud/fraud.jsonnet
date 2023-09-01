@@ -52,7 +52,7 @@ local targetsData = [
     "condition": "whitelistedUtilNotNullAndInFuture",
     "response": "allow",
     "refId": "C",
-    "panelDisplayHeading":"Whitelisted Util No- Null And In Future: Type - Allow"
+    "panelDisplayHeading":"Whitelisted Util Not Null And In Future: Type - Allow"
   },
   {
     "name": "BlockFraudDataFormatTooOld",
