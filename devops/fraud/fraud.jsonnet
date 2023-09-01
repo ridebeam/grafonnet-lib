@@ -13,115 +13,130 @@ local panel = helpers.panel;
 
 // Context + Response + Condition
 
+// TODO: filter not needed?
 local filters = {
-  contextCompleteSignUp: target.likeFilter('context', 'completeSignUp'),
+  contextOTPSignUp: target.likeFilter('context', 'beam-api-phoneverification'),
+  contextSSOSignUp: target.likeFilter('context', 'user-profile-loginWithSSO'),
 
   responseBlock: target.likeFilter('response', 'block'),
   responseAllow: target.likeFilter('response', 'allow'),
 
+  conditionFraudDataFormatTooOld: target.likeFilter('condition', 'FraudDataFormatTooOld'),
   conditionInvalidFraudDataFormat: target.likeFilter('condition', 'InvalidFraudDataFormat'),
-  conditionVerificationFailed: target.likeFilter('condition', 'VerificationFailed'),
+  conditionAccountCreationCountLessThanAccountCreationLimit: target.likeFilter('condition', 'OK'),
+  conditionAccountCreationCountGreaterThanEqualsToAccountCreationLimit: target.likeFilter('condition', 'accountCreationLimit'),
   conditionFraudDataIsNull: target.likeFilter('condition', 'fraudDataIsNull'),
-  conditionWhitelistedUtilNotNullAndInFuture: target.likeFilter('condition', 'whitelistedUtilNotNullAndInFuture'),
-  conditionAccountCreationCountGreaterThanAccountCreationLimit: target.likeFilter('condition', 'accountCreationLimit'),
-  conditionAccountUsageCountGreaterThanAccountUsageLimit: target.likeFilter('condition', 'accountUsageLimit'),
+  conditionHasUnpaidTrip: target.likeFilter('condition', 'hasUnpaidTrip'),
   conditionAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit: target.likeFilter('condition', 'limitsOK'),
+  conditionWhitelistedUtilNotNullAndInFuture: target.likeFilter('condition', 'whitelistedUtilNotNullAndInFuture'),
+  conditionAccountUsageCountGreaterThanEqualsToAccountUsageLimit: target.likeFilter('condition', 'accountUsageLimit'),
+};
+
+local targetsData = [
+  {
+    "name": "AllowAccountCreationCountLessThanAccountCreationLimit",
+    "condition": "OK",
+    "response": "allow",
+    "refId": "A",
+    "panelDisplayHeading":"Allow Account Creation Count Less-Than Account Creation Limit: Type - Allow",
+  },
+  {
+    "name": "AllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit",
+    "condition": "limitsOK",
+    "response": "allow",
+    "refId": "B",
+    "panelDisplayHeading":"Allow Account Creation Count And Account Usage Count Less-Than Account Usage Limit: Type - Allow [Obsolete]]"
+  },
+  {
+    "name": "AllowWhitelistedUtilNotNullAndInFuture",
+    "condition": "whitelistedUtilNotNullAndInFuture",
+    "response": "allow",
+    "refId": "C",
+    "panelDisplayHeading":"Whitelisted Util No- Null And In Future: Type - Allow"
+  },
+  {
+    "name": "BlockFraudDataFormatTooOld",
+    "condition": "FraudDataFormatTooOld",
+    "response": "block",
+    "refId": "D",
+    "panelDisplayHeading":"Fraud Data Format Too Old: Type - Block"
+  },
+  {
+    "name": "BlockInvalidFraudDataFormat",
+    "condition": "InvalidFraudDataFormat",
+    "response": "block",
+    "refId": "E",
+    "panelDisplayHeading":"Invalid Fraud Data Format: Type - Block"
+  },
+  {
+    "name": "BlockFraudDataIsNull",
+    "condition": "fraudDataIsNull",
+    "response": "block",
+    "refId": "F",
+    "panelDisplayHeading":"Fraud Data Is Null: Type - Block"
+  },
+  {
+    "name": "BlockHasUnpaidTrip",
+    "condition": "hasUnpaidTrip",
+    "response": "block",
+    "refId": "G",
+    "panelDisplayHeading":"Has Unpaid Trip: Type - Block"
+  },
+  {
+    "name": "BlockAccountCreationCountGreaterThanEqualsToAccountCreationLimit",
+    "condition": "accountCreationLimit",
+    "response": "block",
+    "refId": "H",
+    "panelDisplayHeading":"Account Creation Count Greater-Than-Equals-To Account Creation Limit: Type - Block"
+  },
+  {
+    "name": "BlockAccountUsageCountGreaterThanEqualsToAccountUsageLimit",
+    "condition": "accountUsageLimit",
+    "response": "block",
+    "refId": "I",
+    "panelDisplayHeading":"Account Usage Count Greater-Than-Equals-To Account Usage Limit: Type - Block"
+  }
+];
+
+local requestsData = {
+  [item.name]: {
+    expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"' + item.condition + '", response=~"' + item.response + '"}))' + '[$__interval]',
+    intervalFactor: 1,
+    legendFormat: "{{condition}}",
+    refId: item.refId
+  }
+  for item in targetsData
 };
 
 local targets = {
-  requests: {
-    completeSignUpAllowInvalidFraudDataFormat: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"InvalidFraudDataFormat", response=~"allow"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "A"
-    },
-    completeSignUpAllowVerificationFailed: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"VerificationFailed", response=~"allow"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "B"
-    },
-    completeSignUpAllowFraudDataIsNull: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"fraudDataIsNull", response=~"allow"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "C"
-    },
-    completeSignUpAllowWhitelistedUtilNotNullAndInFuture: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"whitelistedUtilNotNullAndInFuture", response=~"allow"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "D"
-    },
-    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"limitsOK", response=~"allow"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "E"
-    },
-    completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimit: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"accountCreationLimit", response=~"block"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "F"
-    },
-    completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimit: 
-    {
-      expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"accountUsageLimit", response=~"block"}))' + '[$__interval]',
-      intervalFactor: 1,
-      legendFormat: "{{condition}}",
-      refId: "G"
-    },
-  },
+  requests: requestsData,
   resources: {
     cpuUsage: libProm.target(
-      'sum(system_cpu_usage{namespace="$env"}) by (pod_name) * 100',
+      'sum(system_cpu_usage{namespace="$env", service="$service"}) by (pod_name) * 100',
       legendFormat='{{pod_name}}',
     ),
     ramUsage: libProm.target(
-      '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env"}[1m]))by(application, pod_name) )',
+      '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env", service="$service"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env"}[1m]))by(application, pod_name) )',
       legendFormat='{{pod_name}}',
     )
   }
 };
 
+local generalData = {
+  [item.name + "Count"]: panel.counter(item.panelDisplayHeading).addTargets([
+    targets.requests[item.name],
+  ])
+  for item in targetsData
+};
+
 local panels = {
-  general: {
-    completeSignUpAllowInvalidFraudDataFormatCount: panel.counter('Complete Sign Up Allow Invalid Fraud Data Format').addTargets([
-      targets.requests.completeSignUpAllowInvalidFraudDataFormat,
-    ]),
-    completeSignUpAllowVerificationFailedCount: panel.counter('Complete Sign Up Allow Verification Failed').addTargets([
-      targets.requests.completeSignUpAllowInvalidFraudDataFormat,
-    ]),
-    completeSignUpAllowFraudDataIsNullCount: panel.counter('Complete Sign Up Allow Fraud Data Is Null ').addTargets([
-      targets.requests.completeSignUpAllowFraudDataIsNull,
-    ]),
-    completeSignUpAllowWhitelistedUtilNotNullAndInFutureCount: panel.counter('Complete Sign Up Allow Whitelisted Util Not Null And In Future').addTargets([
-      targets.requests.completeSignUpAllowWhitelistedUtilNotNullAndInFuture,
-    ]),
-    completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimitCount: panel.counter('Complete Sign Up Allow When Limits OK').addTargets([
-      targets.requests.completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimit,
-    ]),
-    completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimitCount: panel.counter('Complete Sign Up Block Account Creation Count Greater Than Account Creation Limit').addTargets([
-      targets.requests.completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimit,
-    ]),
-    completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimitCount: panel.counter('Complete Sign Up Block Account Usage Count Greater Than Account Usage Limit').addTargets([
-      targets.requests.completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimit,
-    ]),
-  },
+  general: generalData,
   resourceUsage: {
     cpuUsage: panel.new("CPU Usage").addTargets([
-        targets.resources.cpuUsage
+      targets.resources.cpuUsage
     ]),
     ramUsage: panel.new("RAM Usage").addTargets([
-        targets.resources.ramUsage
+      targets.resources.ramUsage
     ]),
   }
 };
@@ -129,15 +144,7 @@ local panels = {
 local rows = {
   general: row.new('General').addPanels([
     panel.halfRow(p)
-    for p in [
-      panels.general.completeSignUpAllowInvalidFraudDataFormatCount,
-      panels.general.completeSignUpAllowInvalidFraudDataFormatCount,
-      panels.general.completeSignUpAllowFraudDataIsNullCount,
-      panels.general.completeSignUpAllowWhitelistedUtilNotNullAndInFutureCount,
-      panels.general.completeSignUpAllowAccountCreationCountAndAccountUsageCountLessThanAccountUsageLimitCount,
-      panels.general.completeSignUpBlockAccountCreationCountGreaterThanAccountCreationLimitCount,
-      panels.general.completeSignUpBlockAccountUsageCountGreaterThanAccountUsageLimitCount,
-    ]
+      for p in std.objectValues(panels.general)
   ]),
   resourceUsage: row.new('Resource Usage').addPanels([
     panel.halfRow(p)
@@ -169,8 +176,15 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='context',
-    query='completeSignUp',
-    current='completeSignUp',
+    query='beam-api-phoneverification,user-profile-loginWithSSO',
+    current='user-profile-loginWithSSO',
+  )
+)
+.addTemplate(
+  template.custom(
+    name='service',
+    query='fraud-service',
+    current='fraud-service',
   )
 )
 .addRows([
