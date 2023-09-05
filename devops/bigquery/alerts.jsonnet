@@ -123,12 +123,25 @@ local alertDefinitions = [
         gauge: {
           name: 'bq-row-diff-partition-tables',
           groupBys: ['table_id'],
+          filters: target.notEqualFilter('table_id', 'VehicleEvents')
         },
         threshold: 100,
         reducerType: 'max',
         evaluateFor: '2h',
         message: 'Some partition tables are not in sync',
       },
+      {
+        title: 'VehicleEvents partition row count difference > 0',
+        gauge: {
+          name: 'bq-row-diff-partition-tables',
+          groupBys: ['table_id'],
+          filters: target.equalsFilter('table_id', 'VehicleEvents')
+        },
+        threshold: 400,
+        reducerType: 'max',
+        evaluateFor: '2h',
+        message: 'VehicleEvents are not in sync',
+      }
     ],
   },
 ];
