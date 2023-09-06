@@ -73,7 +73,7 @@ local alertDefinitions = [
         custom: {
           name: 'CrashLoopBackOff Count',
           query: |||
-            increase(kube_pod_container_status_restarts_total{cluster="core-sg",exported_namespace=~"production",pod!~".*cdc.*|.*dbt.*|malaysia.*|korea.*|deploymentimagesample.*|standard.*|abortio.*|automator.*"}[4m]) > 0
+            increase(kube_pod_container_status_restarts_total{cluster="core-sg",exported_namespace=~"production",pod!~".*cdc.*|.*dbt.*|malaysia.*|korea.*|deploymentimagesample.*|standard.*|abortio.*|automator.*|flink-vehicle-snapshot-.*"}[4m]) > 0
           |||,
           alias: '{{pod}}',
         },
