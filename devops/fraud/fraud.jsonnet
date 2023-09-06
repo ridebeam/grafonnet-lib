@@ -32,7 +32,7 @@ local filters = {
   conditionAccountUsageCountGreaterThanEqualsToAccountUsageLimit: target.likeFilter('condition', 'accountUsageLimit'),
 };
 
-local targetsData = [
+local fraudServiceTargetsData = [
   {
     "name": "AllowAccountCreationCountLessThanAccountCreationLimit",
     "condition": "OK",
@@ -98,18 +98,68 @@ local targetsData = [
   }
 ];
 
-local requestsData = {
+local userProfileServiceTargetsData = [
+  {
+    "name": "LoginCheckAllow",
+    "metric": "fraud_check_at_login_allow",
+    "refId": "A",
+    "panelDisplayHeading": "SSO Login Check: Type - Allow"
+  },
+  {
+    "name": "LoginCheckBlock",
+    "metric": "fraud_check_at_login_block",
+    "refId": "B",
+    "panelDisplayHeading": "SSO Login Check: Type - Block"
+  },
+  {
+    "name": "AccountCreationCheckAllow",
+    "metric": "fraud_check_at_sso_allow",
+    "refId": "C",
+    "panelDisplayHeading": "SSO Account Creation Check: Type - Allow"
+  },
+  {
+    "name": "AccountCreationCheckBlock",
+    "metric": "fraud_check_at_sso_block",
+    "refId": "D",
+    "panelDisplayHeading": "SSO Account Creation Check: Type - Block"
+  },
+  {
+    "name": "CheckSendToFraudServiceSuccess",
+    "metric": "fraud_check_sso_success",
+    "refId": "E",
+    "panelDisplayHeading": "SSO Check Request to Fraud Service: Type - Success"
+  },
+  {
+    "name": "CheckSendToFraudServiceFailed",
+    "metric": "fraud_check_sso_failed",
+    "refId": "F",
+    "panelDisplayHeading": "SSO Check Request to Fraud Service: Type - Failed"
+  }
+];
+
+local fraudServiceRequestsData = {
   [item.name]: {
     expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"' + item.condition + '", response=~"' + item.response + '"}))' + '[$__interval]',
     intervalFactor: 1,
     legendFormat: "{{condition}}",
     refId: item.refId
   }
-  for item in targetsData
+  for item in fraudServiceTargetsData
+};
+
+local userProfileServiceRequestsData = {
+  [item.name]: {
+    expr: 'sum(rate(' + item.metric + '{namespace="$env"}))' + '[$__interval]',
+    intervalFactor: 1,
+    legendFormat: "{{condition}}",
+    refId: item.refId
+  }
+  for item in userProfileServiceTargetsData
 };
 
 local targets = {
-  requests: requestsData,
+  fraudServiceRequests: fraudServiceRequestsData,
+  userProfileServiceRequests: userProfileServiceRequestsData,
   resources: {
     cpuUsage: libProm.target(
       'sum(system_cpu_usage{namespace="$env", service="$service"}) by (pod_name) * 100',
@@ -122,15 +172,23 @@ local targets = {
   }
 };
 
-local generalData = {
+local fraudServiceData = {
   [item.name + "Count"]: panel.counter(item.panelDisplayHeading).addTargets([
-    targets.requests[item.name],
+    targets.fraudServiceRequests[item.name],
   ])
-  for item in targetsData
+  for item in fraudServiceTargetsData
+};
+
+local userProfileServiceData = {
+  [item.name + "Count"]: panel.counter(item.panelDisplayHeading).addTargets([
+    targets.userProfileServiceRequests[item.name],
+  ])
+  for item in userProfileServiceTargetsData
 };
 
 local panels = {
-  general: generalData,
+  fraudService: fraudServiceData,
+  userProfileService: userProfileServiceData,
   resourceUsage: {
     cpuUsage: panel.new("CPU Usage").addTargets([
       targets.resources.cpuUsage
@@ -142,9 +200,13 @@ local panels = {
 };
 
 local rows = {
-  general: row.new('General').addPanels([
+  fraudService: row.new('Fraud Service - API Calls').addPanels([
     panel.halfRow(p)
-      for p in std.objectValues(panels.general)
+      for p in std.objectValues(panels.fraudService)
+  ]),
+  userProfileService: row.new('User Profile Service - SSO flow').addPanels([
+    panel.halfRow(p)
+      for p in std.objectValues(panels.userProfileService)
   ]),
   resourceUsage: row.new('Resource Usage').addPanels([
     panel.halfRow(p)
@@ -170,7 +232,7 @@ grafana.dashboard.new(
   template.custom(
     name='env',
     query='stable,staging,production',
-    current='stable',
+    current='production',
   )
 )
 .addTemplate(
@@ -183,11 +245,12 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='service',
-    query='fraud-service',
+    query='fraud-service,user-profile',
     current='fraud-service',
   )
 )
 .addRows([
-  rows.general,
+  rows.fraudService,
+  rows.userProfileService,
   rows.resourceUsage,
 ])
