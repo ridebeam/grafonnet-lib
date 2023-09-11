@@ -103,8 +103,8 @@ local alertDefinitions = [
           name: 'cloudsql.googleapis.com/database/postgresql/num_backends',
           filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-beam-api'),
         },
-        threshold: 800,
-        message: '',  // TODO message
+        threshold: 1200,
+        message: 'https://console.cloud.google.com/sql/instances/pg-asia-southeast1-beam-api/system-insights?project=ridebeam-core',
       },
     ],
   },
