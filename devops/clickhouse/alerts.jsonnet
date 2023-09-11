@@ -99,15 +99,16 @@ local alertDefinitions = [
     row: 'Disk',
     alerts: [
       {
-        title: 'High Disk Usage',
+        title: 'Low Disk',
         gauge: {
-          name: 'ClickHouseAsyncMetrics_DiskUsed_default',
+          name: 'ClickHouseAsyncMetrics_DiskAvailable_default',
           func: target.gaugeFuncs.sum.func,
         },
-        threshold: 50000000000,
+        threshold: 10000000000*0.1, // 10% of disk available
+        thresholdType: 'lt',
         reducerType: 'sum',
         evaluateFor: '1m',
-        message: 'High disk usage',
+        message: 'ClickHouse is running out of disk (10% left)',
       },
     ],
   },
