@@ -17,7 +17,7 @@ local fraudServiceTargets = {
   overall: target.delta(
     metric='fraud-service-total',
     groupBys=['context', 'response', 'condition'],
-    filters=target.combineFilters(envFilter, target.notLikeFilter('condition', 'fraudDataIsNull|FraudDataFormatTooOld')),
+    filters=envFilter,
     withServiceFilters=false,
   ),
 };
@@ -63,6 +63,17 @@ local userProfileTargets = {
   )
 };
 
+local resoucresTargets = {
+  cpuUsage: libProm.target(
+    'sum(system_cpu_usage{namespace="$env", service="fraud-service"}) by (pod_name) * 100',
+    legendFormat='{{pod_name}}',
+  ),
+  ramUsage: libProm.target(
+    '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="$env", service="fraud-service"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="$env"}[1m]))by(application, pod_name) )',
+    legendFormat='{{pod_name}}',
+  ),
+};
+
 local rows = {
   fraudService: row.new('Fraud Service').addPanels([
     panel.fullRow(p)
@@ -82,6 +93,17 @@ local rows = {
         userProfileTargets.ssoSignUpBlocks,
         userProfileTargets.httpCallsToFraudCheckSuccess,
         userProfileTargets.httpCallsToFraudCheckFailed,
+      ]),
+    ]
+  ]),
+  resources: row.new('Resources').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panel.new('CPU Usage').addTargets([
+        resoucresTargets.cpuUsage,
+      ]),
+      panel.new('RAM Usage').addTargets([
+        resoucresTargets.ramUsage,
       ]),
     ]
   ]),
@@ -108,4 +130,5 @@ grafana.dashboard.new(
 .addRows([
   rows.fraudService,
   rows.userProfileService,
+  rows.resources,
 ])
