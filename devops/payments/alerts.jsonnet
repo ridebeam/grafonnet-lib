@@ -43,7 +43,6 @@ local failureAlerts = [
   {
     row: 'Order failures',
     alerts: [
-
       {
         title: '[create-order-failed] Create Order Failed (KRW)',
         counter: { name: 'create-order-failed', filters: currencyFilter('KRW')},
@@ -186,6 +185,12 @@ local failureAlerts = [
       {
         title: '[add-payment-failed] Add Credit Card Failed (toss)',
         counter: { name: 'add-recurring-failed', filters: gatewayFilter('Toss') },
+        threshold: 2,
+        message: msg,
+      },
+      {
+        title: '[add-payment-failed] Add Payment Failed (kakao)',
+        counter: { name: 'add-recurring-failed', filters: gatewayFilter('Kakao') },
         threshold: 2,
         message: msg,
       },
@@ -355,8 +360,8 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(volumeAlerts, alerts.defaults {
   alerts+: {
     channels: [alerts.slackPayments],
-    evaluateFor: '2m',
-    reducerType: 'avg',
+    evaluateFor: '5m',
+    reducerType: 'max',
     thresholdType: 'lt',
     noDataState: 'no_data', // for volume metrics, it is not ok to have no data
   },
