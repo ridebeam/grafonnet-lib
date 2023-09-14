@@ -81,7 +81,7 @@ local alertDefinitions = [
     row: 'Redash',
     alerts: [
       {
-        title: 'DB CPU Usage',
+        title: '[Redash] DB CPU Usage',
         gcpGauge: {
           name: 'cloudsql.googleapis.com/database/cpu/utilization',
           filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
@@ -92,7 +92,7 @@ local alertDefinitions = [
         evaluateFor: '15m',
       },
       {
-        title: 'DB Memory Usage',
+        title: '[Redash] DB Memory Usage',
         gcpGauge: {
           name: 'cloudsql.googleapis.com/database/memory/total_usage',
           filters: gcpTarget.equalsFilter('resource.label.database_id', 'ridebeam-core:pg-asia-southeast1-redash'),
@@ -102,6 +102,13 @@ local alertDefinitions = [
         message: 'High Memory Usage',
         evaluateFor: '15m',
       },
+      {
+        title: '[Redash] query_results row count too high',
+        custom: { query: 'sum(redash_query_results_count{namespace="production"}) > 0', alias: '{{table_id}}' },
+        threshold: 1500000,
+        evaluateFor: '5m',
+        message: 'query_results row count too high!\nEither too many query executions at the same time, or the cleanup job is failing',
+      }
     ],
   },
   {
