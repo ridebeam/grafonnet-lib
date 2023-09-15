@@ -88,7 +88,7 @@ grafana.dashboard.new(
 .addRows(
   alerts.createRows(alertDefs, alerts.defaults {
     alerts+: {
-      channels: alerts.notifications.test,
+      channels: alerts.notifications.slackAlertsOnly,
       reducerType: 'avg',
     },
   },)
