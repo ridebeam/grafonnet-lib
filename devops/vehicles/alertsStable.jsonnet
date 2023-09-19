@@ -36,7 +36,7 @@ local alertDefinitions = [
     row: 'iot-server',
     alerts: [
       {
-        title: 'kafka consumption lag: vehicle-action',
+        title: 'kafka consumption lag on Stable: vehicle-action',
         timer: {
           name: 'kafka-consume-lag',
           filters: target.combineFilters(
@@ -46,7 +46,8 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 60,
-        message: 'TODO',
+        message: 'Block testing. Check Stable env.',
+        noDataState: 'ok',
       },
     ],
   },
@@ -54,7 +55,7 @@ local alertDefinitions = [
     row: 'vehicle-controller',
     alerts: [
       {
-        title: 'kafka consumption lag: vehicle-state',
+        title: 'kafka consumption lag on Stable: vehicle-state',
         timer: {
           name: 'kafka-consume-lag',
           filters: target.combineFilters(
@@ -64,10 +65,11 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 60,
-        message: 'TODO',
+        message: 'Block testing. Check Stable env.',
+        noDataState: 'ok',
       },
       {
-        title: 'kafka consumption rate: vehicle-state',
+        title: 'kafka consumption rate on Stable: vehicle-state',
         counter: {
           name: 'kafka-consume',
           filters: target.combineFilters(
@@ -77,7 +79,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         thresholdType: 'lt',
-        message: 'TODO',
+        message: 'Block testing. Check Stable env.',
+        noDataState: 'ok',
       },
     ],
   },
@@ -85,7 +88,7 @@ local alertDefinitions = [
     row: 'vehicle-gateway',
     alerts: [
       {
-        title: 'kafka consumption lag: vehicle-event (serving instances only)',
+        title: 'kafka consumption lag on Stable: vehicle-event (serving instances only)',
         custom: {
           name: 'kafka-consume-lag',
           query: |||
@@ -96,10 +99,11 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 60,
-        message: 'TODO',
+        message: 'Block testing. Check Stable env.',
+        noDataState: 'ok',
       },
       {
-        title: 'kafka consumption rate: vehicle-event',
+        title: 'kafka consumption rate on Stable: vehicle-event',
         counter: {
           name: 'kafka-consume',
           filters: target.combineFilters(
@@ -109,7 +113,8 @@ local alertDefinitions = [
         },
         threshold: 1,
         thresholdType: 'lt',
-        message: 'TODO',
+        message: 'Block testing. Check Stable env.',
+        noDataState: 'ok',
       },
     ],
   },
@@ -117,7 +122,7 @@ local alertDefinitions = [
     row: 'beam-api',
     alerts: [
       {
-        title: 'Kafka: vehicle-event consumption lag',
+        title: 'Kafka: vehicle-event consumption lag on Stable',
         timer: {
           name: 'kafka-consume-lag',
           filters: target.combineFilters(
@@ -130,7 +135,8 @@ local alertDefinitions = [
         threshold: 120,
         queryTimeStart: '2m',
         evaluateFor: '20m',
-        message: 'TODO',
+        message: 'Block testing. Check Stable env. https://beammobility.atlassian.net/l/cp/qNHQGAqr',
+        noDataState: 'ok',
       },
     ],
   },
