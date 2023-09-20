@@ -44,10 +44,10 @@ local alertDefinitions = [
           alias: 'error with add member',
           intervalFactor: 2,
         },
-        threshold: 20,
+        threshold: 40,
         thresholdType: 'gt',
         queryTimeStart: '10m',
-        message: 'Error ratio of add member above 20%',
+        message: 'Error ratio of add member above 40%',
         noDataState: 'ok',
       },
       {
