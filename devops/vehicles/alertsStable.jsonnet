@@ -10,7 +10,6 @@ local envFilter = target.equalsFilter('namespace', 'stable');
 
 local iotServerServiceFilter = target.equalsFilter('service', 'iot-server');
 local vehicleControllerServiceFilter = target.equalsFilter('service', 'vehicle-controller');
-local vehicleGatewayServiceFilter = target.equalsFilter('service', 'vehicle-gateway');
 local messagingServiceFilter = target.equalsFilter('service', 'messaging');
 
 local iotServerFilter = target.combineFilters(
@@ -20,10 +19,6 @@ local iotServerFilter = target.combineFilters(
 local vehicleControllerFilter = target.combineFilters(
   envFilter,
   vehicleControllerServiceFilter,
-);
-local vehicleGatewayFilter = target.combineFilters(
-  envFilter,
-  vehicleGatewayServiceFilter,
 );
 local messagingFilter = target.combineFilters(
   envFilter,
@@ -68,20 +63,6 @@ local alertDefinitions = [
         message: 'Block testing. Check Stable env.',
         noDataState: 'ok',
       },
-      {
-        title: 'kafka consumption rate on Stable: vehicle-state',
-        counter: {
-          name: 'kafka-consume',
-          filters: target.combineFilters(
-            vehicleControllerFilter,
-            target.equalsFilter('kafka_source_topic', 'vehicle-state'),
-          ),
-        },
-        threshold: 1,
-        thresholdType: 'lt',
-        message: 'Block testing. Check Stable env.',
-        noDataState: 'ok',
-      },
     ],
   },
   {
@@ -99,20 +80,6 @@ local alertDefinitions = [
         },
         format: 's',
         threshold: 60,
-        message: 'Block testing. Check Stable env.',
-        noDataState: 'ok',
-      },
-      {
-        title: 'kafka consumption rate on Stable: vehicle-event',
-        counter: {
-          name: 'kafka-consume',
-          filters: target.combineFilters(
-            vehicleGatewayFilter,
-            target.equalsFilter('kafka_source_topic', 'vehicle-event'),
-          ),
-        },
-        threshold: 1,
-        thresholdType: 'lt',
         message: 'Block testing. Check Stable env.',
         noDataState: 'ok',
       },
