@@ -99,7 +99,7 @@ grafana.dashboard.new(
           legendFormat='request',
         )
       ),
-      graphPanel.new('CPU Usage By pod($container)', legend_values=true, legend_show=true, legend_alignAsTable=true, legend_rightSide=true, legend_min=true, legend_max=true).addTarget(
+      graphPanel.new('CPU Usage By pod($container)', legend_values=true, legend_show=true, legend_alignAsTable=true, legend_rightSide=true, legend_avg=true, legend_max=true).addTarget(
         libProm.target(
           'sum(irate(container_cpu_usage_seconds_total{cluster="$cluster", container="$container", namespace="$namespace"}[30s])) by (id,pod)',
           legendFormat='{{pod}}',
@@ -132,7 +132,7 @@ grafana.dashboard.new(
           legendFormat='request',
         )
       ),
-      graphPanel.new('Memory Usage By pod($container)', legend_values=true, legend_show=true, legend_alignAsTable=true, legend_rightSide=true, legend_min=true, legend_max=true, format='bytes').addTarget(
+      graphPanel.new('Memory Usage By pod($container)', legend_values=true, legend_show=true, legend_alignAsTable=true, legend_rightSide=true, legend_avg=true, legend_max=true, format='bytes').addTarget(
         libProm.target(
           'container_memory_usage_bytes{cluster="$cluster",container="$container", namespace="$namespace"}',
           legendFormat='{{pod}}',
