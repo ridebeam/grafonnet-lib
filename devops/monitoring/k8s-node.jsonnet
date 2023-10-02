@@ -53,11 +53,12 @@ grafana.dashboard.new(
   template.new(
     name='node',
     datasource='Prometheus',
-    query='label_values(kube_node_info{cluster="$cluster"}, node)',
+    query='query_result(kubelet_node_name{cluster="$cluster"})',
     multi=false,
     includeAll=false,
     refresh=1,
     sort=1,
+    regex='/.*instance="([^"]*).*/',
   )
 )
 
