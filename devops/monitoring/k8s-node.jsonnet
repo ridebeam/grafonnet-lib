@@ -29,7 +29,7 @@ local gauge_thresholds = [
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'k8s-node-monitoring',
+  'Kubernetes Node Monitoring',
   uid='monitoring_k8s_node',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

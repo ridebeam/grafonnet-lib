@@ -13,7 +13,7 @@ local panel = helpers.panel;
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'k8s-workload-monitoring',
+  'Kubernetes Workload Monitoring',
   uid='monitoring_k8s_workload',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },

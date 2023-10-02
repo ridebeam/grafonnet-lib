@@ -13,7 +13,7 @@ local panel = helpers.panel;
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'k8s-cluster-monitoring',
+  'Kubernetes Cluster Monitoring',
   uid='monitoring_k8s_cluster',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
