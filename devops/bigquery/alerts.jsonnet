@@ -57,9 +57,8 @@ local alertDefinitions = [
     alerts: [
       {
         title: '[bq] scheduled queries fails',
-        counter: { name: 'bq-scheduled-query', filters: target.equalsFilter('scheduled_query_state', 'FAILED') },
+        custom: { query: 'increase(avg(bq_scheduled_query{scheduled_query_state="FAILED", namespace="production"}[1m]))', alias: '{{table_id}}' },
         threshold: 0,
-        reducerType: 'sum',
         evaluateFor: '1m',
         message: 'Scheduled query failure',
       },
