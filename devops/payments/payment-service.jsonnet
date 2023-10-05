@@ -63,13 +63,13 @@ local metrics = [
   {
     row: 'AuthAdjust',
     panels: [
-      { title: 'AuthAdjust Failed', prefix: '', counters: ['auth-adjust-failure'] },
+      { title: 'AuthAdjust Failed', prefix: 'auth-adjust', counters: ['failure'] },
     ],
   },
     {
     row: 'Capture',
     panels: [
-      { title: 'Capture Failed', prefix: '', counters: ['capture-failure'] },
+      { title: 'Capture Failed', prefix: 'capture', counters: ['failure'] },
     ],
   }
 ];
