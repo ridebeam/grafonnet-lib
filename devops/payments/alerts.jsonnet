@@ -219,6 +219,100 @@ local failureAlerts = [
       },
     ],
   },
+  {
+    row: 'AuthAdjust failures',
+    alerts: [
+      {
+        title: '[auth-adjust-failed] (primer)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Primer') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (adyen)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Adyen') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (inipay)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Inicis') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (toss)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Toss') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (kakao)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Kakao') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (Iyzico)',
+        counter: { name: 'auth-adjust-failure', filters: gatewayFilter('Iyzico') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[auth-adjust-failed] (all gateways)',
+        counter: { name: 'auth-adjust-failure' },
+        threshold: 5,
+        message: msg,
+      },
+    ],
+  },
+  {
+    row: 'Capture failures',
+    alerts: [
+      {
+        title: '[capture-failed] (primer)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Primer') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (adyen)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Adyen') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (inipay)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Inicis') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (toss)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Toss') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (kakao)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Kakao') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (Iyzico)',
+        counter: { name: 'capture-failure', filters: gatewayFilter('Iyzico') },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[capture-failed] (all gateways)',
+        counter: { name: 'capture-failure' },
+        threshold: 5,
+        message: msg,
+      },
+    ],
+  },
 ];
 
 // volume alerts to make sure we receive enough traffic

@@ -59,6 +59,18 @@ local metrics = [
       { title: 'Pre Auth Success Timing', prefix: 'auth-success', counters: [] },
       { title: 'Pre Auth Failed Timing', prefix: 'auth-failed', counters: [] },
     ],
+  },
+  {
+    row: 'AuthAdjust',
+    panels: [
+      { title: 'AuthAdjust Failed', prefix: '', counters: ['auth-adjust-failure'] },
+    ],
+  },
+    {
+    row: 'Capture',
+    panels: [
+      { title: 'Capture Failed', prefix: '', counters: ['capture-failure'] },
+    ],
   }
 ];
 
