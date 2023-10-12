@@ -91,6 +91,14 @@ local targets = {
       withServiceFilters=false,
     ),
   },
+  timing: {
+    metricOrderRetryJobFetchLatency: target.histogram(
+      alias='order-retry-job-fetch-latency',
+      metric='order-retry-job-fetch-latency',
+      filters=filterPaymentAutoService,
+      withServiceFilters=false,
+    ),
+  },
 };
 
 local panels = {
@@ -128,6 +136,17 @@ local panels = {
     ]),
     lastUpdatedOrderRetryId: panel.new('Last updated order retry id').addTargets([
       targets.indicators.lastUpdatedOrderRetryId,
+    ]),
+  },
+  timing: {
+    metricOrderRetryJobFetchLatencyP25: panel.timeLog2('Order retry job fetch latency P25').addTargets([
+      targets.timing.metricOrderRetryJobFetchLatency.p25,
+    ]),
+    metricOrderRetryJobFetchLatencyP50: panel.timeLog2('Order retry job fetch latency P50').addTargets([
+      targets.timing.metricOrderRetryJobFetchLatency.p50,
+    ]),
+    metricOrderRetryJobFetchLatencyP99: panel.timeLog2('Order retry job fetch latency P99').addTargets([
+      targets.timing.metricOrderRetryJobFetchLatency.p99,
     ]),
   },
 };
@@ -168,7 +187,14 @@ local rows = {
       panels.indicators.lastUpdatedOrderRetryId,
     ]
   ]),
-
+  fetchLatency: row.new('Fetch order retry latencies').addPanels([
+    panel.thirdRow(p)
+    for p in [
+      panels.timing.metricOrderRetryJobFetchLatency25,
+      panels.timing.metricOrderRetryJobFetchLatency50,
+      panels.timing.metricOrderRetryJobFetchLatency99,
+    ]
+  ]),
 };
 
 

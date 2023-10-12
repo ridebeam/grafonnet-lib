@@ -21,6 +21,7 @@ local filters = {
   p95: target.likeFilter('quantile', '0.95'),
   p90: target.likeFilter('quantile', '0.9'),
   p50: target.likeFilter('quantile', '0.5'),
+  p25: target.likeFilter('quantile', '0.25'),
 };
 
 local targets = {
