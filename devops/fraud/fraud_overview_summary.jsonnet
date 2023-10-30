@@ -22,6 +22,26 @@ local fraudServiceTargets = {
   ),
 };
 
+local targets = {
+  requests: {
+    deviceIdMismatch:
+      {
+        expr: 'sum(rate(fraud_service_total{namespace="$env", context="$context", condition=~"DeviceId mismatch"}))' + '[$__interval]',
+        intervalFactor: 1,
+        legendFormat: "{{condition}}",
+        refId: "A"
+      }
+  }
+};
+
+local panels = {
+  general: {
+    deviceIdMismatchCount: panel.counter('DeviceId Mismatch Count').addTargets([
+      targets.requests.deviceIdMismatch,
+    ]),
+  },
+};
+
 local userProfileTargets = {
   loginAllows: target.delta(
     metric='fraud-check-at-login-allow',
@@ -81,6 +101,7 @@ local rows = {
       panel.counter('Fraud Checks Counts').addTargets([
         fraudServiceTargets.overall,
       ]),
+      panels.general.deviceIdMismatchCount,
     ]
   ]),
   userProfileService: row.new('User Profile Service').addPanels([
