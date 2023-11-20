@@ -252,6 +252,20 @@ local failureAlerts = [
         threshold: 8,
         message: msg,
       },
+
+      {
+        title: '[cancel-auth-rejected] (all gateways)',
+        counter: { name: 'cancel-auth-rejected' },
+        threshold: 1,
+        message: msg,
+      },
+
+      {
+        title: '[cancel-auth-failed] (all gateways)',
+        counter: { name: 'cancel-auth-failure' },
+        threshold: 1,
+        message: msg,
+      },
     ],
   },
   {
