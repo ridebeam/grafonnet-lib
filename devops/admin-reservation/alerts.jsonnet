@@ -44,7 +44,7 @@ local adminReservationServiceAlerts = [
           alias: 'http 5xx rate',
         },
         format: 'percentunit',
-        threshold: 0.2,
+        threshold: 0.0003,
         message: 'Rate of 5xx responses increases above 20% of all requests',
       },
       {
