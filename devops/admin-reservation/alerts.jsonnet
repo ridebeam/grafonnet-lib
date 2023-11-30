@@ -45,7 +45,7 @@ local adminReservationServiceAlerts = [
         },
         format: 'percentunit',
         threshold: 0.0003,
-        message: 'Rate of 5xx responses increases above 20% of all requests',
+        message: 'Rate of 5xx responses increases above 0.03% of all requests',
       },
       {
         title: 'Rate of HTTP 4xx',
@@ -67,6 +67,44 @@ local adminReservationServiceAlerts = [
   },
 ];
 
+local adminReservationClientAlerts = [
+  {
+    row: 'Rate of Bad Http Responses (client)',
+    alerts: [
+      {
+        title: 'Get Reservations Errors',
+        custom: {
+          name: 'rate-of-failure-ratio-get-reservations',
+          query: '((sum(rate(get-reservations-failure{namespace="production"}[30m])) OR vector(0)) / sum(rate(get-reservations-atttempts{namespace="production"}[30m])))',
+          alias: 'rate of failure ratio get reservations',
+        },
+        threshold: 0.2,
+        message: 'Rate of errors of get reservations increases above 20% of all requests',
+      },
+      {
+        title: 'Create Reservation Errors',
+        custom: {
+          name: 'rate-of-failure-ratio-create-reservation',
+          query: '((sum(rate(create-reservation-failure{namespace="production"}[30m])) OR vector(0)) / sum(rate(create-reservation-attempts{namespace="production"}[30m])))',
+          alias: 'rate of failure ratio create reservation',
+        },
+        threshold: 0.2,
+        message: 'Rate of errors of create reservation increases above 20% of all requests',
+      },
+         {
+        title: 'Redeem Reservation Errors',
+        custom: {
+          name: 'rate-of-failure-ratio-create-reservation',
+          query: '((sum(rate(redeem-reservation-failure{namespace="production"}[30m])) OR vector(0)) / sum(rate(redeem-reservation-attempts{namespace="production"}[30m])))',
+          alias: 'rate of failure ratio redeem reservation',
+        },
+        threshold: 0.2,
+        message: 'Rate of errors of redeem reservation increases above 20% of all requests',
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Admin Reservation Alerts',
@@ -79,6 +117,17 @@ grafana.dashboard.new(
   editable=true,
 )
 .addRows(alerts.createRows(adminReservationServiceAlerts, alerts.defaults {
+  alerts+: {
+    channels: alerts.notifications.opsEngineeringWarnings,
+    evaluateFor: '5m',
+    reducerType: 'min',
+    noDataState: 'ok',
+  },
+  gcpGauges+: {
+    gcpHelpers: gcpHelpers,
+  },
+}))
+.addRows(alerts.createRows(adminReservationClientAlerts, alerts.defaults {
   alerts+: {
     channels: alerts.notifications.opsEngineeringWarnings,
     evaluateFor: '5m',
