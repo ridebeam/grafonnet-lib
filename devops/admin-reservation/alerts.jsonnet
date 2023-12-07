@@ -31,6 +31,25 @@ local adminReservationServiceAlerts = [
   {
     row: 'Admin Reservation Server Errors',
     alerts: [
+       {
+        title: 'Get Reservations Errors',
+        custom: {
+          query: target.ratio(
+            metric='ktor_http_server_requests_seconds_count',
+            filters = target.combineFilters(
+              serviceFilter,
+              target.combineFilters(target.equalsFilter('method', 'POST'), target.equalsFilter('route', '/api/reservations/findActiveReservationByItemIds')),
+            ),
+            numeratorFilters=target.likeFilter('status', '5..'),
+            withServiceFilters=false,
+            interval='30m',
+          ).expr,
+          alias: 'http 5xx rate',
+        },
+        format: 'percentunit',
+        threshold: 0.2,
+        message: 'Rate of 5xx responses increases above 20%',
+      },
       {
         title: 'Create Reservation Errors',
         custom: {
@@ -57,7 +76,7 @@ local adminReservationServiceAlerts = [
             metric='ktor_http_server_requests_seconds_count',
             filters = target.combineFilters(
               serviceFilter,
-              target.combineFilters(target.equalsFilter('method', 'POST'), target.equalsFilter('route', '/api/redeem')),
+              target.combineFilters(target.equalsFilter('method', 'POST'), target.equalsFilter('route', '/api/reservations/redeem')),
             ),
             numeratorFilters=target.likeFilter('status', '5..'),
             withServiceFilters=false,
