@@ -29,14 +29,17 @@ local serviceFilter = target.combineFilters(
 
 local adminReservationServiceAlerts = [
   {
-    row: 'Rate of Bad Http Responses',
+    row: 'Admin Reservation Server Errors',
     alerts: [
       {
-        title: 'Rate of HTTP 5xx',
+        title: 'Create Reservation Errors',
         custom: {
           query: target.ratio(
             metric='ktor_http_server_requests_seconds_count',
-            filters=serviceFilter,
+            filters = target.combineFilters(
+              serviceFilter,
+              target.combineFilters(target.equalsFilter('method', 'POST'), target.equalsFilter('route', '/api/reservations')),
+            ),
             numeratorFilters=target.likeFilter('status', '5..'),
             withServiceFilters=false,
             interval='30m',
@@ -44,24 +47,27 @@ local adminReservationServiceAlerts = [
           alias: 'http 5xx rate',
         },
         format: 'percentunit',
-        threshold: 0.0003,
-        message: 'Rate of 5xx responses increases above 0.03% of all requests',
+        threshold: 0.2,
+        message: 'Rate of 5xx responses increases above 20%',
       },
       {
-        title: 'Rate of HTTP 4xx',
+        title: 'Redeem Reservation Errors',
         custom: {
           query: target.ratio(
             metric='ktor_http_server_requests_seconds_count',
-            filters=serviceFilter,
-            numeratorFilters=target.likeFilter('status', '4..'),
+            filters = target.combineFilters(
+              serviceFilter,
+              target.combineFilters(target.equalsFilter('method', 'POST'), target.equalsFilter('route', '/api/redeem')),
+            ),
+            numeratorFilters=target.likeFilter('status', '5..'),
             withServiceFilters=false,
             interval='30m',
           ).expr,
-          alias: 'http 4xx rate',
+          alias: 'http 5xx rate',
         },
         format: 'percentunit',
         threshold: 0.2,
-        message: 'Rate of 4xx responses increases above 20% of all requests',
+        message: 'Rate of 5xx responses increases above 20%',
       },
     ],
   },
