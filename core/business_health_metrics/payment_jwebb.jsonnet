@@ -10,13 +10,13 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local countExceedConditional(threshold) = {
+local countExceedConditional(threshold, queryStart='20m', queryEnd='now') = {
     type: 'query',
     query: {
       params: [
         'A',
-        '20m',
-        'now',
+        queryStart,
+        queryEnd,
       ],
     },
     reducer: {
@@ -31,13 +31,13 @@ local countExceedConditional(threshold) = {
     },
   };
 
-local countLessThanThreshold(threshold) = {
+local countLessThanThreshold(threshold, queryStart='20m', queryEnd='now') = {
     type: 'query',
     query: {
       params: [
         'A',
-        '20m',
-        'now',
+        queryStart,
+        queryEnd,
       ],
     },
     reducer: {
@@ -63,18 +63,14 @@ local metricGroups = [
         alertName: 'multi add payment failure event is high (app, 5min)',
         alertCondition: countExceedConditional(5),
         noDataState: 'ok',
-        monitorDuration: '5m',
-        monitorFrequency: '60s',
       },
 
       {
         title: 'multi add payment failure event (error, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"false"\'  group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment failure event is high (app, 1hour)',
-        alertCondition: countExceedConditional(30),
+        alertCondition: countExceedConditional(30, '2h', 'now-1h'),
         noDataState: 'ok',
-        monitorDuration: '2h',
-        monitorFrequency: '15m',
       },
 
 
@@ -82,20 +78,16 @@ local metricGroups = [
         title: 'multi add payment success event (volume, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"true"\'  group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment success event falls low (app, 1hour)',
-        alertCondition: countLessThanThreshold(20),
+        alertCondition: countLessThanThreshold(20, '2h', 'now-1h'),
         noDataState: 'ok',
-        monitorDuration: '2h',
-        monitorFrequency: '15m',
       },
 
       {
         title: 'multi add payment latency (latency/0.95/s, 5min)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment latency is high (app, 5min)',
-        alertCondition: countExceedConditional(5),
+        alertCondition: countExceedConditional(10),
         noDataState: 'ok', //'no_data'
-        monitorDuration: '5m',
-        monitorFrequency: '60s',
       },
 
 
@@ -103,10 +95,8 @@ local metricGroups = [
         title: 'multi add payment latency (latency/0.95/s, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment latency is high (app, 1hour)',
-        alertCondition: countExceedConditional(10),
+        alertCondition: countExceedConditional(10, '2h', 'now-1h'),
         noDataState: 'ok', //'no_data'
-        monitorDuration: '2h',
-        monitorFrequency: '15m',
       },
     ],
   },
@@ -132,8 +122,6 @@ local rows = [
       .addAlert(
         name=metric.alertName,
         noDataState=metric.noDataState,
-        forDuration=metric.monitorDuration,
-        frequency=metric.monitorFrequency,
         notifications=[alertsHelper.coreSlackPayments],
       )
       .addConditions([
