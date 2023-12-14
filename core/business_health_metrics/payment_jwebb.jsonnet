@@ -60,7 +60,7 @@ local metricGroups = [
       {
         title: 'multi add payment failure event (error, 5min)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"false"\'  group by time_bucket order by time_bucket asc',
-        alertName: 'multi add payment failure event exceeds threshold (app, 5min)',
+        alertName: 'multi add payment failure event is high (app, 5min)',
         alertCondition: countExceedConditional(5),
         noDataState: 'ok',
       },
@@ -68,7 +68,7 @@ local metricGroups = [
       {
         title: 'multi add payment failure event (error, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"false"\'  group by time_bucket order by time_bucket asc',
-        alertName: 'multi add payment failure event exceeds threshold (app, 1hour)',
+        alertName: 'multi add payment failure event is high (app, 1hour)',
         alertCondition: countExceedConditional(30),
         noDataState: 'ok',
       },
@@ -77,7 +77,7 @@ local metricGroups = [
       {
         title: 'multi add payment success event (volume, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"true"\'  group by time_bucket order by time_bucket asc',
-        alertName: 'multi add payment failure event exceeds threshold (app, 1hour)',
+        alertName: 'multi add payment failure event falls low (app, 1hour)',
         alertCondition: countLessThanThreshold(40),
         noDataState: 'ok',
       },
@@ -86,7 +86,7 @@ local metricGroups = [
         title: 'multi add payment latency (latency/0.95/s, 5min)',
         query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment latency is high (app, 5min)',
-        alertCondition: countLessThanThreshold(5),
+        alertCondition: countExceedConditional(5),
         noDataState: 'ok', //'no_data'
       },
 
@@ -95,7 +95,7 @@ local metricGroups = [
         title: 'multi add payment latency (latency/0.95/s, 1hour)',
         query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
         alertName: 'multi add payment latency is high (app, 1hour)',
-        alertCondition: countLessThanThreshold(10),
+        alertCondition: countExceedConditional(10),
         noDataState: 'ok', //'no_data'
       },
     ],
@@ -122,7 +122,7 @@ local rows = [
       .addAlert(
         name=metric.alertName,
         noDataState=metric.noDataState,
-        notifications=[alertsHelper.slackPayments],
+        notifications=[alertsHelper.coreSlackPayments],
       )
       .addConditions([
         metric.alertCondition
