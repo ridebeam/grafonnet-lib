@@ -59,44 +59,287 @@ local metricGroups = [
     metrics: [
       {
         title: 'multi add payment failure event (error, 5min)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"false"\'  group by time_bucket order by time_bucket asc',
+        query: |||
+          select toStartOfFiveMinute(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_name='submit_multi_payment_success' and visitParamExtractRaw(properties,'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
         alertName: 'multi add payment failure event is high (app, 5min)',
         alertCondition: countExceedConditional(5),
         noDataState: 'ok',
+        alertMessage: 'please refresh this query to investigate the detailed errors: https://redash.ridebeam.com/queries/26278',
       },
 
       {
         title: 'multi add payment failure event (error, 1hour)',
-        query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"false"\'  group by time_bucket order by time_bucket asc',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='submit_multi_payment_success' and visitParamExtractRaw(properties,'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
         alertName: 'multi add payment failure event is high (app, 1hour)',
-        alertCondition: countExceedConditional(30, '2h', 'now-1h'),
+        alertCondition: countExceedConditional(30, '2h'),
         noDataState: 'ok',
+        alertMessage: 'please refresh this query to investigate the detailed errors: https://redash.ridebeam.com/queries/26278',
       },
-
 
       {
         title: 'multi add payment success event (volume, 1hour)',
-        query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, count() from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' and visitParamExtractRaw(properties,\'success\')=\'"true"\'  group by time_bucket order by time_bucket asc',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='submit_multi_payment_success' and visitParamExtractRaw(properties,'success')='"true"'  group by time_bucket order by time_bucket asc
+        |||,
         alertName: 'multi add payment success event falls low (app, 1hour)',
-        alertCondition: countLessThanThreshold(20, '2h', 'now-1h'),
-        noDataState: 'ok',
+        alertCondition: countLessThanThreshold(20, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check the add payment event funnel to see if there is unexpected drop',
       },
 
       {
         title: 'multi add payment latency (latency/0.95/s, 5min)',
-        query: 'select toStartOfFiveMinute(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
+        query: |||
+          select toStartOfFiveMinute(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, 'spanDurationMs')/1000) as latency from jwebb.events where $timeFilter and event_name='submit_multi_payment_success' group by time_bucket order by time_bucket asc
+        |||,
         alertName: 'multi add payment latency is high (app, 5min)',
         alertCondition: countExceedConditional(10),
         noDataState: 'ok', //'no_data'
+        alertMessage: 'please check the server log/traces for multi add payment to understand where is the latency from',
       },
 
 
       {
         title: 'multi add payment latency (latency/0.95/s, 1hour)',
-        query: 'select toStartOfHour(toTimezone("event_time", \'Asia/Singapore\')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, \'spanDurationMs\')/1000) as latency from jwebb.events where $timeFilter and event_name=\'submit_multi_payment_success\' group by time_bucket order by time_bucket asc',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, quantile(0.95)(visitParamExtractInt(properties, 'spanDurationMs')/1000) as latency from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='submit_multi_payment_success' group by time_bucket order by time_bucket asc
+        |||,
         alertName: 'multi add payment latency is high (app, 1hour)',
-        alertCondition: countExceedConditional(10, '2h', 'now-1h'),
+        alertCondition: countExceedConditional(10, '2h'),
         noDataState: 'ok', //'no_data'
+        alertMessage: 'please check the server log/traces for multi add payment to understand where is the latency from',
+      },
+    ],
+  },
+
+  {
+    name: 'primer tokenization',
+    metrics: [
+      {
+        title: 'primer tokenization start (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_start'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'primer tokenization falls low (app, 1hour)',
+        alertCondition: countLessThanThreshold(2, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the primer payment method is enabled and working fine',
+      },
+
+      {
+        title: 'primer tokenization failed (error, 1h)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_success' and visitParamExtractRaw(properties,'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'primer tokenization failure is high (app, 1h)',
+        alertCondition: countExceedConditional(5, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please query the events to check the detailed errors',
+      },
+
+
+      {
+        title: 'primer tokenization error (error, 1h)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_error'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'primer tokenization error is high (app, 1h)',
+        alertCondition: countExceedConditional(5, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please query the events to check the detailed errors',
+      },
+
+
+      {
+        title: 'primer tokenization timeout (error, 1h)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_timeout'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'primer tokenization timeout is high (app, 5min)',
+        alertCondition: countExceedConditional(5, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please query the events to check the detailed errors',
+      },
+    ],
+  },
+
+  {
+    name: 'iyzico',
+    metrics: [
+      {
+        title: 'iyzico 3ds loaded (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='iyzico3DSLoaded'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'iyzico 3ds loaded event is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
+      },
+
+
+      {
+        title: 'iyzico 3ds completed (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='iyzico3DSCompleted'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'iyzico 3ds completed event is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
+      }
+    ],
+  },
+
+  {
+    name: 'inipay',
+    metrics: [
+      {
+        title: 'inipay add begin (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='paymentAddBegin' and visitParamExtractRaw(properties, 'paymentMethod')='"INIPay"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'inipay add payment attempt is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the inipay is enabled and working fine for 3ds',
+      },
+
+
+      {
+        title: 'inipay add completed (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='paymentAddCompleted' and visitParamExtractRaw(properties, 'paymentMethod')='"INIPay"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'inipay add payment complete is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the inipay is enabled and working fine for 3ds',
+      }
+
+
+      {
+        title: 'inipay add failed (error, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='paymentAddCompleted' and visitParamExtractRaw(properties, 'paymentMethod')='"INIPay"' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'inipay add payment failure is high (app, 1hour)',
+        alertCondition: countExceedConditional(30, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please check if the inipay add payment is working properly',
+      }
+    ],
+  },
+
+  {
+    name: 'toss',
+    metrics: [
+      {
+        title: 'toss start generate billing key (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_billing_key_generation_begin'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'toss generate billing key is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the toss payment method is enabled and working fine',
+      },
+
+      {
+        title: 'toss generate billing key completed (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_billing_key_generation_completed'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'toss generate billing key completed is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the toss payment method is enabled and working fine',
+      },
+
+      {
+        title: 'toss generate billing key error (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_billing_key_generation_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'toss generate billing key error is high (app, 1hour)',
+        alertCondition: countExceedConditional(3, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please check if the toss billing key generation is working correctly',
+      },
+
+      {
+        title: 'toss redirection completed (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_redirection_completed'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'toss redirection completed is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the toss redirection is ok',
+      },
+
+
+      {
+        title: 'toss redirection error (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_redirection_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'toss redirection error is high (app, 1hour)',
+        alertCondition: countExceedConditional(3, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please check if the toss redirection is working fine',
+      },
+    ],
+  },
+
+  {
+    name: 'kakao',
+    metrics: [
+      {
+        title: 'kakao get redirection (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_get_redirection_url_begin'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'kakao get redirection is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the kakao payment method is enabled and working fine',
+      },
+
+      {
+        title: 'kakao get redirection completed (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_get_redirection_url_completed'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'kakao get redirection completed is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the kakao payment method is enabled and working fine',
+      },
+
+      {
+        title: 'kakao get redirection error (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_get_redirection_url_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'kakao get redirection error is high (app, 1hour)',
+        alertCondition: countExceedConditional(3, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'please check if the kakao get redirection is working fine',
+      },
+
+      {
+        title: 'kakao webview loaded (volume, 1hour)',
+        query: |||
+          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_webview_completed'  group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'kakao get redirection completed is low (app, 1hour)',
+        alertCondition: countLessThanThreshold(3, '2h'),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
     ],
   },
@@ -123,6 +366,7 @@ local rows = [
         name=metric.alertName,
         noDataState=metric.noDataState,
         notifications=[alertsHelper.coreSlackPayments],
+        message=metric.alertMessage,
       )
       .addConditions([
         metric.alertCondition
