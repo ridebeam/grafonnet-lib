@@ -82,12 +82,44 @@ local metricGroups = [
       {
         title: 'multi add payment success event (volume, 1hour)',
         query: |||
-          select toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='submit_multi_payment_success' and visitParamExtractRaw(properties,'success')='"true"'  group by time_bucket order by time_bucket asc
+          with data as (select
+            toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket,
+            count() as count
+          from
+            jwebb.events
+          where
+            $timeFilter
+            and event_time < toStartOfHour(now())
+            and event_name = 'submit_multi_payment_success'
+          group by
+            time_bucket
+          order by
+            time_bucket asc),
+            
+          time_range as (select max(time_bucket + INTERVAL 1 HOUR) as latest, min(time_bucket) as earliest from data),
+
+          early_data as (
+          select
+            toStartOfHour(toTimezone("event_time", 'Asia/Singapore') + INTERVAL 1 WEEK) as time_bucket,
+            count() as last_week_count
+          from
+            jwebb.events
+          where
+            event_time >= (select earliest - INTERVAL 1 WEEK from time_range)
+            and event_time < (select latest - INTERVAL 1 WEEK from time_range)
+            and event_name = 'submit_multi_payment_success'
+          group by
+            time_bucket
+          order by
+            time_bucket asc
+          )
+
+          select abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio, time_bucket from data d inner join early_data e on d.time_bucket = e.time_bucket
         |||,
         alertName: 'multi add payment success event falls low (app, 1hour)',
-        alertCondition: countLessThanThreshold(20, '2h'),
+        alertCondition: countExceedConditional(0.5, '2h'),
         noDataState: 'no_data',
-        alertMessage: 'please check the add payment event funnel to see if there is unexpected drop',
+        alertMessage: 'please check the add payment event funnel to see if there is unexpected drop or issues lead to unexpected increase',
       },
 
       {
