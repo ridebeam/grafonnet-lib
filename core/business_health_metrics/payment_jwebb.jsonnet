@@ -297,7 +297,7 @@ local metricGroups = [
       },
 
       {
-        title: 'toss redirection error (volume, 1hour)',
+        title: 'toss redirection error (error, 1hour)',
         query: |||
           select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_redirection_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
         |||,
