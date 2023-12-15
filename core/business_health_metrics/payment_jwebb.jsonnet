@@ -19,8 +19,8 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
   where
     $timeFilter
     and event_time < toStartOfHour(now())
-    and event_name = '$eventName'
-    $additionalQueryConditions
+    and event_name = '%(eventName)s'
+    %(additionalQueryConditions)s
   group by
     time_bucket
   order by
@@ -37,8 +37,8 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
   where
     event_time >= (select earliest - INTERVAL 1 WEEK from time_range)
     and event_time < (select latest - INTERVAL 1 WEEK from time_range)
-    and event_name = '$eventName'
-    $additionalQueryConditions
+    and event_name = '%(eventName)s'
+    %(additionalQueryConditions)s
   group by
     time_bucket
   order by
@@ -46,7 +46,7 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
   )
 
   select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
-|||;
+||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions};
 
 local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
     type: 'query',
