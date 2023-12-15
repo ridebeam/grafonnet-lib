@@ -114,7 +114,7 @@ local metricGroups = [
             time_bucket asc
           )
 
-          select abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio, time_bucket from data d inner join early_data e on d.time_bucket = e.time_bucket
+          select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio, d.count, e.last_week_count from data d inner join early_data e on d.time_bucket = e.time_bucket
         |||,
         alertName: 'multi add payment success event falls low (app, 1hour)',
         alertCondition: countExceedConditional(0.5, '2h'),
