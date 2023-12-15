@@ -262,7 +262,7 @@ local metricGroups = [
         title: 'toss start generate billing key (volume, 1hour)',
         query: ratioBasedVolumeQuery('toss_billing_key_generation_begin'),
         alertName: 'toss generate billing key event is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the toss payment method is enabled and working fine',
       },
@@ -271,7 +271,7 @@ local metricGroups = [
         title: 'toss generate billing key completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('toss_billing_key_generation_completed'),
         alertName: 'toss generate billing key completed is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the toss payment method is enabled and working fine',
       },
@@ -291,7 +291,7 @@ local metricGroups = [
         title: 'toss redirection completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('toss_redirection_completed'),
         alertName: 'toss redirection completed is low (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the toss redirection is ok',
       },
@@ -316,7 +316,7 @@ local metricGroups = [
         title: 'kakao get redirection (volume, 1hour)',
         query: ratioBasedVolumeQuery('kakao_get_redirection_url_begin'),
         alertName: 'kakao get redirection is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
@@ -325,7 +325,7 @@ local metricGroups = [
         title: 'kakao get redirection completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('kakao_get_redirection_url_completed'),
         alertName: 'kakao get redirection completed is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
@@ -343,9 +343,9 @@ local metricGroups = [
 
       {
         title: 'kakao webview loaded (volume, 1hour)',
-        query: ratioBasedVolumeQuery('kakao_webview_loaded'),
+        query: ratioBasedVolumeQuery('kakao_webview_completed'),
         alertName: 'kakao webview loaded is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(0.5),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
@@ -375,6 +375,9 @@ local rows = [
         noDataState=metric.noDataState,
         notifications=[alertsHelper.coreSlackPayments],
         message=metric.alertMessage,
+        // all the monitoring are hourly based, so here we set the forDuration to 2h to avoid the alert being triggered too frequently
+        forDuration='2h',
+        frequency='20m',
       )
       .addConditions([
         metric.alertCondition
