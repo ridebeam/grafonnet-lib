@@ -10,7 +10,7 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
+local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWeeksAgo=4) = |||
   with data as (select
     toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket,
     count() as count
@@ -30,13 +30,13 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
 
   early_data as (
   select
-    toStartOfHour(toTimezone("event_time", 'Asia/Singapore') + INTERVAL 1 WEEK) as time_bucket,
+    toStartOfHour(toTimezone("event_time", 'Asia/Singapore') + INTERVAL %(weeksago)d WEEK) as time_bucket,
     count() as last_week_count
   from
     jwebb.events
   where
-    event_time >= (select earliest - INTERVAL 1 WEEK from time_range)
-    and event_time < (select latest - INTERVAL 1 WEEK from time_range)
+    event_time >= (select earliest - INTERVAL %(weeksago)d WEEK from time_range)
+    and event_time < (select latest - INTERVAL %(weeksago)d WEEK from time_range)
     and event_name = '%(eventName)s'
     %(additionalQueryConditions)s
   group by
@@ -46,7 +46,7 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='') = |||
   )
 
   select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
-||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions};
+||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
 local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
     type: 'query',
