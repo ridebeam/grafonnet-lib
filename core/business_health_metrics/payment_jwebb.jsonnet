@@ -167,7 +167,7 @@ local metricGroups = [
           select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_success' and visitParamExtractRaw(properties,'success')='"false"'  group by time_bucket order by time_bucket asc
         |||,
         alertName: 'primer tokenization failure is high (app, 1h)',
-        alertCondition: countExceedConditional(5),
+        alertCondition: countExceedConditional(30),
         noDataState: 'ok',
         alertMessage: 'please query the events to check the detailed errors',
       },
@@ -179,7 +179,7 @@ local metricGroups = [
           select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='primer_tokenize_error'  group by time_bucket order by time_bucket asc
         |||,
         alertName: 'primer tokenization error is high (app, 1h)',
-        alertCondition: countExceedConditional(5),
+        alertCondition: countExceedConditional(30),
         noDataState: 'ok',
         alertMessage: 'please query the events to check the detailed errors',
       },
