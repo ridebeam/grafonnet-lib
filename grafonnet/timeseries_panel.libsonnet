@@ -51,7 +51,8 @@
     maxDataPoints=null,
     time_from=null,
     time_shift=null,
-    interval=null
+    interval=null,
+    spanNulls=false,
   ):: {
     title: title,
     [if span != null then 'span']: span,
@@ -91,7 +92,7 @@
           lineWidth: linewidth,
           fillOpacity: 7,
           gradientMode: "opacity",
-          spanNulls: false,
+          spanNulls: spanNulls,
           showPoints: "auto",
           pointSize: 1,
           stacking: {
