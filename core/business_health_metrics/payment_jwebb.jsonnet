@@ -45,7 +45,7 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWee
     time_bucket asc
   )
 
-  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/e.last_week_count as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
+  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)*2/(e.last_week_count + d.count) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
 ||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
 local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
@@ -205,7 +205,7 @@ local metricGroups = [
         title: 'iyzico 3ds loaded (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSLoaded'),
         alertName: 'iyzico 3ds loaded event is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       },
@@ -215,7 +215,7 @@ local metricGroups = [
         title: 'iyzico 3ds completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSCompleted'),
         alertName: 'iyzico 3ds completed event is low (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       }
@@ -333,7 +333,7 @@ local metricGroups = [
       {
         title: 'kakao get redirection error (error, 1hour)',
         query: |||
-          select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_get_redirection_url_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
+          select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='kakao_get_redirection_url_completed' and visitParamExtractRaw(properties, 'success')='"false"' and JSONHas(properties, 'errorMessage') and JSONExtractString(properties, 'errorMessage') NOT LIKE '%activated payment method already exists%' group by time_bucket order by time_bucket asc
         |||,
         alertName: 'kakao get redirection error is high (app, 1hour)',
         alertCondition: countExceedConditional(3, '2h'),
