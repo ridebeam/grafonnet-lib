@@ -50,7 +50,7 @@ local cwPanel = cwHelpers.panel;
     vehiclesAlerts: [$.slackVehicle, $.opsgenieVehicles],
     vehiclesWarning: [$.slackVehicle],
     slackAlertsOnly: [$.slack],
-    opsEngineeringWarnings: [$.slackOpsEngineering],
+    opsEngineeringWarnings: [$.slackOpsEngineering, $.opsgenieOpsGR],
     iotConnectivityAlerts: [$.slackIotConnectivity],
   },
 
