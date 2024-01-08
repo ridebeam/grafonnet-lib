@@ -104,7 +104,7 @@ local alertDefinitions = [
           name: 'ClickHouseAsyncMetrics_DiskAvailable_default',
           func: target.gaugeFuncs.sum.func,
         },
-        threshold: 10000000000*0.1, // 10% of disk available
+        threshold: 20000000000*0.1, // 10% of disk available
         thresholdType: 'lt',
         reducerType: 'sum',
         evaluateFor: '1m',
