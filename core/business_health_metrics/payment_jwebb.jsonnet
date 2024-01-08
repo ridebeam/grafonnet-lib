@@ -10,7 +10,7 @@ local helpers = clickhouse.init();
 local panel = helpers.panel;
 local target = helpers.target;
 
-local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWeeksAgo=4) = |||
+local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWeeksAgo=1) = |||
   with data as (select
     toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket,
     count() as count
