@@ -393,7 +393,7 @@ grafana.dashboard.new(
   uid='global',
   refresh='5m',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
-  time_from='now-3h',
+  time_from='now-12h',
   time_to='now',
   tags=['generated'],
   editable=true,
