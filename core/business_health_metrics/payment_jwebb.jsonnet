@@ -45,7 +45,46 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWee
     time_bucket asc
   )
 
-  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)*2/(e.last_week_count + d.count) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
+  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/least(e.last_week_count, d.count) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
+||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
+
+
+local ratioBasedErrorQuery(eventName, additionalQueryConditions='', compareXWeeksAgo=1) = |||
+  with data as (select
+    toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) as time_bucket,
+    count() as count
+  from
+    jwebb.events
+  where
+    $timeFilter
+    and event_time < toStartOfHour(now())
+    and event_name = '%(eventName)s'
+    %(additionalQueryConditions)s
+  group by
+    time_bucket
+  order by
+    time_bucket asc),
+  
+  time_range as (select max(time_bucket + INTERVAL 1 HOUR) as latest, min(time_bucket) as earliest from data),
+
+  early_data as (
+  select
+    toStartOfHour(toTimezone("event_time", 'Asia/Singapore') + INTERVAL %(weeksago)d WEEK) as time_bucket,
+    count() as last_week_count
+  from
+    jwebb.events
+  where
+    event_time >= (select earliest - INTERVAL %(weeksago)d WEEK from time_range)
+    and event_time < (select latest - INTERVAL %(weeksago)d WEEK from time_range)
+    and event_name = '%(eventName)s'
+    %(additionalQueryConditions)s
+  group by
+    time_bucket
+  order by
+    time_bucket asc
+  )
+
+  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, d.count/e.last_week_count as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
 ||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
 local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
@@ -205,7 +244,7 @@ local metricGroups = [
         title: 'iyzico 3ds loaded (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSLoaded'),
         alertName: 'iyzico 3ds loaded event is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(2),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       },
@@ -215,7 +254,7 @@ local metricGroups = [
         title: 'iyzico 3ds completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSCompleted'),
         alertName: 'iyzico 3ds completed event is low (app, 1hour)',
-        alertCondition: ratioDiff(2),
+        alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       }
@@ -246,9 +285,9 @@ local metricGroups = [
 
       {
         title: 'inipay add failed (error, 1hour)',
-        query: ratioBasedVolumeQuery('paymentAddCompleted', 'and visitParamExtractRaw(properties, \'paymentMethod\')=\'"INIPay"\' and visitParamExtractRaw(properties, \'success\')=\'"false"\''),
+        query: ratioBasedErrorQuery('paymentAddCompleted', 'and visitParamExtractRaw(properties, \'paymentMethod\')=\'"INIPay"\' and visitParamExtractRaw(properties, \'success\')=\'"false"\''),
         alertName: 'inipay add payment failure event is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(1.5),
         noDataState: 'ok',
         alertMessage: 'please check if the inipay add payment is working properly',
       }
@@ -277,7 +316,7 @@ local metricGroups = [
       },
 
       {
-        title: 'toss generate billing key error (volume, 1hour)',
+        title: 'toss generate billing key error (error, 1hour)',
         query: |||
           select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='toss_billing_key_generation_completed' and visitParamExtractRaw(properties, 'success')='"false"'  group by time_bucket order by time_bucket asc
         |||,
@@ -348,6 +387,20 @@ local metricGroups = [
         alertCondition: ratioDiff(1),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
+      },
+    ],
+  },
+
+  {
+    name: 'APM',
+    metrics: [
+      {
+        title: 'APM checkout error (error, 1hour)',
+        query: ratioBasedErrorQuery('paymentShowCheckoutCompleted', "and visitParamExtractString(properties, 'success')='false' and visitParamExtractString(properties, 'paymentMethod') in ('PrimerPaymentMethods.XENDIT_OVO', 'PrimerPaymentMethods.XENDIT_DANA', 'PrimerPaymentMethods.XENDIT_SHOPEEPAY')"),
+        alertName: 'APM checkout error is high (app, 1hour)',
+        alertCondition: ratioDiff(1.5),
+        noDataState: 'ok',
+        alertMessage: 'please check if APM credit pack is working fine',
       },
     ],
   },
