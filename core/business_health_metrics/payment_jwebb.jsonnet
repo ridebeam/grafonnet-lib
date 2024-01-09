@@ -45,7 +45,7 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWee
     time_bucket asc
   )
 
-  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/least(e.last_week_count, d.count) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
+  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/great(least(e.last_week_count, d.count), 5) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
 ||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
 
@@ -244,7 +244,7 @@ local metricGroups = [
         title: 'iyzico 3ds loaded (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSLoaded'),
         alertName: 'iyzico 3ds loaded event is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       },
@@ -254,7 +254,7 @@ local metricGroups = [
         title: 'iyzico 3ds completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('iyzico3DSCompleted'),
         alertName: 'iyzico 3ds completed event is low (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the iyzico is enabled and working fine for 3ds',
       }
@@ -355,7 +355,7 @@ local metricGroups = [
         title: 'kakao get redirection (volume, 1hour)',
         query: ratioBasedVolumeQuery('kakao_get_redirection_url_begin'),
         alertName: 'kakao get redirection is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
@@ -364,7 +364,7 @@ local metricGroups = [
         title: 'kakao get redirection completed (volume, 1hour)',
         query: ratioBasedVolumeQuery('kakao_get_redirection_url_completed'),
         alertName: 'kakao get redirection completed is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
@@ -384,7 +384,7 @@ local metricGroups = [
         title: 'kakao webview loaded (volume, 1hour)',
         query: ratioBasedVolumeQuery('kakao_webview_completed'),
         alertName: 'kakao webview loaded is abnormal (app, 1hour)',
-        alertCondition: ratioDiff(1),
+        alertCondition: ratioDiff(2),
         noDataState: 'no_data',
         alertMessage: 'please check if the kakao payment method is enabled and working fine',
       },
