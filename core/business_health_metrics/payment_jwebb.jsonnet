@@ -45,7 +45,7 @@ local ratioBasedVolumeQuery(eventName, additionalQueryConditions='', compareXWee
     time_bucket asc
   )
 
-  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/great(least(e.last_week_count, d.count), 5) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
+  select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, abs(d.count - e.last_week_count)/greatest(least(e.last_week_count, d.count), 5) as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
 ||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
 
