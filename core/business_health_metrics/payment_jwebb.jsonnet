@@ -97,7 +97,7 @@ local ratioDiff(threshold, queryStart='5h', queryEnd='now') = {
       ],
     },
     reducer: {
-      type: 'max',
+      type: 'avg',
       params: [],
     },
     evaluator: {
