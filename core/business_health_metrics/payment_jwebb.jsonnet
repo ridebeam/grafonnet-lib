@@ -87,7 +87,7 @@ local ratioBasedErrorQuery(eventName, additionalQueryConditions='', compareXWeek
   select (time_bucket +  INTERVAL 1 HOUR) as time_bucket, d.count/e.last_week_count as diff_ratio from data d inner join early_data e on d.time_bucket = e.time_bucket
 ||| % {eventName: eventName, additionalQueryConditions: additionalQueryConditions, weeksago: compareXWeeksAgo};
 
-local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
+local ratioDiff(threshold, queryStart='5h', queryEnd='now') = {
     type: 'query',
     query: {
       params: [
@@ -108,7 +108,7 @@ local ratioDiff(threshold, queryStart='2h', queryEnd='now') = {
     },
   };
 
-local countExceedConditional(threshold, queryStart='2h', queryEnd='now') = {
+local countExceedConditional(threshold, queryStart='5h', queryEnd='now') = {
     type: 'query',
     query: {
       params: [
@@ -129,7 +129,7 @@ local countExceedConditional(threshold, queryStart='2h', queryEnd='now') = {
     },
   };
 
-local countLessThanThreshold(threshold, queryStart='2h', queryEnd='now') = {
+local countLessThanThreshold(threshold, queryStart='5h', queryEnd='now') = {
     type: 'query',
     query: {
       params: [
