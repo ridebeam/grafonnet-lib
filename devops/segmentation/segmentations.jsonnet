@@ -32,34 +32,53 @@ local metrics = {
     ),
   },
   Segmentation: {
-    getBenefitsTiming: target.timers(
-      metric='get-segmentation-benefits-latency',
+    getBenefitsTiming: target.counter(
+      metric='get-segmentation-benefits-latency-seconds',
       filters=serviceFilters,
       withServiceFilters=false,
+      groupBys=['quantile'],
     ),
     getBenefitsSuccess: target.counter(
-      metric='get-segmentation-benefits-success',
+      metric='get-segmentation-benefits-success-total',
       filters=serviceFilters,
       withServiceFilters=false,
     ),
     getBenefitsFailure: target.counter(
-      metric='get-segmentation-benefits-failed',
+      metric='get-segmentation-benefits-failed-total',
       filters=serviceFilters,
       withServiceFilters=false,
     ),
 
-    createUserSegmentationsTiming: target.timers(
-      metric='create-user-segmentations-latency',
+    upsertSegmentationTiming: target.counter(
+      metric='upsert-segmentation-latency-seconds',
+      filters=serviceFilters,
+      withServiceFilters=false,
+      groupBys=['quantile'],
+    ),
+    upsertSegmentationSuccess: target.counter(
+      metric='upsert-segmentation-success-total',
       filters=serviceFilters,
       withServiceFilters=false,
     ),
+    upsertSegmentationFailure: target.counter(
+      metric='upsert-segmentation-failed-total',
+      filters=serviceFilters,
+      withServiceFilters=false,
+    ),
+
+    createUserSegmentationsTiming: target.counter(
+      metric='create-user-segmentations-latency-seconds',
+      filters=serviceFilters,
+      withServiceFilters=false,
+      groupBys=['quantile'],
+    ),
     createUserSegmentationsSuccess: target.counter(
-      metric='create-user-segmentations-success',
+      metric='create-user-segmentations-success-total',
       filters=serviceFilters,
       withServiceFilters=false,
     ),
     createUserSegmentationsFailure: target.counter(
-      metric='create-user-segmentations-failed',
+      metric='create-user-segmentations-failed-total',
       filters=serviceFilters,
       withServiceFilters=false,
     ),
@@ -67,35 +86,80 @@ local metrics = {
 };
 
 local rows = [
-  row.new('GraphQL').addPanels([
+  row.new('beam-api').addPanels([
     panel.halfRow(p)
     for p in [
       panel.timeLinear('[beam-api] Get Benefits Latency').addTargets([
         metrics.BeamApi.getBenefitsTiming.p50,
         metrics.BeamApi.getBenefitsTiming.p90,
+        metrics.BeamApi.getBenefitsTiming.p95,
+        metrics.BeamApi.getBenefitsTiming.p99,
       ]),
       panel.counter('[beam-api] Get Benefits').addTargets([
         metrics.BeamApi.getBenefitsSuccess,
         metrics.BeamApi.getBenefitsFailure,
       ]),
-
+    ]
+  ]),
+  row.new('segmentation').addPanels([
+    panel.halfRow(p)
+    for p in [
       panel.timeLinear('[segmentation] Get Benefits Latency').addTargets([
-        metrics.Segmentation.getBenefitsTiming.p50,
-        metrics.Segmentation.getBenefitsTiming.p90,
+        metrics.Segmentation.getBenefitsTiming,
       ]),
       panel.counter('[segmenetation] Get Benefits').addTargets([
         metrics.Segmentation.getBenefitsSuccess,
         metrics.Segmentation.getBenefitsFailure,
       ]),
 
-      panel.timeLinear('[segmentation] Create User Segmentations Latency').addTargets([
-        metrics.Segmentation.createUserSegmentationsTiming.p50,
-        metrics.Segmentation.createUserSegmentationsTiming.p90,
+      panel.timeLinear('[segmentation] Upsert Segemntation Latency').addTargets([
+        metrics.Segmentation.upsertSegmentationTiming,
       ]),
-      panel.counter('[segmenetation] Get Benefits').addTargets([
+      panel.counter('[segmenetation] Upsert Segmentation').addTargets([
+        metrics.Segmentation.upsertSegmentationSuccess,
+        metrics.Segmentation.upsertSegmentationFailure,
+      ]),
+
+      panel.timeLinear('[segmentation] Create User Segmentations Latency').addTargets([
+        metrics.Segmentation.createUserSegmentationsTiming,
+      ]),
+      panel.counter('[segmenetation] Create User Segmentations').addTargets([
         metrics.Segmentation.createUserSegmentationsSuccess,
         metrics.Segmentation.createUserSegmentationsFailure,
       ]),
+    ]
+  ]),
+  row.new('alerts').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panel.timeLinear('Get Benefits Latency').addTargets([
+        metrics.BeamApi.getBenefitsTiming.p95,
+      ]).addAlert(
+        name='Get Benefits Latency',
+        forDuration='5m',
+        frequency='1m',
+        message="Get Benefits Latency Is Above 1s",
+        notifications=[alertsHelper.slackTrips],
+      ).addConditions([{
+        type: 'query',
+        query: {
+          params: [
+            'A',
+            '5m',
+            'now',
+          ],
+        },
+        reducer: {
+          type: 'max',
+          params: [],
+        },
+        evaluator: {
+          type: 'gt',
+          params: [
+            1,
+          ],
+        },
+      }]),
     ]
   ]),
 ];
