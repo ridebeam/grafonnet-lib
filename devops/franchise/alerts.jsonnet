@@ -93,6 +93,23 @@ local bffDashboardFranchiseAlerts = [
   },
 ];
 
+local heapMemoryFranchiseAlerts = [
+  {
+    row: 'Memory Usage of Franchise Service',
+    alerts: [
+      {
+        title: 'High heap memory usage',
+        custom: {
+          query: '( sum(avg_over_time(jvm_memory_used_bytes{area="heap", namespace="production", service="franchise"}[1m])) by (pod_name) * 100 ) / ( sum(avg_over_time(jvm_memory_max_bytes{area="heap", namespace="production", service="franchise"}[1m]))by(application, pod_name) )',
+          alias: 'high heap memory usage',
+        },
+        threshold: 60,
+        message: 'Franchise total heap memory usage is > 60%'
+      }
+    ]
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Franchise Alerts',
@@ -116,6 +133,14 @@ grafana.dashboard.new(
   },
 }))
 .addRows(alerts.createRows(bffDashboardFranchiseAlerts, alerts.defaults {
+  alerts+: {
+    channels: alerts.notifications.opsEngineeringWarnings,
+    evaluateFor: '5m',
+    reducerType: 'max',
+    noDataState: 'ok',
+  }
+}))
+.addRows(alerts.createRows(heapMemoryFranchiseAlerts, alerts.defaults {
   alerts+: {
     channels: alerts.notifications.opsEngineeringWarnings,
     evaluateFor: '5m',
