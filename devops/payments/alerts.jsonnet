@@ -159,6 +159,12 @@ local failureAlerts = [
         threshold: 1,
         message: msg,
       },
+      {
+        title: '[set-order-transactioning-failed] Set order transitioning failed',
+        counter: { name: 'set-order-transitioning-failed' },
+        threshold: 2,
+        message: msg,
+      },
     ],
   },
   {

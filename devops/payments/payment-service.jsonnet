@@ -23,6 +23,7 @@ local metrics = [
       { title: 'Retry Order', prefix: 'retry-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Get Order', prefix: 'get-order', counters: ['attempt', 'success', 'failed'] },
       { title: 'Hold Order', prefix: 'hold-order', counters: ['attempt', 'success', 'failed', 'not-supported', 'error', 'timeout', 'rejected'] },
+      { title: 'Transition Order', prefix: 'set-order-transitioning', counters: ['failed'] },
     ],
   },
   {
