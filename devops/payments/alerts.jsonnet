@@ -424,19 +424,19 @@ local bffMobileAlerts = [
       {
         title: '[bff-mobile-payment-service-communication] toss billing key generation error',
         counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GenerateTossBillingKey')) },
-        threshold: 1,
+        threshold: 3/60,
         message: msg,
       },
       {
         title: '[bff-mobile-payment-service-communication] get kakao redirect url error',
         counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GetKakaoRedirectURL')) },
-        threshold: 1,
+        threshold: 3/60,
         message: msg,
       },
       {
         title: '[bff-mobile-payment-service-communication] delete recurring error',
         counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'DeleteSingleRecurring')) },
-        threshold: 1,
+        threshold: 3/60,
         message: msg,
       },
     ],
@@ -509,7 +509,7 @@ grafana.dashboard.new(
     channels: [alerts.slackPayments],
     evaluateFor: '3m', // if no data for 3m, alert critically with ops genie
     reducerType: 'max',
-    thresholdType: 'lt',
+    thresholdType: 'gt',
     noDataState: 'ok', // for volume metrics, it is not ok to have no data
   },
   counters+: {
