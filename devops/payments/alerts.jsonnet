@@ -423,7 +423,7 @@ local bffMobileAlerts = [
     alerts: [
       {
         title: '[bff-mobile-payment-service-communication] toss billing key generation error',
-        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'TossBillingKeyGeneration')) },
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GenerateTossBillingKey')) },
         threshold: 1,
         message: msg,
       },
@@ -435,7 +435,7 @@ local bffMobileAlerts = [
       },
       {
         title: '[bff-mobile-payment-service-communication] delete recurring error',
-        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'DeleteRecurring')) },
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'DeleteSingleRecurring')) },
         threshold: 1,
         message: msg,
       },
