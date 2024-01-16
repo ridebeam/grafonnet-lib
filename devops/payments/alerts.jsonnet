@@ -506,7 +506,7 @@ grafana.dashboard.new(
 }))
 .addRows(alerts.createRows(bffMobileAlerts, alerts.defaults {
   alerts+: {
-    channels: [alerts.slackPayments, alerts.opsgenie, alerts.slack],
+    channels: [alerts.slackPayments],
     evaluateFor: '3m', // if no data for 3m, alert critically with ops genie
     reducerType: 'max',
     thresholdType: 'lt',
