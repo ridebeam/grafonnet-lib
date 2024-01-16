@@ -508,7 +508,7 @@ grafana.dashboard.new(
   alerts+: {
     channels: [alerts.slackPayments],
     evaluateFor: '3m', // if no data for 3m, alert critically with ops genie
-    reducerType: 'max',
+    reducerType: 'avg',
     thresholdType: 'gt',
     noDataState: 'ok', // for volume metrics, it is not ok to have no data
   },
