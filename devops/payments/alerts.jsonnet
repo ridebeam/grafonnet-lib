@@ -14,6 +14,11 @@ local serviceFilter = target.combineFilters(
   target.equalsFilter('service', 'payment-service'),
 );
 
+local bffMobileServiceFilter = target.combineFilters(
+  target.equalsFilter('namespace', 'production'),
+  target.equalsFilter('service', 'bff-mobile'),
+);
+
 local currencyFilter(currency) = target.combineFilters(
   serviceFilter,
   target.likeFilter('currency', currency),
@@ -412,6 +417,32 @@ local criticalVolumeAlerts = [
   },
 ];
 
+local bffMobileAlerts = [
+  {
+    row: 'bff-mobile payment-service communication',
+    alerts: [
+      {
+        title: '[bff-mobile-payment-service-communication] toss billing key generation error',
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'TossBillingKeyGeneration')) },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[bff-mobile-payment-service-communication] get kakao redirect url error',
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GetKakaoRedirectURL')) },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[bff-mobile-payment-service-communication] delete recurring error',
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'DeleteRecurring')) },
+        threshold: 1,
+        message: msg,
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Production Alerts',
@@ -471,5 +502,17 @@ grafana.dashboard.new(
   counters+: {
     func: 'rate', // for critical alert, we use rate function to make sure it doesn't fire for container crash (crash will have separated alert)
     filters: serviceFilter,
+  },
+}))
+.addRows(alerts.createRows(bffMobileAlerts, alerts.defaults {
+  alerts+: {
+    channels: [alerts.slackPayments, alerts.opsgenie, alerts.slack],
+    evaluateFor: '3m', // if no data for 3m, alert critically with ops genie
+    reducerType: 'max',
+    thresholdType: 'lt',
+    noDataState: 'ok', // for volume metrics, it is not ok to have no data
+  },
+  counters+: {
+    func: 'rate', 
   },
 }))
