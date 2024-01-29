@@ -441,7 +441,7 @@ local bffMobileAlerts = [
       },
       {
         title: '[bff-mobile-payment-service-communication] get trip order for receipt breakdown error',
-        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'TripOrder')) },
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GetTripOrder')) },
         threshold: 1/60,
         message: msg,
       },
