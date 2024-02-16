@@ -19,7 +19,7 @@ local alertDefinitions = [
         custom: {
           name: 'workflow-execution-fail-rate',
 	  // Manually exclude dbt-bq-ci-test, proper filter will be done in https://beammobility.atlassian.net/browse/DP-1022
-          query: 'increase(sum(argo_workflows_exec_result{cluster="core-sg", status="Failed", workflow_name!="dbt-bq-ci-test"}[5m]) by (workflow_name))',
+          query: 'increase(sum(argo_workflows_exec_result{cluster="core-sg", status="Failed", workflow_name!~"dbt-(bq|spark)-ci-test"}[5m]) by (workflow_name))',
           alias: '{{workflow_name}}',
         },
         threshold: 0,
