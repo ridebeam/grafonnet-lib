@@ -35,6 +35,7 @@ local cwPanel = cwHelpers.panel;
   opsgenie: { uid: 'krSwV2d7k' },
   opsgenieOpsGR: { uid: 'y_LC8a5nk' },
   opsgenieVehicles: { uid: '9NE5WPjnz' },
+  opsgenieDataP0: { uid: 'j1kuittIk' },
 
   coreSlackData: { uid: 'QVVrMvj7z' },
   slackBusinessMonitoring: { uid: 'iFPymc6nz' },
@@ -52,6 +53,8 @@ local cwPanel = cwHelpers.panel;
     slackAlertsOnly: [$.slack],
     opsEngineeringWarnings: [$.slackOpsEngineering, $.opsgenieOpsGR],
     iotConnectivityAlerts: [$.slackIotConnectivity],
+    dataWarnings: [$.slackData],
+    dataAlerts: [$.slackData, $.opsgenieDataP0],
   },
 
   alertDefaults:: {

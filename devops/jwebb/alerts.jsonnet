@@ -64,7 +64,7 @@ grafana.dashboard.new(
 )
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
-    channels: [alerts.slackData],
+    channels: alerts.notifications.dataAlerts,
   },
   counters+: {
     func: 'delta',

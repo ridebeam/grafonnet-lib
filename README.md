@@ -33,6 +33,26 @@ Staging - ridebeam-core-staging / Stackdriver-staging
 
 Payments (has its own for PCI compliance) - ridebeam-payments / Stackdriver-payments
 
+## Instances
+
+We have 2 instances:
+
+1. devops
+
+Under the folder "devops".
+
+Hosted at https://grafana.devops.ridebeam.cloud
+
+This instance connects to VictoriaMetrics inside GCP "devops" project. It's mainly the metric system that sit next to each enviroment i.e. production, staging, ...
+
+2. core
+
+Under the folder "core".
+
+Hosted at https://grafana.core.ridebeam.cloud/
+
+This instance connects to Clickhouse DB for realtime analytics and event data, especially Jwebb.
+
 ## Generate JSON using CLI to create a dashboard
 
 Run the command and copy the JSON response
