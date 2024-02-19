@@ -15,7 +15,7 @@ grafana.dashboard.new(
 .addTemplate(
   template.custom(
     name='env',
-    query='dev,staging,stable,production',
+    query='dev,staging,stable,production,argo',
     current='production',
   )
 )
