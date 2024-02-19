@@ -55,6 +55,17 @@ local targets = {
       metric='promo-code-get-past-failed-total',
     ),
   },
+  getPromoCodeUserPrivileges: {
+    attempt: target.counter(
+      metric='promo-code-get-user-privileges-attempt-total',
+    ),
+    success: target.counter(
+      metric='promo-code-get-user-privileges-success-total',
+    ),
+    failure: target.counter(
+      metric='promo-code-get-user-privileges-failed-total',
+    ),
+  },
 };
 
 
@@ -76,6 +87,11 @@ local panels = {
       targets.getPastPromoCode.attempt,
       targets.getPastPromoCode.success,
     ]),
+    getPromoCodeUserPrivilegesCounts: panel.counter('Get Promo Code Privileges Counts').addTargets([
+      targets.getPromoCodeUserPrivileges.attempt,
+      targets.getPromoCodeUserPrivileges.success,
+    ]),
+    
   },
   errors: {
     general: panel.counter('Errors').addTargets([
@@ -83,6 +99,7 @@ local panels = {
       targets.getClaimablePromoCode.failure,
       targets.getClaimedPromoCode.failure,
       targets.getPastPromoCode.failure,
+      targets.getPromoCodeUserPrivileges.failure,
     ]),
   },
 };
@@ -95,6 +112,7 @@ local rows = {
       panels.service.getClaimablePromoCodeCounts,
       panels.service.getClaimedPromoCodeCounts,
       panels.service.getPastPromoCodeCounts,
+      panels.service.getPromoCodeUserPrivilegesCounts,
     ]
   ]),
   errors: row.new('Errors').addPanels([

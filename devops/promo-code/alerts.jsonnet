@@ -71,6 +71,20 @@ local alertDefs = [
         message: 'Error rate for getting past promo code is above 10%',
         noDataState: 'ok',
       },
+      {
+        title: 'Get Promo Code Leanplum Privileges Error Rate',
+        custom: {
+          name: 'get-promo-code-user-privileges-error-rate',
+          query: '(sum(rate(promo_code_get_user_privileges_failed_total{namespace="production"}[10m]) OR vector(0))) / sum(rate(promo_code_get_user_privileges_attempt_total{namespace="production"}[10m]) > 0) * 100',
+          alias: 'error getting promo code user privileges',
+          intervalFactor: 2,
+        },
+        threshold: 10,
+        thresholdType: 'gt',
+        queryTimeStart: '10m',
+        message: 'Error rate for getting promo code user privileges is above 10%',
+        noDataState: 'ok',
+      },
     ],
   },
 ];
