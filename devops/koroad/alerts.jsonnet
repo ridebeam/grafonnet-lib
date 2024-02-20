@@ -20,7 +20,7 @@ local alertDefinitions = [
         title: 'KoRoad Verify Driver License Error Rate',
         custom: {
           name: 'koroad-verify-driver-license-error-rate',
-          query: '(sum(rate(koroad_verify_driving_license_success{namespace="production"}[1h])) OR vector(0)) / sum(rate(koroad_verify_driving_license_attempts{namespace="production"}[1h]) > 0) * 100',
+          query: '(sum(rate(koroad_verify_driving_license_failure{namespace="production"}[1h])) OR vector(0)) / sum(rate(koroad_verify_driving_license_attempts{namespace="production"}[1h]) > 0) * 100',
           alias: 'error verify driver license',
           intervalFactor: 2,
         },
