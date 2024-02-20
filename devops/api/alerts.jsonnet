@@ -73,7 +73,14 @@ local alertDefinitions = [
           ),
         },
         format: 'bytes',
-        threshold: 1 * GB,
+        threshold: 5 * GB,
+        // query for last 30 min to check, if yes and this lasts for 5min, we alert
+        // why?
+        // ideally, we should look for lag in time-unit. but the lag is in space-unit, not perfect.
+        // sometimes we observed a short spike in space, and recovered by itself.
+        // not actionable, so we want to reduce false alarms by increasing the threshold/interval.
+        queryTimeStart: '15m',
+        evaluateFor: '5m',
         message: '',  // TODO message
       },
       {
