@@ -26,57 +26,6 @@ local serviceFilter = target.combineFilters(
 // one entry per row, with a list of panels for each alert (counter/timing)
 local alertDefinitions = [
   {
-    row: 'Scheduled Queries',
-    alerts: [
-      {
-        title: 'Zero byte tables > 0',
-        counter: { name: 'bq-zero-byte-table' },
-        threshold: 0,
-        reducerType: 'sum',
-        evaluateFor: '1m',
-        message: 'Some tables are empty',
-      },
-    ],
-  },
-  {
-    row: 'BQ data completeness alerts',
-    alerts: [
-      {
-        title: '[bq] mutations > 10000',
-        custom: { query: 'sum(bq_mutations_hourly) by (table_id)', alias: '{{table_id}}' },
-        threshold: 10000,
-        reducerType: 'max',
-        evaluateFor: '30m',
-        evaluateEvery: '1m',
-        message: 'Some tables have too many mutations',
-      },
-    ],
-  },
-  {
-    row: 'BQ scheduled queries',
-    alerts: [
-      {
-        title: '[bq] scheduled queries fails',
-        custom: { query: 'increase(avg(bq_scheduled_query{scheduled_query_state="FAILED", namespace="production"}[1m]))', alias: '{{table_id}}' },
-        threshold: 0,
-        evaluateFor: '1m',
-        message: 'Scheduled query failure',
-      },
-      {
-        title: '[bq] failed scheduled queries',
-        gauge: {
-          name: 'bq-scheduled-query-failed',
-          groupBys: ['scheduled_query_name'],
-          func: target.gaugeFuncs.sum.func,
-        },
-        threshold: 0,
-        reducerType: 'sum',
-        evaluateFor: '1m',
-        message: 'Names of failed scheduled queries',
-      },
-    ],
-  },
-  {
     row: 'Redash',
     alerts: [
       {
@@ -107,46 +56,6 @@ local alertDefinitions = [
         threshold: 1500000,
         evaluateFor: '5m',
         message: 'query_results row count too high!\nEither too many query executions at the same time, or the cleanup job is failing',
-      }
-    ],
-  },
-  {
-    row: 'Data Completeness',
-    alerts: [
-      {
-        title: 'Snapshot row count difference > 0',
-        gauge: {
-          name: 'bq-row-diff-snapshot-tables',
-          groupBys: ['table_id'],
-        },
-        threshold: 100,
-        reducerType: 'max',
-        evaluateFor: '2h',
-        message: 'Some snapshot tables are not in sync',
-      },
-      {
-        title: 'Partition row count difference > 0',
-        gauge: {
-          name: 'bq-row-diff-partition-tables',
-          groupBys: ['table_id'],
-          filters: target.notEqualFilter('table_id', 'VehicleEvents')
-        },
-        threshold: 100,
-        reducerType: 'max',
-        evaluateFor: '2h',
-        message: 'Some partition tables are not in sync',
-      },
-      {
-        title: 'VehicleEvents partition row count difference > 0',
-        gauge: {
-          name: 'bq-row-diff-partition-tables',
-          groupBys: ['table_id'],
-          filters: target.equalsFilter('table_id', 'VehicleEvents')
-        },
-        threshold: 400,
-        reducerType: 'max',
-        evaluateFor: '2h',
-        message: 'VehicleEvents are not in sync',
       }
     ],
   },
