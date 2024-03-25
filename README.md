@@ -58,9 +58,14 @@ This instance connects to Clickhouse DB for realtime analytics and event data, e
 Run the command and copy the JSON response
 ```
 jsonnet -J grafonnet-lib ${jsonnet file} | pbcopy
+
+or
+
+jsonnet -J grafonnet-lib 'path of the file' | pbcopy
+
 ```
 
-Go to beam grafana and import a new dashboard using the JSON above
+Go to beam grafana: https://grafana.devops.ridebeam.cloud/dashboard/import and import a new dashboard using the JSON above
 
 For alerts, dashboard will need to be saved manually using this method as alerts are only initialized on update
 

@@ -206,6 +206,12 @@ local failureAlerts = [
         message: msg,
       },
       {
+        title: '[add-payment-failed] Add Payment Failed (Xendit Ewallet)',
+        counter: { name: 'add-recurring-failed', filters: gatewayFilter('XDEwallet') },
+        threshold: 2,
+        message: msg,
+      },
+      {
         title: '[add-payment-failed] Add Credit Card Failed (all gateways)',
         counter: { name: 'add-recurring-failed' },
         threshold: 10,
@@ -391,6 +397,18 @@ local abnormalEvents = [
         threshold: 1,
         message: msg,
       },
+      {
+        title: '[xendit-payment-notification-failure] handle xendit payment notification fails',
+        counter: { name: 'handle-xendit-payment-request-notification-failed' },
+        threshold: 1,
+        message: msg,
+      },
+      {
+        title: '[xendit-void-or-refund-notification-failure] xendit void or refund notification fails',
+        counter: { name: 'handle-xendit-void-or-refund-notification-failed' },
+        threshold: 1,
+        message: msg,
+      },
     ],
   },
 ];
@@ -431,6 +449,12 @@ local bffMobileAlerts = [
         title: '[bff-mobile-payment-service-communication] get kakao redirect url error',
         counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'GetKakaoRedirectURL')) },
         threshold: 3/60,
+        message: msg,
+      },
+      {
+        title: '[bff-mobile-payment-service-communication] add xendit tokenized ewallet error',
+        counter: { name: 'gql_request_error', filters: target.combineFilters(bffMobileServiceFilter, target.equalsFilter('gql_operation_name', 'AddXenditTokenizedEwallet')) },
+        threshold: 1/60,
         message: msg,
       },
       {

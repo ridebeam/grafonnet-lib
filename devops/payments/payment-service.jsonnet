@@ -55,6 +55,13 @@ local metrics = [
     ],
   },
   {
+    row: 'XenditEwallet(Shoppe)',
+    panels: [
+      { title: 'Handle Xendit Ewallet(Shopee) Payment request Notification', prefix: 'handle-xendit-payment-request-notification', counters: ['attempt', 'success', 'failed'] },
+      { title: 'Handle Xendit Ewallet(Shopee) Void or Refund Notification', prefix: 'handle-xendit-void-or-refund-notification', counters: ['attempt', 'success', 'failed'] },
+    ],
+  },
+  {
     row: 'Auth Adjust Timing',
     panels: [
       { title: 'Pre Auth Success Timing', prefix: 'auth-success', counters: [] },

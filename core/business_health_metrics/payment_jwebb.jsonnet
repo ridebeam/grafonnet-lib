@@ -391,6 +391,50 @@ local metricGroups = [
     ],
   },
 
+    {
+    name: 'Xendit Ewallet(ShopeePay)',
+    metrics: [
+      {
+        title: 'add xendit tokenized ewallet begin (volume, 1hour)',
+        query: ratioBasedVolumeQuery('add_xendit_Tokenized_ewallet_begin'),
+        alertName: 'add xendit tokenized ewallet begin is abnormal (app, 1hour)',
+        alertCondition: ratioDiff(1.5),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the shopeepay ewallet payment method is enabled and working fine',
+      },
+
+      {
+        title: 'add xendit tokenized ewallet completed (volume, 1hour)',
+        query: ratioBasedVolumeQuery('add_xendit_Tokenized_ewallet_completed'),
+        alertName: 'add xendit tokenized ewallet completed is abnormal (app, 1hour)',
+        alertCondition: ratioDiff(1.5),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the shopeepay ewallet payment method is enabled and working fine',
+      },
+
+      {
+        title: 'add xendit tokenized ewallet error (error, 1hour)',
+        query: |||
+          select (toStartOfHour(toTimezone("event_time", 'Asia/Singapore')) + INTERVAL 1 HOUR) as time_bucket, count() from jwebb.events where $timeFilter and event_time < toStartOfHour(now()) and event_name='add_xendit_Tokenized_ewallet_completed' and visitParamExtractRaw(properties, 'success')='"false"' and JSONHas(properties, 'errorMessage') and JSONExtractString(properties, 'errorMessage') NOT LIKE '%activated payment method already exists%' group by time_bucket order by time_bucket asc
+        |||,
+        alertName: 'add xendit tokenized ewallet error is high (app, 1hour)',
+        alertCondition: countExceedConditional(2, '2h'),
+        noDataState: 'ok',
+        alertMessage: 'add xendit tokenized ewallet is working fine',
+      },
+
+      {
+        title: 'xendit tokenized ewallet webview loaded (volume, 1hour)',
+        query: ratioBasedVolumeQuery('add_xendit_Tokenized_ewallet_webview_completed'),
+        alertName: 'add xendit tokenized ewallet webview loaded is abnormal (app, 1hour)',
+        alertCondition: ratioDiff(2),
+        noDataState: 'no_data',
+        alertMessage: 'please check if the shopeepay ewallet payment method is enabled and working fine',
+      },
+    ],
+  },
+
+
   {
     name: 'APM',
     metrics: [
