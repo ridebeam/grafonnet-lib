@@ -1,6 +1,9 @@
 local grafana = import '../grafonnet-lib/grafonnet/grafana.libsonnet';
 local row = grafana.row;
 local panel = grafana.graphPanel;
+local statPanel = grafana.statPanel;
+local gaugePanel = grafana.gaugePanel;
+local timeseries = grafana.timeSeriesPanel;
 
 {
   init(datasource='default'):: {
@@ -110,6 +113,75 @@ local panel = grafana.graphPanel;
         sortDesc: true,
       },
     },
+
+    stat(
+      title,
+      description=null,
+      unit='none',
+      thresholdsMode='absolute',
+      min=0,
+      max=null,
+      reducerFunction='mean',
+    ):: statPanel.new(
+      title=title,
+      description=description,
+      datasource=datasource,
+      min=min,
+      max=max,
+      unit=unit,
+      thresholdsMode=thresholdsMode,
+      reducerFunction=reducerFunction,
+    ),
+
+    gauge(
+      title,
+      description=null,
+      unit='none',
+      thresholdsMode='absolute',
+      min=0,
+      max=null,
+      reducerFunction='mean',
+    ):: gaugePanel.new(
+      title=title,
+      description=description,
+      datasource=datasource,
+      min=min,
+      max=max,
+      unit=unit,
+      thresholdsMode=thresholdsMode,
+      reducerFunction=reducerFunction,
+    ),
+
+    timeseries(
+      title,
+      description=null,
+      min=0,
+      max=null,
+      thresholdsMode='absolute',
+      unit='short',
+      tooltipMode='single',
+      tooltipSort='none',
+      drawStyle='line',
+      fillOpacity=7,
+      gradientMode='opacity',
+      stackingMode='none',
+      pointSize=5,
+    ):: timeseries.new(
+      title=title,
+      description=description,
+      datasource=datasource,
+      min=min,
+      max=max,
+      thresholdsMode=thresholdsMode,
+      unit=unit,
+      tooltipMode=tooltipMode,
+      tooltipSort=tooltipSort,
+      drawStyle=drawStyle,
+      fillOpacity=fillOpacity,
+      gradientMode=gradientMode,
+      stackingMode=stackingMode,
+      pointSize=pointSize,
+    ),
 
     fullRow(panel):: panel { span: 12 },
     halfRow(panel):: panel { span: 6 },
