@@ -10,16 +10,24 @@
    * @param span (optional) Width of the panel
    * @param legendDisplayMode
    * @param legendPlacement
-   * @param toolTipMode (single, all, hidden)
+   * @param tooltipMode (default: `'single'`) 'single', 'multi', 'none'.
+   * @param tooltipSort (default: `'none'`) 'asc', 'desc', 'none'.
    * @param datasource (optional) Datasource
    * @param linewidth (default `1`) Line Width, integer from 0 to 10
    * @param decimals (optional) Override automatic decimal precision for legend and tooltip. If null, not added to the json output.
    * @param min_span (optional) Min span
-   * @param format (default `short`) Unit of the Y axes
+   * @param unit (default `short`) Unit of the Y axes
    * @param maxDataPoints (optional) If the data source supports it, sets the maximum number of data points for each series returned.
    * @param thresholds (optional) An array of graph thresholds
    * @param transparent (default `false`) Whether to display the panel without a background.
    * @param interval (defaut: null) A lower limit for the interval.
+   * @param min (optional) Leave empty to calculate based on all values.
+   * @param max (optional) Leave empty to calculate based on all values.
+   * @param thresholdsMode (default `'absolute'`) 'absolute' or 'percentage'.
+   * @param fillOpacity (default `7`) Fill opacity, integer from 0 to 100.
+   * @gradientMode (default `'opacity'`) 'opacity', 'hue' or 'none'.
+   * @stackingMode (default `'none'`) 'none', 'normal', 'percent'.
+   * @pointSize (default `5`) Point size, integer from 1 to 40.
    *
    * @method addTarget(target) Adds a target object.
    * @method addTargets(targets) Adds an array of targets.
@@ -27,6 +35,7 @@
    * @method addAlert(alert) Adds an alert
    * @method addLink(link) Adds a [panel link](https://grafana.com/docs/grafana/latest/linking/panel-links/)
    * @method addLinks(links) Adds an array of links.
+   * @method addThreshold(step) Adds a [threshold](https://grafana.com/docs/grafana/latest/panels/thresholds/) step. Argument format: `{ color: 'green', value: 0 }`.
    */
   new(
     title,
@@ -38,13 +47,14 @@
     decimals=null,
     description=null,
     min_span=null,
-    format='short',
+    unit='short',
     datasource=null,
     height=null,
     nullPointMode='null',
-    legendDisplayMode="list",
-    legendPlacement="bottom",
-    toolTipMode='single',
+    legendDisplayMode='list',
+    legendPlacement='bottom',
+    tooltipMode='single',
+    tooltipSort='none',
     thresholds=[],
     links=[],
     transparent=false,
@@ -53,6 +63,13 @@
     time_shift=null,
     interval=null,
     spanNulls=false,
+    min=null,
+    max=null,
+    thresholdsMode='absolute',
+    fillOpacity=7,
+    gradientMode='opacity',
+    stackingMode='none',
+    pointSize=5,
   ):: {
     title: title,
     [if span != null then 'span']: span,
@@ -67,12 +84,13 @@
     [if maxDataPoints != null then 'maxDataPoints']: maxDataPoints,
     options: {
       tooltip: {
-        mode: toolTipMode,
+        mode: tooltipMode,
+        [if tooltipMode == 'multi' then 'sort']: tooltipSort,
       },
       legend: {
         displayMode: legendDisplayMode,
         placement: legendPlacement,
-        calcs: ['lastNotNull'],
+        calcs: [],
       },
     },
     nullPointMode: nullPointMode,
@@ -90,38 +108,45 @@
           lineInterpolation: 'smooth',
           barAlignment: 0,
           lineWidth: linewidth,
-          fillOpacity: 7,
-          gradientMode: "opacity",
+          fillOpacity: fillOpacity,
+          gradientMode: gradientMode,
           spanNulls: spanNulls,
-          showPoints: "auto",
-          pointSize: 1,
+          showPoints: 'never',
+          pointSize: pointSize,
           stacking: {
-            mode: "none",
-            group: "A"
+            mode: stackingMode,
+            group: 'A',
           },
-          axisPlacement: "auto",
-          axisLabel: "",
+          axisPlacement: 'auto',
+          axisLabel: '',
           scaleDistribution: {
-            type: "linear"
+            type: 'linear',
           },
           hideFrom: {
             tooltip: false,
             viz: false,
-            legend: false
+            legend: false,
           },
           thresholdsStyle: {
-            mode: "off"
+            mode: 'off',
           },
           lineStyle: {
-            fill: "solid"
-          }
+            fill: 'solid',
+          },
         },
         color: {
-          mode: "palette-classic"
+          mode: 'palette-classic',
         },
-        mappings: []
+        mappings: [],
+        min: min,
+        max: max,
+        thresholds: {
+          mode: thresholdsMode,
+          steps: [],
+        },
+        unit: unit,
       },
-      overrides: []
+      overrides: [],
     },
     _nextTarget:: 0,
     addTarget(target):: self {
@@ -183,5 +208,10 @@
       },
     },
     addOverrides(overrides):: std.foldl(function(p, o) p.addOverride(o.matcher, o.properties), overrides, self),
+    // thresholds
+    addThreshold(step):: self {
+      fieldConfig+: { defaults+: { thresholds+: { steps+: [step] } } },
+    },
+    addThresholds(steps):: std.foldl(function(p, s) p.addThreshold(s), steps, self),
   },
 }
