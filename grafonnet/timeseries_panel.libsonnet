@@ -16,6 +16,7 @@
    * @param linewidth (default `1`) Line Width, integer from 0 to 10
    * @param decimals (optional) Override automatic decimal precision for legend and tooltip. If null, not added to the json output.
    * @param min_span (optional) Min span
+   * @param format (default `short`) Unit of the Y axes (This param is not used anywhere, we should consider to remove it)
    * @param unit (default `short`) Unit of the Y axes
    * @param maxDataPoints (optional) If the data source supports it, sets the maximum number of data points for each series returned.
    * @param thresholds (optional) An array of graph thresholds
@@ -47,6 +48,7 @@
     decimals=null,
     description=null,
     min_span=null,
+    format='short',
     unit='short',
     datasource=null,
     height=null,
