@@ -103,13 +103,13 @@ local metrics = {
       groupBys=['gql_operation_name'],
       filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'EndTrip')),
       withServiceFilters=false,
-    ),  
+    ),
     getAppDataError: target.counter(
       metric='gql-request-error',
       groupBys=['gql_operation_name'],
       filters=target.combineFilters(serviceFilters, target.equalsFilter('gql_operation_name', 'GetAppData')),
       withServiceFilters=false,
-    ),       
+    ),
   },
 };
 
@@ -269,7 +269,7 @@ local rows = [
         evaluator: {
           type: 'gt',
           params: [
-            0.25,
+            0.35,
           ],
         },
       }]),
@@ -301,7 +301,7 @@ local rows = [
             0.1,
           ],
         },
-      }]),      
+      }]),
     ]
   ]),
 ];
