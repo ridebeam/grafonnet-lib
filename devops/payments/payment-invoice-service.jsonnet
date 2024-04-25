@@ -38,7 +38,6 @@ grafana.dashboard.new(
 .addRows(
   [
     k8s.rows.service,
-    panel.collapseRow(k8s.rows.grpc),
     panel.collapseRow(k8s.rows.postgres),
   ]
 )
