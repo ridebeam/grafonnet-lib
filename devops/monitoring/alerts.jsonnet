@@ -85,7 +85,7 @@ local alertDefinitions = [
         message: |||
           Has crashbackoff in the past 3 min
         |||,
-        channels: [alerts.slack],
+        channels: [alerts.slackPodCrash],
       },
       {
         title: 'Payments: CrashLoopBackOff Count',
