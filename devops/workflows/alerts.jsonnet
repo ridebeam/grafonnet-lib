@@ -45,6 +45,27 @@ local alertDefinitions = [
   },
 ];
 
+local highDurationAlertDefinition = [
+  {
+    row: 'Tasks',
+    alerts: [
+      {
+        title: 'Workflow execution duration(threshold 120 minutes)',
+        custom: {
+          name: 'workflow-execution-duration',
+          query: 'argo_workflows_exec_duration_in_real_time{cluster="core-sg"}[24h]',
+          alias: '{{workflow_name}}',
+        },
+        threshold: 7200,
+        reducerType: 'max',
+        thresholdType: 'gt',
+        message: '<https://grafana.devops.ridebeam.cloud/d/workflows_alerts/workflows-alerts?orgId=1|Check the alert>',
+        noDataState: 'ok',
+      },
+    ],
+  },
+];
+
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
   'Workflows Alerts',
@@ -58,5 +79,10 @@ grafana.dashboard.new(
 .addRows(alerts.createRows(alertDefinitions, alerts.defaults {
   alerts+: {
     channels: [alerts.slackData],
+  },
+}))
+.addRows(alerts.createRows(highDurationAlertDefinition, alerts.defaults {
+  alerts+: {
+    channels: [alerts.slackData, alerts.opsgenieOpsGR],
   },
 }))
