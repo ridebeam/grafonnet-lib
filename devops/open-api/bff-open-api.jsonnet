@@ -13,7 +13,7 @@ local panel = helpers.panel;
 
 local targets = {
   tmoney: {
-    requests: target.counter(
+    requests: target.timeseries(
       alias='requests_seconds_count',
       metric='ktor_http_server_requests_seconds_count',
     ),
@@ -22,7 +22,7 @@ local targets = {
 
 local panels = {
   tmoneyCounts: {
-    failedCounts: panel.counter(
+    failedCounts: panel.timeseries(
       title='T-Money Failed Count',
       description='Per-second average rate of failed requests',
     ).addTarget(
@@ -40,7 +40,7 @@ local panels = {
     ),
   },
   tMoneyState: {
-    failedPercent: panel.counter(
+    failedPercent: panel.timeseries(
       title='T-Money Failed % (All and StartTrip)',
       description='Percent of requests that failed for all endpoints and start-trip',
     ).addTargets([
