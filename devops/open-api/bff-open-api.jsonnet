@@ -28,7 +28,7 @@ local panels = {
       drawStyle='bars',
     ).addTarget(
       libProm.target(
-        expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval])) by (route, status) > 0',
+        expr='sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval])) by (route, status) > 0',
       )
     ),
     successCounts: panel.timeseries(
@@ -37,7 +37,7 @@ local panels = {
       drawStyle='bars',
     ).addTarget(
       libProm.target(
-        expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status="200", route=~"/t-money/.+"}[$__interval])) by (route) > 0',
+        expr='sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status="200", route=~"/t-money/.+"}[$__interval])) by (route) > 0',
       )
     ),
   },
