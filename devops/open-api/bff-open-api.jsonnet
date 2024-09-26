@@ -5,15 +5,11 @@ local template = grafana.template;
 local libProm = grafana.prometheus;
 local row = grafana.row;
 local prom = import '../../helper/promql.libsonnet';
-local k8s = import '../k8s-promql.libsonnet';
+// local k8s = import '../k8s-promql.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
 local panel = helpers.panel;
-
-local filters = {
-  env: target.likeFilter('env', '$env'),
-};
 
 local targets = {
   tmoney: {
@@ -45,17 +41,21 @@ local panels = {
   },
   tMoneyState: {
     failedPercent: panel.counter(
-      title='T-Money Failed %',
-      description='Percent of requests that failed',
-    ).addTarget(
-      libProm.target(
-        expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+"}[$__interval])), 1)',
-      )
-    ),
-    responseP95: panel.timeLinear('Response (seconds) - P95', format='s').addTarget(
+      title='T-Money Failed % (All and StartTrip)',
+      description='Percent of requests that failed for all endpoints and start-trip',
+    ).addTargets([
+        libProm.target(
+            expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+"}[$__interval])), 1)',
+            ),
+        libProm.target(
+            expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+/startTrip"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+/startTrip"}[$__interval])), 1)',
+          ),
+        ]),
+    responseP95: panel.timeseries(
+      title='Response (seconds) - P95').addTarget(
         libProm.target(
             expr='histogram_quantile(0.95, sum(rate(ktor_http_server_requests_seconds_bucket{namespace="$env", service="bff-open-api"}[$__interval])) by (le, route))',
-            )
+            ),
         ),
   },
 };
