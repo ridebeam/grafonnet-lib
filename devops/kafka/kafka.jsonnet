@@ -124,7 +124,7 @@ local panels = {
       )
     ),
 
-    partitionCount: panel.timeseries(
+    partitionCount: panel.stat(
       title='Partition count',
       description='The sum of partitions in a cluster. Basic/standard cluster max partitions limit is 4096.',
       max=4096,
