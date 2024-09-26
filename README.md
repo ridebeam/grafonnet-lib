@@ -12,8 +12,17 @@ Clone the [Beam Grafonnet Submodule](https://github.com/ridebeam/grafonnet-lib):
 ```sh
 git clone https://github.com/ridebeam/grafonnet-lib
 ```
+If you have cloned it already
+```sh
+cd grafonnet-lib
+git pull
+cd ..
+```
 
-Copy the library over to the root of the directory to run locally.
+Copy the library conents over to the root of the directory to run locally.
+```sh
+cp -r ./grafonnet-lib/grafonnet ./grafonnet-lib/grafonnet-7.0 .
+```
 
 ## Data sources and Projects
 
