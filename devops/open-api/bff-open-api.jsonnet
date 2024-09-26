@@ -25,6 +25,7 @@ local panels = {
     failedCounts: panel.timeseries(
       title='T-Money Failed Count',
       description='Per-second average rate of failed requests',
+      drawStyle='bars',
     ).addTarget(
       libProm.target(
         expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval])) by (route, status) > 0',
@@ -33,6 +34,7 @@ local panels = {
     successCounts: panel.counter(
       title='T-Money Success Count',
       description='Per-second average rate of successful requests',
+      drawStyle='bars',
     ).addTarget(
       libProm.target(
         expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status="200", route=~"/t-money/.+"}[$__interval])) by (route) > 0',
@@ -43,6 +45,7 @@ local panels = {
     failedPercent: panel.timeseries(
       title='T-Money Failed % (All and StartTrip)',
       description='Percent of requests that failed for all endpoints and start-trip',
+      drawStyle='bars',
     ).addTargets([
         libProm.target(
             expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+"}[$__interval])), 1)',
