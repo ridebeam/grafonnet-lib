@@ -1,0 +1,109 @@
+local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
+local graphPanel = grafana.graphPanel;
+local cloudwatch = grafana.cloudwatch;
+local template = grafana.template;
+local libProm = grafana.prometheus;
+local row = grafana.row;
+local prom = import '../../helper/promql.libsonnet';
+local k8s = import '../k8s-promql.libsonnet';
+
+local helpers = prom.init();
+local target = helpers.target;
+local panel = helpers.panel;
+
+local filters = {
+  env: target.likeFilter('env', '$env'),
+};
+
+local targets = {
+  tmoney: {
+    requests: target.counter(
+      alias='requests_seconds_count',
+      metric='ktor_http_server_requests_seconds_count',
+    ),
+  },
+};
+
+local panels = {
+  tmoneyCounts: {
+    failedCounts: panel.counter(
+      title='T-Money Failed Count',
+      description='Per-second average rate of failed requests',
+    ).addTarget(
+      libProm.target(
+        expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval])) by (route, status) > 0',
+      )
+    ),
+    successCounts: panel.counter(
+      title='T-Money Success Count',
+      description='Per-second average rate of successful requests',
+    ).addTarget(
+      libProm.target(
+        expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status="200", route=~"/t-money/.+"}[$__interval])) by (route) > 0',
+      )
+    ),
+  },
+  tMoneyState: {
+    failedPercent: panel.counter(
+      title='T-Money Failed %',
+      description='Percent of requests that failed',
+    ).addTarget(
+      libProm.target(
+        expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+"}[$__interval])), 1)',
+      )
+    ),
+    responseP95: panel.timeLinear('Response (seconds) - P95', format='s').addTarget(
+        libProm.target(
+            expr='histogram_quantile(0.95, sum(rate(ktor_http_server_requests_seconds_bucket{namespace="$env", service="bff-open-api"}[$__interval])) by (le, route))',
+            )
+        ),
+  },
+};
+
+local rows = {
+  counts: row.new('Counts').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.tmoneyCounts.failedCounts,
+      panels.tmoneyCounts.successCounts,
+    ]
+  ]),
+  state: row.new('State').addPanels([
+    panel.halfRow(p)
+    for p in [
+      panels.tMoneyState.failedPercent,
+      panels.tMoneyState.responseP95,
+    ]
+  ]),
+};
+
+// Make sure uid matches the name of the file
+grafana.dashboard.new(
+  'open-api',
+  uid='RX_open_api_promql',
+  refresh='30s',
+  timepicker=grafana.timepicker.new() { nowDelay: '1m' },
+  time_to='now-24h',
+  tags=['generated'],
+)
+
+.addTemplate(
+  template.custom(
+    name='env',
+    query='dev,stable,staging,production',
+    current='production',
+  )
+)
+
+.addTemplate(
+  template.custom(
+    name='service',
+    query='bff-open-api',
+    current='bff-open-api',
+    hide='variable',
+  )
+)
+.addRows([
+  rows.counts,
+  rows.state,
+])
