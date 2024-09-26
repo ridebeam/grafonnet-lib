@@ -83,8 +83,8 @@ grafana.dashboard.new(
   uid='RX_open_api_promql',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
-  time_to='now-24h',
-  tags=['generated'],
+   time_to='now-1m',
+   tags=['generated'],
 )
 
 .addTemplate(
