@@ -18,6 +18,21 @@ local targets = {
   },
 };
 
+local thresholds = [
+  {
+    color: 'green',
+    value: null,
+  },
+  {
+    color: 'orange',
+    value: 50,
+  },
+  {
+    color: 'red',
+    value: 90,
+  },
+];
+
 local panels = {
   tmoneyCounts: {
     failedCounts: panel.timeseries(
@@ -44,7 +59,8 @@ local panels = {
       title='T-Money Failed % (All and StartTrip)',
       description='Percent of requests that failed for all endpoints and start-trip',
       drawStyle='bars',
-    ).addTargets([
+      thresholdsMode='percentage',
+    ).addThresholds(thresholds).addTargets([
         libProm.target(
             expr='100 * sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval]))/clamp_min(sum(increase(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", route=~"/t-money/.+"}[$__interval])), 1)',
             ),
