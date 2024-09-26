@@ -31,7 +31,7 @@ local panels = {
         expr='sum(rate(ktor_http_server_requests_seconds_count{namespace="$env", service="bff-open-api", status!="200", route=~"/t-money/.+"}[$__interval])) by (route, status) > 0',
       )
     ),
-    successCounts: panel.counter(
+    successCounts: panel.timeseries(
       title='T-Money Success Count',
       description='Per-second average rate of successful requests',
       drawStyle='bars',
