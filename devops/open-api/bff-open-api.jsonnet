@@ -1,11 +1,9 @@
 local grafana = import '../../grafonnet-lib/grafonnet/grafana.libsonnet';
 local graphPanel = grafana.graphPanel;
-local cloudwatch = grafana.cloudwatch;
 local template = grafana.template;
 local libProm = grafana.prometheus;
 local row = grafana.row;
 local prom = import '../../helper/promql.libsonnet';
-// local k8s = import '../k8s-promql.libsonnet';
 
 local helpers = prom.init();
 local target = helpers.target;
