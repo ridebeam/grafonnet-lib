@@ -79,7 +79,7 @@ local rows = {
 
 // Make sure uid matches the name of the file
 grafana.dashboard.new(
-  'open-api',
+  'bff-open-api',
   uid='RX_open_api_promql',
   refresh='30s',
   timepicker=grafana.timepicker.new() { nowDelay: '1m' },
