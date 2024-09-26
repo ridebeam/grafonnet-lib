@@ -22,6 +22,7 @@ cd ..
 Copy the library conents over to the root of the directory to run locally.
 ```sh
 cp -r ./grafonnet-lib/grafonnet ./grafonnet-lib/grafonnet-7.0 .
+
 ```
 
 ## Data sources and Projects
