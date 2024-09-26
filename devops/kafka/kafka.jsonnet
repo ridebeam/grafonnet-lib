@@ -124,7 +124,7 @@ local panels = {
       )
     ),
 
-    partitionCount: panel.stat(
+    partitionCount: panel.timeseries(
       title='Partition count',
       description='The sum of partitions in a cluster. Basic/standard cluster max partitions limit is 4096.',
       max=4096,
@@ -139,7 +139,7 @@ local panels = {
     consumerLag: panel.timeseries(
       title='Consumer lag',
       description="The lag between a group member's committed offset and the partition's high watermark.",
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
       unit=null
     ).addThresholds(thresholds).addTarget(
@@ -152,7 +152,7 @@ local panels = {
     authenticationRate: panel.timeseries(
       title='Authentication rate',
       description='The delta count of successful authentications. Each sample is the number of successful authentications since the previous data point. The count sampled every 60 seconds.',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addThresholds(thresholds).addTarget(
       prom.target(
@@ -166,7 +166,7 @@ local panels = {
       title='Topic retained bytes',
       description='The current count of bytes retained by the cluster, summed across all partitions. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -179,7 +179,7 @@ local panels = {
       title='Topic received bytes',
       description='The delta count of bytes received from the network. Each sample is the number of bytes received since the previous data sample. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -192,7 +192,7 @@ local panels = {
       title='Topic sent bytes',
       description='The delta count of bytes sent over the network. Each sample is the number of bytes sent since the previous data point. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -205,7 +205,7 @@ local panels = {
       title='Topic received records',
       description='The delta count of records received. Each sample is the number of records received since the previous data sample. The count is sampled every 60 seconds.',
       unit='none',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -218,7 +218,7 @@ local panels = {
       title='Topic sent records',
       description='The delta count of records sent. Each sample is the number of records sent since the previous data point. The count is sampled every 60 seconds.',
       unit='none',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -231,7 +231,7 @@ local panels = {
       title='Request rate',
       description='The delta count of records sent. Each sample is the number of records sent since the previous data point. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -246,7 +246,7 @@ local panels = {
       title='Received bytes',
       description='The delta count of total bytes received by the sink connector. Each sample is the number of bytes received since the previous data point. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -259,7 +259,7 @@ local panels = {
       title='Sent bytes',
       description='The delta count of total number of records sent from the transformations and written to Kafka for the source connector. Each sample is the number of records sent since the previous data point. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -272,7 +272,7 @@ local panels = {
       title='Received records',
       description='The delta count of total number of records received by the sink connector. Each sample is the number of records received since the previous data point. The count is sampled every 60 seconds.',
       unit=null,
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -285,7 +285,7 @@ local panels = {
       title='Sent records',
       description='The delta count of total number of records sent from the transformations and written to Kafka for the source connector. Each sample is the number of records sent since the previous data point. The count is sampled every 60 seconds.',
       unit=null,
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
@@ -298,7 +298,7 @@ local panels = {
       title='Dead letter queue bytes',
       description='The delta count of dead letter queue records written to Kafka for the sink connector. The count is sampled every 60 seconds.',
       unit='decbytes',
-      toolTipMode='multi',
+      tooltipMode='multi',
       tooltipSort='desc',
     ).addTarget(
       prom.target(
